@@ -1,0 +1,1221 @@
+<script>
+/**
+ * ============================================================================
+ * iManurung - Client Logic & Dual-Mode Bridge Runtime
+ * ============================================================================
+ */
+
+// Global State
+var AppState = {
+  isGasEnvironment: typeof google !== 'undefined' && typeof google.script !== 'undefined' && typeof google.script.run !== 'undefined',
+  currentUser: null,
+  currentTab: 'dashboard',
+  selectedMemberId: null,
+  stats: {},
+  members: [],
+  filteredMembers: [],
+  dues: [],
+  articles: [],
+  filteredArticles: [],
+  logs: [],
+  users: [],
+  treeZoom: null,
+  charts: {
+    generasi: null,
+    rumpun: null
+  }
+};
+
+// ============================================================================
+// INITIALIZATION
+// ============================================================================
+document.addEventListener('DOMContentLoaded', function() {
+  initApp();
+});
+
+function initApp() {
+  if (AppState.isGasEnvironment) {
+    showLoadingScreen(true);
+    // Cek session dulu — jika ada, langsung masuk tanpa login
+    google.script.run
+      .withSuccessHandler(function(sessionResult) {
+        if (sessionResult.loggedIn) {
+          // Ada session aktif — muat data app
+          google.script.run
+            .withSuccessHandler(function(appData) {
+              showLoadingScreen(false);
+              if (appData) {
+                populateAppState(appData);
+                showAppView();
+              } else {
+                showLoginView();
+              }
+            })
+            .withFailureHandler(function() {
+              showLoadingScreen(false);
+              showLoginView();
+            })
+            .loadAppData(sessionResult.user.email);
+        } else {
+          showLoadingScreen(false);
+          showLoginView();
+        }
+      })
+      .withFailureHandler(function(err) {
+        showLoadingScreen(false);
+        console.error('checkSession error:', err);
+        showLoginView();
+      })
+      .checkSession();
+  } else {
+    // Mode Preview / Standalone (tanpa GAS)
+    console.info('Running in Standalone Preview Mode');
+    fallbackToMockData();
+  }
+}
+
+function showLoadingScreen(show) {
+  var loader = document.getElementById('app-loading-screen');
+  if (!loader) return;
+  loader.classList.toggle('hidden', !show);
+}
+
+// Isi AppState dari data yang diterima server
+function populateAppState(data) {
+  AppState.currentUser = data.currentUser;
+  AppState.stats       = data.stats || {};
+  AppState.members     = data.members || [];
+  AppState.filteredMembers = AppState.members.slice();
+  AppState.dues        = data.dues || [];
+  AppState.articles    = data.articles || [];
+  AppState.filteredArticles = AppState.articles.slice();
+  AppState.logs        = data.logs || [];
+  AppState.users       = data.users || [];
+}
+
+function handleInitialDataSuccess(data) {
+  populateAppState(data);
+  if (AppState.currentUser && AppState.currentUser.isRegistered) {
+    showAppView();
+  } else {
+    showLoginView();
+  }
+}
+
+
+function fallbackToMockData() {
+  var mockMembers = [
+    // Generasi 1: Leluhur Utama
+    { MemberID: 'MNR-ROOT-001', Nama: 'Ompu Silau Raja', JenisKelamin: 'L', TanggalLahir: '1350-01-01', TanggalMeninggal: '1420-01-01', Generasi: 1, ParentID: '', SpouseID: '', Alamat: 'Bona Pasogit Sibisa', NoHP: '', Email: '', Pekerjaan: 'Tokoh Marga Leluhur', FotoURL: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&auto=format&fit=crop&q=80', Status: 'Aktif', Rumpun: 'Silau Raja', BonaPasogit: 'Sibisa', Sektor: 'Bona Pasogit', Kategori: 'manurung' },
+    
+    // Generasi 2: 3 Rumpun Utama
+    { MemberID: 'MNR-RUMPUN-01', Nama: 'Raja Palti (Hutagurgur)', JenisKelamin: 'L', TanggalLahir: '1380-01-01', TanggalMeninggal: '1450-01-01', Generasi: 2, ParentID: 'MNR-ROOT-001', SpouseID: '', Alamat: 'Sibisa, Toba', NoHP: '', Email: '', Pekerjaan: 'Raja Manurung 1', FotoURL: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=120&auto=format&fit=crop&q=80', Status: 'Aktif', Rumpun: 'Hutagurgur', BonaPasogit: 'Sibisa', Sektor: 'Bona Pasogit', Kategori: 'manurung' },
+    { MemberID: 'MNR-RUMPUN-02', Nama: 'Tuan Sori (Hutagaol)', JenisKelamin: 'L', TanggalLahir: '1382-01-01', TanggalMeninggal: '1455-01-01', Generasi: 2, ParentID: 'MNR-ROOT-001', SpouseID: '', Alamat: 'Porsea, Toba', NoHP: '', Email: '', Pekerjaan: 'Raja Manurung 2', FotoURL: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=120&auto=format&fit=crop&q=80', Status: 'Aktif', Rumpun: 'Hutagaol', BonaPasogit: 'Porsea', Sektor: 'Bona Pasogit', Kategori: 'manurung' },
+    { MemberID: 'MNR-RUMPUN-03', Nama: 'Raja Mual (Simanoroni)', JenisKelamin: 'L', TanggalLahir: '1385-01-01', TanggalMeninggal: '1460-01-01', Generasi: 2, ParentID: 'MNR-ROOT-001', SpouseID: '', Alamat: 'Ajibata, Toba', NoHP: '', Email: '', Pekerjaan: 'Raja Manurung 3', FotoURL: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=120&auto=format&fit=crop&q=80', Status: 'Aktif', Rumpun: 'Simanoroni', BonaPasogit: 'Ajibata', Sektor: 'Bona Pasogit', Kategori: 'manurung' },
+
+    // Generasi 14, 15, 16, 17 Hutagurgur
+    { MemberID: 'MNR-G14-001', Nama: 'Ompu Tahan Manurung', JenisKelamin: 'L', TanggalLahir: '1910-03-12', TanggalMeninggal: '1985-08-19', Generasi: 14, ParentID: 'MNR-RUMPUN-01', SpouseID: 'Nai Tahan br. Sitorus', Alamat: 'Bona Pasogit Sibisa', NoHP: '08112233445', Email: '', Pekerjaan: 'Petani & Tokoh Adat', FotoURL: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=120&auto=format&fit=crop&q=80', Status: 'Aktif', Rumpun: 'Hutagurgur', BonaPasogit: 'Sibisa', Sektor: 'Bona Pasogit', Kategori: 'manurung' },
+    { MemberID: 'MNR-G15-001', Nama: 'St. Marulam Manurung', JenisKelamin: 'L', TanggalLahir: '1941-06-20', TanggalMeninggal: '2018-11-04', Generasi: 15, ParentID: 'MNR-G14-001', SpouseID: 'Dra. Tioria br. Sitorus', Alamat: 'Sibisa / Jakarta Barat', NoHP: '08123456789', Email: 'marulam.m@gmail.com', Pekerjaan: 'Pensiunan Guru & Sintua', FotoURL: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=120&auto=format&fit=crop&q=80', Status: 'Aktif', Rumpun: 'Hutagurgur', BonaPasogit: 'Sibisa', Sektor: 'Jabodetabek Barat', Kategori: 'manurung' },
+    { MemberID: 'MNR-2022-00012', Nama: 'St. Ricardo Manurung, M.Si', JenisKelamin: 'L', TanggalLahir: '1973-04-15', TanggalMeninggal: '', Generasi: 16, ParentID: 'MNR-G15-001', SpouseID: 'Tiurma br. Simanjuntak', Alamat: 'Jl. Kebon Jeruk No. 45, Jakarta Barat', NoHP: '081299998888', Email: 'ricardo.manurung@gmail.com', Pekerjaan: 'Dosen & Admin DPP', FotoURL: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80', Status: 'Aktif', Rumpun: 'Hutagurgur', BonaPasogit: 'Sibisa, Kec. Ajibata', Sektor: 'Jabodetabek Barat', Kategori: 'manurung' },
+    { MemberID: 'MNR-2024-00101', Nama: 'Drs. Togar Manurung', JenisKelamin: 'L', TanggalLahir: '1975-09-10', TanggalMeninggal: '', Generasi: 16, ParentID: 'MNR-G15-001', SpouseID: 'Erna br. Panjaitan', Alamat: 'Tangerang Kota', NoHP: '081388776655', Email: 'togar@imanurung.or.id', Pekerjaan: 'Wiraswasta', FotoURL: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&auto=format&fit=crop&q=80', Status: 'Aktif', Rumpun: 'Hutagurgur', BonaPasogit: 'Sibisa', Sektor: 'Jabodetabek Barat', Kategori: 'manurung' },
+    { MemberID: 'MNR-2024-00102', Nama: 'Yohanes Manurung, S.Kom', JenisKelamin: 'L', TanggalLahir: '2001-02-14', TanggalMeninggal: '', Generasi: 17, ParentID: 'MNR-2022-00012', SpouseID: '', Alamat: 'Jakarta Barat', NoHP: '085711223344', Email: 'yohanes.m@gmail.com', Pekerjaan: 'Software Engineer', FotoURL: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=120&auto=format&fit=crop&q=80', Status: 'Aktif', Rumpun: 'Hutagurgur', BonaPasogit: 'Sibisa', Sektor: 'Jabodetabek Barat', Kategori: 'manurung' },
+
+    // Generasi Hutagaol
+    { MemberID: 'MNR-2024-01844', Nama: 'Kapten (Laut) Edward Manurung', JenisKelamin: 'L', TanggalLahir: '1978-08-17', TanggalMeninggal: '', Generasi: 16, ParentID: 'MNR-RUMPUN-02', SpouseID: 'Ria br. Nababan', Alamat: 'Krembangan, Surabaya', NoHP: '081277665544', Email: 'edward.m@tni-al.mil.id', Pekerjaan: 'Perwira TNI AL', FotoURL: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=120&auto=format&fit=crop&q=80', Status: 'Aktif', Rumpun: 'Hutagaol', BonaPasogit: 'Porsea', Sektor: 'Surabaya & Jatim', Kategori: 'manurung' },
+    { MemberID: 'MNR-2024-03102', Nama: 'Bona Ventura Manurung', JenisKelamin: 'L', TanggalLahir: '1998-11-20', TanggalMeninggal: '', Generasi: 17, ParentID: 'MNR-2024-01844', SpouseID: '', Alamat: 'Porsea, Kab. Toba', NoHP: '082144556677', Email: 'bonaventura@gmail.com', Pekerjaan: 'Mahasiswa', FotoURL: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=120&auto=format&fit=crop&q=80', Status: 'Aktif', Rumpun: 'Hutagaol', BonaPasogit: 'Porsea', Sektor: 'Toba & Bona Pasogit', Kategori: 'manurung' },
+
+    // Generasi Simanoroni
+    { MemberID: 'MNR-2024-02319', Nama: 'dr. Grace Yohana br. Manurung, Sp.A', JenisKelamin: 'P', TanggalLahir: '1985-05-12', TanggalMeninggal: '', Generasi: 17, ParentID: 'MNR-RUMPUN-03', SpouseID: 'dr. Antonius Hutabarat, Sp.PD', Alamat: 'Medan Baru, Kota Medan', NoHP: '08119988776', Email: 'grace.yohana@rsu.co.id', Pekerjaan: 'Dokter Spesialis Anak', FotoURL: 'https://images.unsplash.com/photo-1594824813627-24831804f3ae?w=120&auto=format&fit=crop&q=80', Status: 'Aktif', Rumpun: 'Simanoroni', BonaPasogit: 'Ajibata', Sektor: 'Medan & Deli', Kategori: 'boru' },
+    { MemberID: 'MNR-2021-00450', Nama: 'Drs. Poltak Manurung', JenisKelamin: 'L', TanggalLahir: '1962-12-05', TanggalMeninggal: '', Generasi: 15, ParentID: 'MNR-RUMPUN-03', SpouseID: 'Murni br. Sinaga', Alamat: 'Rawamangun, Jakarta Timur', NoHP: '081355443322', Email: 'poltak.m@gmail.com', Pekerjaan: 'Pensiunan BUMN', FotoURL: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=120&auto=format&fit=crop&q=80', Status: 'Aktif', Rumpun: 'Simanoroni', BonaPasogit: 'Ajibata', Sektor: 'Jabodetabek Timur', Kategori: 'manurung' }
+  ];
+
+  var mockDues = [
+    { IuranID: 'IUR-202501-001', MemberID: 'MNR-2022-00012', Periode: '2025-01', Jumlah: 100000, TanggalBayar: '2025-01-05', Status: 'Lunas', Catatan: 'Iuran Tahunan & Kas Sosial 2025' },
+    { IuranID: 'IUR-202501-002', MemberID: 'MNR-2024-01844', Periode: '2025-01', Jumlah: 50000, TanggalBayar: '2025-01-10', Status: 'Lunas', Catatan: 'Iuran Rutin Semester 1' },
+    { IuranID: 'IUR-202501-003', MemberID: 'MNR-2024-02319', Periode: '2025-01', Jumlah: 150000, TanggalBayar: '2025-01-15', Status: 'Lunas', Catatan: 'Iuran Tahunan & Donasi Sosial' },
+    { IuranID: 'IUR-202502-001', MemberID: 'MNR-2024-00101', Periode: '2025-02', Jumlah: 50000, TanggalBayar: '2025-02-03', Status: 'Lunas', Catatan: 'Iuran Sektor Barat' },
+    { IuranID: 'IUR-202502-002', MemberID: 'MNR-2024-00102', Periode: '2025-02', Jumlah: 25000, TanggalBayar: '', Status: 'BelumLunas', Catatan: 'Iuran Pemuda Naposobulung' }
+  ];
+
+  var mockArticles = [
+    {
+      ArticleID: 'ART-20250101-001',
+      Judul: 'Warta Partangiangan Bona Taon 2025 Marga Manurung Se-Indonesia',
+      Konten: 'Punguan Pomparan Ompu Silau Raja (Patambor) Indonesia mengundang seluruh dongan tubu, boru, bere, dan ibebere untuk menghadiri Ibadah Syukur Bona Taon 2025 yang akan diselenggarakan secara serentak di 8 Sektor Wilayah.',
+      Kategori: 'Warta Adat',
+      PenulisEmail: 'ricardo.manurung@gmail.com',
+      TanggalPublish: '2025-01-01',
+      Status: 'Published',
+      Thumbnail: 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=600&auto=format&fit=crop&q=80'
+    },
+    {
+      ArticleID: 'ART-20250105-002',
+      Judul: 'Penelusuran Silsilah Tarombo: Mengenal 3 Rumpun Utama Marga Manurung',
+      Konten: 'Marga Manurung berasal dari Ompu Silau Raja yang memiliki tiga anak utama: Raja Palti (Hutagurgur), Tuan Sori (Hutagaol), dan Raja Mual (Simanoroni). Dokumentasi digital ini dibuat demi menjaga kemurnian silsilah antargenerasi.',
+      Kategori: 'Sejarah & Tarombo',
+      PenulisEmail: 'admin@imanurung.or.id',
+      TanggalPublish: '2025-01-05',
+      Status: 'Published',
+      Thumbnail: 'https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?w=600&auto=format&fit=crop&q=80'
+    },
+    {
+      ArticleID: 'ART-20250110-003',
+      Judul: 'Laporan Pertanggungjawaban Kas Iuran dan Dana Abadi Patambor 2024',
+      Konten: 'Audit kas tahun 2024 telah rampung dengan status Wajar Tanpa Pengecualian (WTP). Saldo kas gotong royong terhimpun Rp 348.650.000 dialokasikan untuk santunan duka dan beasiswa anak berprestasi.',
+      Kategori: 'Pengumuman Resmi',
+      PenulisEmail: 'ricardo.manurung@gmail.com',
+      TanggalPublish: '2025-01-10',
+      Status: 'Published',
+      Thumbnail: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=600&auto=format&fit=crop&q=80'
+    }
+  ];
+
+  var mockLogs = [
+    { LogID: 'LOG-001', Email: 'ricardo.manurung@gmail.com', Aksi: 'UPDATE_MEMBER', Detail: 'Memperbarui profil: St. Ricardo Manurung', Timestamp: 'Hari ini, 09:42 WIB' },
+    { LogID: 'LOG-002', Email: 'admin@imanurung.or.id', Aksi: 'ADD_DUES', Detail: 'Mencatat iuran Rp 100.000 (MNR-2022-00012)', Timestamp: 'Hari ini, 08:30 WIB' },
+    { LogID: 'LOG-003', Email: 'admin@imanurung.or.id', Aksi: 'PUBLISH_ARTICLE', Detail: 'Menerbitkan warta Partangiangan Bona Taon', Timestamp: 'Kemarin, 14:15 WIB' }
+  ];
+
+  var mockUsers = [
+    { Email: 'ricardo.manurung@gmail.com', Nama: 'St. Ricardo Manurung, M.Si', Role: 'Admin', Status: 'Aktif' },
+    { Email: 'admin@imanurung.or.id', Nama: 'Sekretariat DPP Patambor', Role: 'Super Admin', Status: 'Aktif' },
+    { Email: 'edward.m@tni-al.mil.id', Nama: 'Kapten (Laut) Edward Manurung', Role: 'Pengurus', Status: 'Aktif' },
+    { Email: 'grace.yohana@rsu.co.id', Nama: 'dr. Grace Yohana br. Manurung', Role: 'Member', Status: 'Aktif' },
+    { Email: 'yohanes.m@gmail.com', Nama: 'Yohanes Manurung, S.Kom', Role: 'Member', Status: 'Aktif' }
+  ];
+
+  handleInitialDataSuccess({
+    currentUser: {
+      isRegistered: true,
+      email: 'ricardo.manurung@gmail.com',
+      name: 'St. Ricardo Manurung, M.Si',
+      role: 'Admin',
+      memberId: 'MNR-2022-00012',
+      permissions: ['dashboard', 'data-anggota', 'pohon-silsilah', 'iuran-keuangan', 'artikel-berita', 'role-management']
+    },
+    members: mockMembers,
+    dues: mockDues,
+    articles: mockArticles,
+    logs: mockLogs,
+    users: mockUsers
+  });
+}
+
+// ============================================================================
+// AUTH & VIEW SWITCHING
+// ============================================================================
+function showLoginView() {
+  showLoadingScreen(false);
+  document.getElementById('view-login').classList.remove('hidden');
+  document.getElementById('view-app').classList.add('hidden');
+  // Reset form login
+  var emailInput = document.getElementById('login-email');
+  var passInput  = document.getElementById('login-password');
+  if (emailInput) emailInput.value = '';
+  if (passInput)  passInput.value  = '';
+}
+
+function showAppView() {
+  showLoadingScreen(false);
+  document.getElementById('view-login').classList.add('hidden');
+  document.getElementById('view-app').classList.remove('hidden');
+  updateCurrentUserUI();
+  populateRootSelect();
+  populateParentSelect();
+  renderDashboardData();
+  renderMembersTable();
+  renderDuesTable();
+  renderArticlesGrid();
+  renderRoleUsersTable();
+  selectMemberById('MNR-2022-00012');
+}
+
+// ============
+// LOGIN
+// ============
+function handleManualLogin(e) {
+  e.preventDefault();
+  var email    = (document.getElementById('login-email') || document.getElementById('login-identifier')).value.trim();
+  var password = document.getElementById('login-password').value.trim();
+
+  if (!email || !password) {
+    showToast('Login Gagal', 'Email dan password wajib diisi.');
+    return;
+  }
+
+  if (AppState.isGasEnvironment) {
+    var btn = document.querySelector('#loginForm button[type="submit"]');
+    if (btn) { btn.disabled = true; btn.textContent = 'Memverifikasi...'; }
+
+    google.script.run
+      .withSuccessHandler(function(result) {
+        if (btn) { btn.disabled = false; btn.textContent = 'Masuk ke Portal'; }
+        if (result.success) {
+          // Login berhasil — muat data app
+          showLoadingScreen(true);
+          google.script.run
+            .withSuccessHandler(function(appData) {
+              showLoadingScreen(false);
+              if (appData) {
+                populateAppState(appData);
+                showAppView();
+                showToast('Selamat Datang', 'Horas! Masuk sebagai ' + AppState.currentUser.name);
+              } else {
+                showToast('Error', 'Gagal memuat data. Coba lagi.');
+              }
+            })
+            .withFailureHandler(function(err) {
+              showLoadingScreen(false);
+              showToast('Error', err.message || 'Gagal memuat data.');
+            })
+            .loadAppData(result.user.email);
+        } else {
+          showToast('Login Gagal', result.message || 'Email atau password salah.');
+        }
+      })
+      .withFailureHandler(function(err) {
+        if (btn) { btn.disabled = false; btn.textContent = 'Masuk ke Portal'; }
+        showToast('Error Server', err.message || 'Terjadi kesalahan. Coba lagi.');
+      })
+      .loginUser(email, password);
+  } else {
+    // Mode preview: cari di mock data
+    var foundUser = AppState.users.find(function(u) {
+      return u.Email.toLowerCase() === email.toLowerCase();
+    });
+    if (foundUser) {
+      AppState.currentUser = {
+        isRegistered: true, email: foundUser.Email,
+        name: foundUser.Nama, role: foundUser.Role,
+        memberId: 'MNR-2022-00012',
+        permissions: ['dashboard','data-anggota','pohon-silsilah','iuran-keuangan','artikel-berita','role-management']
+      };
+    } else {
+      AppState.currentUser = {
+        isRegistered: true, email: email,
+        name: 'Demo User', role: 'Admin', memberId: 'MNR-2022-00012',
+        permissions: ['dashboard','data-anggota','pohon-silsilah','iuran-keuangan','artikel-berita','role-management']
+      };
+    }
+    showAppView();
+    showToast('Masuk Berhasil', 'Horas! Selamat datang.');
+  }
+}
+
+// ============
+// LOGOUT
+// ============
+function logout() {
+  if (AppState.isGasEnvironment) {
+    google.script.run
+      .withSuccessHandler(function() {
+        AppState.currentUser = null;
+        showLoginView();
+        showToast('Keluar', 'Sesi Anda telah diakhiri. Sampai jumpa!');
+      })
+      .withFailureHandler(function() {
+        // Tetap logout di sisi client meski server error
+        AppState.currentUser = null;
+        showLoginView();
+      })
+      .logoutUser();
+  } else {
+    AppState.currentUser = null;
+    showLoginView();
+    showToast('Keluar', 'Sesi Anda telah diakhiri.');
+  }
+}
+
+
+function updateCurrentUserUI() {
+  var user = AppState.currentUser;
+  if (!user) return;
+  var nameEl = document.getElementById('userSidebarName');
+  var roleEl = document.getElementById('userSidebarRole');
+  var avatarEl = document.getElementById('userSidebarAvatar');
+  var topAvatarEl = document.getElementById('userTopbarAvatar');
+
+  if (nameEl) nameEl.textContent = user.name;
+  if (roleEl) roleEl.textContent = user.role + ' Pengurus';
+
+  // Sembunyikan menu Role Management jika bukan admin
+  var btnRoleNav = document.getElementById('btnNav-role-management');
+  if (btnRoleNav) {
+    if (user.role === 'Admin' || user.role === 'Super Admin') {
+      btnRoleNav.classList.remove('hidden');
+    } else {
+      btnRoleNav.classList.add('hidden');
+    }
+  }
+}
+
+function loginWithGoogleSSO() {
+  // Redirect ke login form
+  var emailInput = document.getElementById('login-email');
+  if (emailInput) emailInput.focus();
+}
+
+
+function togglePasswordVisibility(inputId) {
+  var input = document.getElementById(inputId);
+  if (input) {
+    input.type = input.type === 'password' ? 'text' : 'password';
+  }
+}
+
+function toggleSidebar() {
+  var sidebar = document.getElementById('appSidebar');
+  if (sidebar) {
+    sidebar.classList.toggle('-translate-x-full');
+  }
+}
+
+// ============================================================================
+// TAB ROUTING & NAVIGATION
+// ============================================================================
+function switchViewTab(tabId) {
+  var tabs = ['dashboard', 'data-anggota', 'pohon-silsilah', 'iuran-keuangan', 'artikel-berita', 'role-management'];
+  tabs.forEach(function(t) {
+    var el = document.getElementById('tab-' + t);
+    var btn = document.getElementById('btnNav-' + t);
+    if (el) el.classList.add('hidden');
+    if (btn) btn.classList.remove('nav-active');
+  });
+
+  var activeEl = document.getElementById('tab-' + tabId);
+  var activeBtn = document.getElementById('btnNav-' + tabId);
+  if (activeEl) activeEl.classList.remove('hidden');
+  if (activeBtn) activeBtn.classList.add('nav-active');
+
+  AppState.currentTab = tabId;
+
+  // Render spesifik saat tab aktif
+  if (tabId === 'dashboard') {
+    setTimeout(renderDashboardCharts, 100);
+  } else if (tabId === 'pohon-silsilah') {
+    setTimeout(renderFamilyTree, 100);
+  }
+
+  // Tutup sidebar mobile jika terbuka
+  var sidebar = document.getElementById('appSidebar');
+  if (sidebar && window.innerWidth < 768) {
+    sidebar.classList.add('-translate-x-full');
+  }
+}
+
+// ============================================================================
+// DASHBOARD LOGIC & CHARTS
+// ============================================================================
+function renderDashboardData() {
+  var members = AppState.members;
+  var dues = AppState.dues;
+
+  // Hitung stats
+  var total = members.length;
+  var terverifikasi = members.filter(function(m) { return m.Status === 'Aktif'; }).length;
+  var elTotal = document.getElementById('statTotalAnggota');
+  var elVerif = document.getElementById('statTerverifikasiLabel');
+  if (elTotal) elTotal.textContent = total.toLocaleString('id-ID');
+  if (elVerif) elVerif.textContent = terverifikasi + ' Terverifikasi';
+
+  // Audit Logs
+  var logList = document.getElementById('dashboardActivityLogList');
+  if (logList) {
+    logList.innerHTML = AppState.logs.map(function(log) {
+      return '<div class="p-3 bg-surface-container-low rounded-xl flex items-start gap-3 text-xs border border-surface-container-high">' +
+        '<div class="w-8 h-8 rounded-lg bg-primary-container text-white flex items-center justify-center shrink-0">' +
+          '<span class="material-symbols-outlined text-[16px]">history</span>' +
+        '</div>' +
+        '<div class="flex-1 min-w-0">' +
+          '<div class="flex items-center justify-between">' +
+            '<span class="font-bold text-primary truncate">' + escapeHtml(log.Aksi) + '</span>' +
+            '<span class="text-[10px] text-on-surface-variant">' + escapeHtml(log.Timestamp || '') + '</span>' +
+          '</div>' +
+          '<p class="text-on-surface-variant text-[11px] mt-0.5 truncate">' + escapeHtml(log.Detail) + '</p>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  // Highlights Warta Adat
+  var articlesList = document.getElementById('dashboardArticlesList');
+  if (articlesList) {
+    articlesList.innerHTML = AppState.articles.slice(0, 3).map(function(art) {
+      return '<div onclick="openReadArticleModal(\'' + art.ArticleID + '\')" class="p-3 bg-surface-container-low hover:bg-surface-container rounded-xl flex items-center gap-3 cursor-pointer transition border border-surface-container-high">' +
+        '<img src="' + escapeHtml(art.Thumbnail || '') + '" class="w-12 h-12 rounded-lg object-cover shrink-0">' +
+        '<div class="min-w-0 flex-1">' +
+          '<span class="text-[10px] uppercase font-bold text-secondary tracking-wider">' + escapeHtml(art.Kategori) + '</span>' +
+          '<h4 class="font-bold text-xs text-primary truncate">' + escapeHtml(art.Judul) + '</h4>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  renderDashboardCharts();
+}
+
+function renderDashboardCharts() {
+  // 1. Chart Generasi
+  var ctxGen = document.getElementById('generasiChart');
+  if (ctxGen) {
+    if (AppState.charts.generasi) AppState.charts.generasi.destroy();
+
+    var genCounts = {};
+    AppState.members.forEach(function(m) {
+      var g = 'Sundut ' + (m.Generasi || 16);
+      genCounts[g] = (genCounts[g] || 0) + 1;
+    });
+
+    var labels = Object.keys(genCounts).sort(function(a, b) {
+      return parseInt(a.replace('Sundut ', '')) - parseInt(b.replace('Sundut ', ''));
+    });
+    var data = labels.map(function(k) { return genCounts[k]; });
+
+    AppState.charts.generasi = new Chart(ctxGen, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'Jumlah Anggota',
+          data: data,
+          backgroundColor: '#0e243a',
+          borderRadius: 6
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: { beginAtZero: true, grid: { color: '#f1f5f9' } },
+          x: { grid: { display: false } }
+        }
+      }
+    });
+  }
+
+  // 2. Chart Rumpun
+  var ctxRumpun = document.getElementById('rumpunChart');
+  if (ctxRumpun) {
+    if (AppState.charts.rumpun) AppState.charts.rumpun.destroy();
+
+    var rCounts = { Hutagurgur: 0, Hutagaol: 0, Simanoroni: 0 };
+    AppState.members.forEach(function(m) {
+      var r = m.Rumpun || '';
+      if (r.indexOf('Hutagurgur') !== -1) rCounts.Hutagurgur++;
+      else if (r.indexOf('Hutagaol') !== -1) rCounts.Hutagaol++;
+      else if (r.indexOf('Simanoroni') !== -1) rCounts.Simanoroni++;
+    });
+
+    AppState.charts.rumpun = new Chart(ctxRumpun, {
+      type: 'doughnut',
+      data: {
+        labels: ['Hutagurgur', 'Hutagaol', 'Simanoroni'],
+        datasets: [{
+          data: [rCounts.Hutagurgur, rCounts.Hutagaol, rCounts.Simanoroni],
+          backgroundColor: ['#0e243a', '#b6191a', '#d97706'],
+          borderWidth: 2,
+          borderColor: '#ffffff'
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } }
+        }
+      }
+    });
+  }
+}
+
+// ============================================================================
+// DIREKTORI ANGGOTA & MULTI-FILTER
+// ============================================================================
+function applyMemberFilters() {
+  var search = (document.getElementById('filterMemberSearch')?.value || '').toLowerCase();
+  var rumpun = document.getElementById('filterMemberRumpun')?.value || '';
+  var sundut = document.getElementById('filterMemberSundut')?.value || '';
+  var sektor = document.getElementById('filterMemberSektor')?.value || '';
+  var status = document.getElementById('filterMemberStatus')?.value || '';
+
+  AppState.filteredMembers = AppState.members.filter(function(m) {
+    var matchSearch = !search ||
+      (m.Nama && m.Nama.toLowerCase().indexOf(search) !== -1) ||
+      (m.MemberID && m.MemberID.toLowerCase().indexOf(search) !== -1) ||
+      (m.Alamat && m.Alamat.toLowerCase().indexOf(search) !== -1);
+    
+    var matchRumpun = !rumpun || (m.Rumpun && m.Rumpun.indexOf(rumpun) !== -1);
+    var matchSundut = !sundut || String(m.Generasi) === String(sundut);
+    var matchSektor = !sektor || (m.Sektor && m.Sektor.indexOf(sektor) !== -1);
+    var matchStatus = !status || m.Status === status;
+
+    return matchSearch && matchRumpun && matchSundut && matchSektor && matchStatus;
+  });
+
+  renderMembersTable();
+}
+
+function resetMemberFilters() {
+  if (document.getElementById('filterMemberSearch')) document.getElementById('filterMemberSearch').value = '';
+  if (document.getElementById('filterMemberRumpun')) document.getElementById('filterMemberRumpun').value = '';
+  if (document.getElementById('filterMemberSundut')) document.getElementById('filterMemberSundut').value = '';
+  if (document.getElementById('filterMemberSektor')) document.getElementById('filterMemberSektor').value = '';
+  if (document.getElementById('filterMemberStatus')) document.getElementById('filterMemberStatus').value = '';
+  AppState.filteredMembers = AppState.members.slice();
+  renderMembersTable();
+}
+
+function renderMembersTable() {
+  var tbody = document.getElementById('memberTableBody');
+  var badge = document.getElementById('memberCountBadge');
+  if (!tbody) return;
+
+  if (badge) badge.textContent = AppState.filteredMembers.length + ' Anggota';
+
+  if (AppState.filteredMembers.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="5" class="p-8 text-center text-on-surface-variant">Tidak ada data anggota yang cocok dengan filter.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = AppState.filteredMembers.map(function(m) {
+    var isSelected = m.MemberID === AppState.selectedMemberId;
+    var rowBg = isSelected ? 'bg-primary/5 font-medium' : 'hover:bg-surface-container-low';
+    
+    var rumpunColor = 'bg-primary-container/10 text-primary';
+    if ((m.Rumpun || '').indexOf('Hutagaol') !== -1) rumpunColor = 'bg-secondary/10 text-secondary';
+    if ((m.Rumpun || '').indexOf('Simanoroni') !== -1) rumpunColor = 'bg-amber-50 text-amber-800';
+
+    return '<tr onclick="selectMemberById(\'' + m.MemberID + '\')" class="' + rowBg + ' cursor-pointer transition border-b border-surface-container-high">' +
+      '<td class="py-3 px-4">' +
+        '<div class="flex items-center gap-3">' +
+          '<img src="' + escapeHtml(m.FotoURL || '') + '" class="w-9 h-9 rounded-full object-cover shrink-0 shadow-xs">' +
+          '<div class="min-w-0">' +
+            '<span class="font-bold text-primary block truncate">' + escapeHtml(m.Nama) + '</span>' +
+            '<span class="font-mono text-[10px] text-on-surface-variant">' + escapeHtml(m.MemberID) + '</span>' +
+          '</div>' +
+        '</div>' +
+      '</td>' +
+      '<td class="py-3 px-4">' +
+        '<div class="flex flex-col gap-0.5">' +
+          '<span class="px-2 py-0.5 rounded-full ' + rumpunColor + ' text-[10px] font-bold w-fit">' + escapeHtml(m.Rumpun || 'Manurung') + '</span>' +
+          '<span class="text-[10px] text-on-surface-variant font-semibold">Sundut ke-' + (m.Generasi || 16) + '</span>' +
+        '</div>' +
+      '</td>' +
+      '<td class="py-3 px-4 hidden md:table-cell">' +
+        '<span class="text-on-surface font-semibold block">' + escapeHtml(m.Sektor || 'Bona Pasogit') + '</span>' +
+        '<span class="text-[10px] text-on-surface-variant truncate block">' + escapeHtml(m.Alamat || '') + '</span>' +
+      '</td>' +
+      '<td class="py-3 px-4">' +
+        (m.Status === 'Aktif' 
+          ? '<span class="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>Aktif</span>'
+          : '<span class="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-surface-container text-on-surface-variant"><span class="w-1.5 h-1.5 rounded-full bg-outline"></span>Non-Aktif</span>') +
+      '</td>' +
+      '<td class="py-3 px-4 text-right whitespace-nowrap">' +
+        '<div class="flex items-center justify-end gap-1" onclick="event.stopPropagation()">' +
+          '<button onclick="openEditMemberModal(\'' + m.MemberID + '\')" title="Edit" class="p-1 rounded hover:bg-surface-container text-primary transition">' +
+            '<span class="material-symbols-outlined text-[18px]">edit</span>' +
+          '</button>' +
+        '</div>' +
+      '</td>' +
+    '</tr>';
+  }).join('');
+}
+
+function selectMemberById(memberId) {
+  AppState.selectedMemberId = memberId;
+  var member = AppState.members.find(function(m) { return m.MemberID === memberId; });
+  if (!member) return;
+
+  // Update Drawer UI
+  var nameEl = document.getElementById('drawerName');
+  var avatarEl = document.getElementById('drawerAvatar');
+  var rumpunEl = document.getElementById('drawerRumpun');
+  var sundutEl = document.getElementById('drawerSundut');
+  var ktaEl = document.getElementById('drawerKta');
+  var selfNameEl = document.getElementById('drawerSelfName');
+  var pasanganEl = document.getElementById('drawerPasangan');
+  var ayahNameEl = document.getElementById('drawerAyahName');
+  var ompungNameEl = document.getElementById('drawerOmpungName');
+  var pekerjaanEl = document.getElementById('drawerPekerjaan');
+  var bonaPasogitEl = document.getElementById('drawerBonaPasogit');
+  var alamatEl = document.getElementById('drawerAlamat');
+  var waLinkEl = document.getElementById('drawerWaLink');
+
+  if (nameEl) nameEl.textContent = member.Nama;
+  if (avatarEl) avatarEl.src = member.FotoURL || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100';
+  if (rumpunEl) rumpunEl.textContent = member.Rumpun || 'Hutagurgur';
+  if (sundutEl) sundutEl.textContent = 'Sundut ke-' + (member.Generasi || 16);
+  if (ktaEl) ktaEl.textContent = 'KTA: ' + member.MemberID;
+  if (selfNameEl) selfNameEl.textContent = member.Nama;
+  if (pasanganEl) pasanganEl.textContent = member.SpouseID ? ('Pasangan: ' + member.SpouseID) : 'Belum menikah';
+  if (pekerjaanEl) pekerjaanEl.textContent = member.Pekerjaan || '-';
+  if (bonaPasogitEl) bonaPasogitEl.textContent = member.BonaPasogit || 'Sibisa, Toba';
+  if (alamatEl) alamatEl.textContent = member.Alamat || '-';
+
+  if (waLinkEl && member.NoHP) {
+    waLinkEl.href = 'https://wa.me/' + member.NoHP.replace(/\D/g, '');
+  }
+
+  // Cari Ayah & Ompung
+  var ayah = AppState.members.find(function(m) { return m.MemberID === member.ParentID; });
+  if (ayah) {
+    if (ayahNameEl) ayahNameEl.textContent = ayah.Nama + ' (Sundut ' + ayah.Generasi + ')';
+    var ompung = AppState.members.find(function(m) { return m.MemberID === ayah.ParentID; });
+    if (ompungNameEl) {
+      ompungNameEl.textContent = ompung ? (ompung.Nama + ' (Sundut ' + ompung.Generasi + ')') : 'Ompu Tahan Manurung';
+    }
+  } else {
+    if (ayahNameEl) ayahNameEl.textContent = 'St. Marulam Manurung';
+    if (ompungNameEl) ompungNameEl.textContent = 'Ompu Tahan Manurung';
+  }
+
+  renderMembersTable();
+}
+
+// ============================================================================
+// POHON SILSILAH INTERAKTIF (D3.JS FAMILY TREE)
+// ============================================================================
+function populateRootSelect() {
+  var sel = document.getElementById('treeRootSelect');
+  if (!sel) return;
+  var rootCandidates = AppState.members.filter(function(m) {
+    return !m.ParentID || m.Generasi <= 2 || m.MemberID === 'MNR-ROOT-001';
+  });
+  if (rootCandidates.length === 0) rootCandidates = AppState.members.slice(0, 3);
+
+  sel.innerHTML = rootCandidates.map(function(m) {
+    return '<option value="' + m.MemberID + '">' + escapeHtml(m.Nama) + ' (G-' + m.Generasi + ')</option>';
+  }).join('');
+}
+
+function renderFamilyTree() {
+  var container = document.getElementById('treeContainer');
+  var svgEl = d3.select('#treeSvg');
+  if (!container || !svgEl.node()) return;
+
+  svgEl.selectAll('*').remove();
+
+  var width = container.clientWidth || 900;
+  var height = container.clientHeight || 580;
+
+  var rootId = document.getElementById('treeRootSelect')?.value || 'MNR-ROOT-001';
+  var rootMember = AppState.members.find(function(m) { return m.MemberID === rootId; }) || AppState.members[0];
+
+  if (!rootMember) return;
+
+  // Build Hierarchical JSON from flat ParentID
+  function buildHierarchy(member) {
+    var children = AppState.members.filter(function(m) {
+      return m.ParentID === member.MemberID;
+    });
+    return {
+      data: member,
+      children: children.map(buildHierarchy)
+    };
+  }
+
+  var treeData = buildHierarchy(rootMember);
+  var rootNode = d3.hierarchy(treeData);
+
+  var treeLayout = d3.tree().nodeSize([210, 140]);
+  treeLayout(rootNode);
+
+  var svg = svgEl.attr('viewBox', [0, 0, width, height]);
+  var g = svg.append('g').attr('id', 'treeGroup');
+
+  // Zoom Setup
+  AppState.treeZoom = d3.zoom()
+    .scaleExtent([0.25, 2.5])
+    .on('zoom', function(event) {
+      g.attr('transform', event.transform);
+    });
+
+  svg.call(AppState.treeZoom);
+
+  // Initial Center Position
+  var initialTransform = d3.zoomIdentity.translate(width / 2, 70).scale(0.85);
+  svg.call(AppState.treeZoom.transform, initialTransform);
+
+  // Draw Curved Links
+  g.selectAll('.tree-link')
+    .data(rootNode.links())
+    .enter()
+    .append('path')
+    .attr('class', 'tree-link solid')
+    .attr('d', d3.linkVertical()
+      .x(function(d) { return d.x; })
+      .y(function(d) { return d.y; })
+    );
+
+  // Draw Node Containers
+  var node = g.selectAll('.tree-node')
+    .data(rootNode.descendants())
+    .enter()
+    .append('g')
+    .attr('class', 'tree-node')
+    .attr('transform', function(d) { return 'translate(' + d.x + ',' + d.y + ')'; })
+    .on('click', function(event, d) {
+      selectMemberById(d.data.data.MemberID);
+      showToast('Anggota Dipilih', d.data.data.Nama);
+    });
+
+  // Node Background Card (ForeignObject for modern HTML card styling)
+  node.append('foreignObject')
+    .attr('width', 180)
+    .attr('height', 85)
+    .attr('x', -90)
+    .attr('y', -30)
+    .html(function(d) {
+      var m = d.data.data;
+      var borderColor = '#0e243a';
+      var badgeBg = 'bg-primary-container text-white';
+
+      if ((m.Rumpun || '').indexOf('Hutagaol') !== -1) {
+        borderColor = '#b6191a';
+        badgeBg = 'bg-secondary text-white';
+      } else if ((m.Rumpun || '').indexOf('Simanoroni') !== -1) {
+        borderColor = '#d97706';
+        badgeBg = 'bg-amber-600 text-white';
+      }
+
+      return '<div style="border-left: 4px solid ' + borderColor + ';" class="w-full h-full bg-white rounded-xl shadow-md p-2 flex flex-col justify-between border border-slate-200">' +
+        '<div class="flex items-center gap-2">' +
+          '<img src="' + (m.FotoURL || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80') + '" class="w-7 h-7 rounded-full object-cover shrink-0">' +
+          '<div class="min-w-0 flex-1">' +
+            '<h5 class="text-[11px] font-bold text-slate-900 truncate leading-tight">' + escapeHtml(m.Nama) + '</h5>' +
+            '<span class="text-[9px] text-slate-500 font-semibold block">Sundut ' + m.Generasi + '</span>' +
+          '</div>' +
+        '</div>' +
+        '<div class="flex items-center justify-between text-[9px] pt-1 border-t border-slate-100">' +
+          '<span class="px-1.5 py-0.2 rounded ' + badgeBg + ' font-bold truncate max-w-[100px]">' + escapeHtml(m.Rumpun || 'Silau Raja') + '</span>' +
+          '<span class="text-slate-400 font-mono text-[8px]">' + (m.JenisKelamin === 'L' ? 'Laki-laki' : 'Boru') + '</span>' +
+        '</div>' +
+      '</div>';
+    });
+}
+
+function zoomInTree() {
+  if (AppState.treeZoom) {
+    d3.select('#treeSvg').transition().duration(250).call(AppState.treeZoom.scaleBy, 1.25);
+  }
+}
+function zoomOutTree() {
+  if (AppState.treeZoom) {
+    d3.select('#treeSvg').transition().duration(250).call(AppState.treeZoom.scaleBy, 0.8);
+  }
+}
+function resetTreeZoom() {
+  if (AppState.treeZoom) {
+    var container = document.getElementById('treeContainer');
+    var width = container.clientWidth || 900;
+    var initialTransform = d3.zoomIdentity.translate(width / 2, 70).scale(0.85);
+    d3.select('#treeSvg').transition().duration(350).call(AppState.treeZoom.transform, initialTransform);
+  }
+}
+
+// ============================================================================
+// IURAN & KEUANGAN
+// ============================================================================
+function renderDuesTable() {
+  var tbody = document.getElementById('duesTableBody');
+  var periodFilter = document.getElementById('filterDuesPeriod')?.value || '';
+  if (!tbody) return;
+
+  var filtered = AppState.dues.filter(function(d) {
+    return !periodFilter || (d.Periode && d.Periode.indexOf(periodFilter) !== -1);
+  });
+
+  tbody.innerHTML = filtered.map(function(d) {
+    var member = AppState.members.find(function(m) { return m.MemberID === d.MemberID; });
+    var memberName = member ? member.Nama : d.MemberID;
+
+    return '<tr class="hover:bg-surface-container-low transition border-b border-surface-container-high">' +
+      '<td class="py-3 px-4 font-mono font-semibold text-primary">' + escapeHtml(d.IuranID) + '</td>' +
+      '<td class="py-3 px-4 font-bold text-on-surface">' + escapeHtml(memberName) + '</td>' +
+      '<td class="py-3 px-4">' + escapeHtml(d.Periode) + '</td>' +
+      '<td class="py-3 px-4 font-extrabold text-primary">Rp ' + Number(d.Jumlah).toLocaleString('id-ID') + '</td>' +
+      '<td class="py-3 px-4 text-on-surface-variant">' + escapeHtml(d.TanggalBayar || '-') + '</td>' +
+      '<td class="py-3 px-4">' +
+        (d.Status === 'Lunas'
+          ? '<span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">Lunas</span>'
+          : '<span class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[10px] font-bold">Belum Lunas</span>') +
+      '</td>' +
+      '<td class="py-3 px-4 text-on-surface-variant truncate max-w-[200px]">' + escapeHtml(d.Catatan || '-') + '</td>' +
+    '</tr>';
+  }).join('');
+}
+
+function openRecordDuesModal() {
+  var sel = document.getElementById('duesMemberSelect');
+  if (sel) {
+    sel.innerHTML = AppState.members.map(function(m) {
+      return '<option value="' + m.MemberID + '">' + escapeHtml(m.Nama) + ' (' + m.MemberID + ')</option>';
+    }).join('');
+  }
+  openModal('modalRecordDues');
+}
+
+function handleSaveDues(e) {
+  e.preventDefault();
+  var duesData = {
+    MemberID: document.getElementById('duesMemberSelect').value,
+    Periode: document.getElementById('duesPeriode').value,
+    Jumlah: document.getElementById('duesJumlah').value,
+    Status: document.getElementById('duesStatus').value,
+    Catatan: document.getElementById('duesCatatan').value,
+    TanggalBayar: new Date().toISOString().split('T')[0]
+  };
+
+  if (AppState.isGasEnvironment) {
+    google.script.run
+      .withSuccessHandler(function(res) {
+        closeModal('modalRecordDues');
+        showToast('Iuran Dicatat', 'Data iuran berhasil disimpan');
+        initApp();
+      })
+      .withFailureHandler(function(err) {
+        showToast('Error', err.message);
+      })
+      .saveDuesRecord(duesData);
+  } else {
+    duesData.IuranID = 'IUR-' + Date.now().toString().slice(-6);
+    AppState.dues.unshift(duesData);
+    closeModal('modalRecordDues');
+    renderDuesTable();
+    showToast('Iuran Dicatat', 'Data iuran berhasil ditambahkan (Demo Mode)');
+  }
+}
+
+// ============================================================================
+// ARTIKEL & WARTA ADAT
+// ============================================================================
+function renderArticlesGrid() {
+  var grid = document.getElementById('articlesCardsGrid');
+  if (!grid) return;
+
+  grid.innerHTML = AppState.filteredArticles.map(function(art) {
+    return '<div class="bg-surface-container-lowest rounded-2xl border border-surface-container-high shadow-xs overflow-hidden flex flex-col group hover:shadow-md transition">' +
+      '<img src="' + escapeHtml(art.Thumbnail || '') + '" class="w-full h-44 object-cover group-hover:scale-105 transition-transform duration-300">' +
+      '<div class="p-4 flex flex-col justify-between flex-1 space-y-3">' +
+        '<div>' +
+          '<div class="flex items-center justify-between text-[10px] uppercase font-bold text-secondary tracking-wider mb-1">' +
+            '<span>' + escapeHtml(art.Kategori) + '</span>' +
+            '<span class="text-on-surface-variant font-normal">' + escapeHtml(art.TanggalPublish || '') + '</span>' +
+          '</div>' +
+          '<h3 class="font-bold text-sm text-primary leading-snug">' + escapeHtml(art.Judul) + '</h3>' +
+          '<p class="text-xs text-on-surface-variant line-clamp-2 mt-1">' + escapeHtml(art.Konten) + '</p>' +
+        '</div>' +
+        '<div class="pt-2 border-t border-surface-container-high flex items-center justify-between">' +
+          '<button onclick="openReadArticleModal(\'' + art.ArticleID + '\')" class="text-xs text-primary font-bold hover:underline flex items-center gap-1">' +
+            '<span>Baca Selengkapnya</span><span class="material-symbols-outlined text-[14px]">arrow_forward</span>' +
+          '</button>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function filterArticlesByCategory(cat) {
+  if (cat === 'all') {
+    AppState.filteredArticles = AppState.articles.slice();
+  } else {
+    AppState.filteredArticles = AppState.articles.filter(function(a) { return a.Kategori === cat; });
+  }
+  renderArticlesGrid();
+}
+
+function openReadArticleModal(artId) {
+  var art = AppState.articles.find(function(a) { return a.ArticleID === artId; });
+  if (!art) return;
+
+  document.getElementById('readArticleTitle').textContent = art.Judul;
+  document.getElementById('readArticleCategory').textContent = art.Kategori;
+  document.getElementById('readArticleAuthor').textContent = 'Penulis: ' + (art.PenulisEmail || 'Admin');
+  document.getElementById('readArticleDate').textContent = art.TanggalPublish || '';
+  document.getElementById('readArticleContent').textContent = art.Konten;
+  document.getElementById('readArticleImage').src = art.Thumbnail || 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=600';
+
+  openModal('modalReadArticle');
+}
+
+function openArticleEditorModal() {
+  document.getElementById('articleFormId').value = '';
+  document.getElementById('articleJudul').value = '';
+  document.getElementById('articleKonten').value = '';
+  document.getElementById('articleThumbnail').value = '';
+  openModal('modalArticleEditor');
+}
+
+function handleSaveArticle(e) {
+  e.preventDefault();
+  var articleData = {
+    ArticleID: document.getElementById('articleFormId').value,
+    Judul: document.getElementById('articleJudul').value,
+    Kategori: document.getElementById('articleKategori').value,
+    Status: document.getElementById('articleStatus').value,
+    Thumbnail: document.getElementById('articleThumbnail').value,
+    Konten: document.getElementById('articleKonten').value
+  };
+
+  if (AppState.isGasEnvironment) {
+    google.script.run
+      .withSuccessHandler(function() {
+        closeModal('modalArticleEditor');
+        showToast('Artikel Disimpan', 'Publikasi artikel berhasil.');
+        initApp();
+      })
+      .saveArticle(articleData);
+  } else {
+    articleData.ArticleID = 'ART-' + Date.now().toString().slice(-6);
+    articleData.TanggalPublish = new Date().toISOString().split('T')[0];
+    AppState.articles.unshift(articleData);
+    AppState.filteredArticles = AppState.articles.slice();
+    closeModal('modalArticleEditor');
+    renderArticlesGrid();
+    showToast('Artikel Disimpan', 'Artikel baru telah ditambahkan (Demo Mode)');
+  }
+}
+
+// ============================================================================
+// ROLE MANAGEMENT
+// ============================================================================
+function renderRoleUsersTable() {
+  var tbody = document.getElementById('roleUsersTableBody');
+  if (!tbody) return;
+
+  tbody.innerHTML = AppState.users.map(function(u) {
+    return '<tr class="hover:bg-surface-container-low transition border-b border-surface-container-high">' +
+      '<td class="py-3 px-4 font-bold text-primary">' + escapeHtml(u.Nama) + '</td>' +
+      '<td class="py-3 px-4 text-on-surface-variant font-mono">' + escapeHtml(u.Email) + '</td>' +
+      '<td class="py-3 px-4">' +
+        '<span class="px-2 py-0.5 rounded-full bg-primary-container text-white text-[10px] font-bold">' + escapeHtml(u.Role) + '</span>' +
+      '</td>' +
+      '<td class="py-3 px-4">' +
+        '<span class="text-emerald-700 font-bold text-[10px] bg-emerald-50 px-2 py-0.5 rounded-full">Aktif</span>' +
+      '</td>' +
+      '<td class="py-3 px-4 text-right">' +
+        '<select onchange="changeUserRole(\'' + u.Email + '\', this.value)" class="bg-surface-container-low border border-surface-container-high rounded-lg text-xs px-2 py-1 outline-none cursor-pointer">' +
+          '<option value="Member"' + (u.Role === 'Member' ? ' selected' : '') + '>Member</option>' +
+          '<option value="Pengurus"' + (u.Role === 'Pengurus' ? ' selected' : '') + '>Pengurus Sektor</option>' +
+          '<option value="Admin"' + (u.Role === 'Admin' ? ' selected' : '') + '>Admin DPP</option>' +
+        '</select>' +
+      '</td>' +
+    '</tr>';
+  }).join('');
+}
+
+function changeUserRole(email, newRole) {
+  if (AppState.isGasEnvironment) {
+    google.script.run
+      .withSuccessHandler(function() {
+        showToast('Role Diperbarui', email + ' menjadi ' + newRole);
+        initApp();
+      })
+      .updateUserRole(email, newRole);
+  } else {
+    var u = AppState.users.find(function(x) { return x.Email === email; });
+    if (u) u.Role = newRole;
+    showToast('Role Diperbarui', email + ' menjadi ' + newRole + ' (Demo Mode)');
+  }
+}
+
+// ============================================================================
+// MODAL & MEMBER FORM ACTIONS
+// ============================================================================
+function populateParentSelect() {
+  var sel = document.getElementById('inputParentID');
+  if (!sel) return;
+  sel.innerHTML = '<option value="">-- Tidak ada (Leluhur Pertama) --</option>' +
+    AppState.members.map(function(m) {
+      return '<option value="' + m.MemberID + '">' + escapeHtml(m.Nama) + ' (' + (m.Rumpun || '') + ' - G' + m.Generasi + ')</option>';
+    }).join('');
+}
+
+function openAddMemberModal() {
+  document.getElementById('memberFormId').value = '';
+  document.getElementById('modalMemberTitle').textContent = 'Tambah Anggota Keluarga Baru';
+  document.getElementById('inputNama').value = '';
+  document.getElementById('inputSpouse').value = '';
+  document.getElementById('inputNoHP').value = '';
+  document.getElementById('inputAlamat').value = '';
+  document.getElementById('inputBonaPasogitForm').value = '';
+  openModal('modalAddMember');
+}
+
+function editSelectedMember() {
+  if (!AppState.selectedMemberId) return;
+  openEditMemberModal(AppState.selectedMemberId);
+}
+
+function openEditMemberModal(memberId) {
+  var m = AppState.members.find(function(x) { return x.MemberID === memberId; });
+  if (!m) return;
+
+  document.getElementById('memberFormId').value = m.MemberID;
+  document.getElementById('modalMemberTitle').textContent = 'Edit Data Anggota (' + m.MemberID + ')';
+  document.getElementById('inputNama').value = m.Nama || '';
+  document.getElementById('inputJenisKelamin').value = m.JenisKelamin || 'L';
+  document.getElementById('inputRumpun').value = m.Rumpun || 'Hutagurgur';
+  document.getElementById('inputGenerasi').value = m.Generasi || 16;
+  document.getElementById('inputParentID').value = m.ParentID || '';
+  document.getElementById('inputSpouse').value = m.SpouseID || '';
+  document.getElementById('inputTanggalLahir').value = m.TanggalLahir || '';
+  document.getElementById('inputNoHP').value = m.NoHP || '';
+  document.getElementById('inputSektor').value = m.Sektor || 'Jabodetabek Barat';
+  document.getElementById('inputBonaPasogitForm').value = m.BonaPasogit || '';
+  document.getElementById('inputAlamat').value = m.Alamat || '';
+
+  openModal('modalAddMember');
+}
+
+function handleSaveMember(e) {
+  e.preventDefault();
+  var memberData = {
+    MemberID: document.getElementById('memberFormId').value,
+    Nama: document.getElementById('inputNama').value,
+    JenisKelamin: document.getElementById('inputJenisKelamin').value,
+    Rumpun: document.getElementById('inputRumpun').value,
+    Generasi: document.getElementById('inputGenerasi').value,
+    ParentID: document.getElementById('inputParentID').value,
+    SpouseID: document.getElementById('inputSpouse').value,
+    TanggalLahir: document.getElementById('inputTanggalLahir').value,
+    NoHP: document.getElementById('inputNoHP').value,
+    Sektor: document.getElementById('inputSektor').value,
+    BonaPasogit: document.getElementById('inputBonaPasogitForm').value,
+    Alamat: document.getElementById('inputAlamat').value,
+    Status: 'Aktif'
+  };
+
+  if (AppState.isGasEnvironment) {
+    google.script.run
+      .withSuccessHandler(function(res) {
+        closeModal('modalAddMember');
+        showToast('Data Disimpan', 'Anggota keluarga berhasil dicatat');
+        initApp();
+      })
+      .withFailureHandler(function(err) {
+        showToast('Error', err.message);
+      })
+      .saveMember(memberData);
+  } else {
+    if (!memberData.MemberID) {
+      memberData.MemberID = 'MNR-2025-' + ('0000' + (AppState.members.length + 1)).slice(-5);
+      memberData.FotoURL = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100';
+      AppState.members.push(memberData);
+    } else {
+      var idx = AppState.members.findIndex(function(x) { return x.MemberID === memberData.MemberID; });
+      if (idx !== -1) AppState.members[idx] = Object.assign(AppState.members[idx], memberData);
+    }
+    AppState.filteredMembers = AppState.members.slice();
+    closeModal('modalAddMember');
+    renderMembersTable();
+    selectMemberById(memberData.MemberID);
+    showToast('Tersimpan', 'Data anggota berhasil diperbarui (Demo Mode)');
+  }
+}
+
+// Modal Cari Tarombo
+function openSearchTaromboModal(callerContext) {
+  searchTaromboCandidates('');
+  openModal('modalSearchTarombo');
+}
+
+function searchTaromboCandidates(query) {
+  var resultsEl = document.getElementById('taromboSearchResults');
+  if (!resultsEl) return;
+  var q = (query || '').toLowerCase();
+
+  var matches = AppState.members.filter(function(m) {
+    return !q || m.Nama.toLowerCase().indexOf(q) !== -1 || m.MemberID.toLowerCase().indexOf(q) !== -1;
+  });
+
+  resultsEl.innerHTML = matches.map(function(m) {
+    return '<div class="p-3 bg-surface-container-low hover:bg-surface-container rounded-xl flex items-center justify-between gap-3 border border-surface-container-high transition">' +
+      '<div>' +
+        '<h4 class="font-bold text-xs text-primary">' + escapeHtml(m.Nama) + '</h4>' +
+        '<span class="text-[10px] text-on-surface-variant">' + escapeHtml(m.Rumpun || '') + ' • Sundut ' + m.Generasi + ' • ' + escapeHtml(m.MemberID) + '</span>' +
+      '</div>' +
+      '<button type="button" onclick="selectFoundTarombo(\'' + m.MemberID + '\', \'' + escapeHtml(m.Nama) + '\')" class="px-3 py-1 bg-primary text-white text-[10px] font-semibold rounded-lg hover:bg-primary-container">' +
+        'Pilih Sebagai Parent' +
+      '</button>' +
+    '</div>';
+  }).join('');
+}
+
+function selectFoundTarombo(parentMemberId, parentName) {
+  var sel = document.getElementById('inputParentID');
+  if (sel) {
+    sel.value = parentMemberId;
+  }
+  closeModal('modalSearchTarombo');
+  showToast('Tarombo Dihubungkan', parentName + ' dipilih sebagai orang tua silsilah');
+}
+
+function openRegistrationModal() {
+  openAddMemberModal();
+}
+
+function initDatabaseFromUI() {
+  if (AppState.isGasEnvironment) {
+    showToast('Inisialisasi', 'Sedang men-setup sheets...');
+    google.script.run
+      .withSuccessHandler(function(res) {
+        showToast('Berhasil', res.message);
+        initApp();
+      })
+      .setupSpreadsheet();
+  } else {
+    showToast('Mode Demo', 'Database mock telah aktif dengan 13 anggota 3 Rumpun.');
+  }
+}
+
+// ============================================================================
+// UI UTILITIES & TOAST
+// ============================================================================
+function openModal(modalId) {
+  var el = document.getElementById(modalId);
+  if (el) el.classList.remove('hidden');
+}
+
+function closeModal(modalId) {
+  var el = document.getElementById(modalId);
+  if (el) el.classList.add('hidden');
+}
+
+function showToast(title, message) {
+  var toast = document.getElementById('toastNotification');
+  var titleEl = document.getElementById('toastTitle');
+  var msgEl = document.getElementById('toastMessage');
+  if (!toast) return;
+
+  if (titleEl) titleEl.textContent = title;
+  if (msgEl) msgEl.textContent = message;
+
+  toast.classList.remove('translate-y-24', 'opacity-0', 'pointer-events-none');
+  setTimeout(function() {
+    toast.classList.add('translate-y-24', 'opacity-0', 'pointer-events-none');
+  }, 3500);
+}
+
+function handleGlobalSearch(query) {
+  if (AppState.currentTab !== 'data-anggota') {
+    switchViewTab('data-anggota');
+  }
+  var input = document.getElementById('filterMemberSearch');
+  if (input) {
+    input.value = query;
+    applyMemberFilters();
+  }
+}
+
+function escapeHtml(text) {
+  if (!text) return '';
+  return String(text)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+</script>

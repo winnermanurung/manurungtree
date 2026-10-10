@@ -1,0 +1,2589 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>iManurung - Portal Marga, Tarombo & Komunitas</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#000e1e",
+            "primary-container": "#0e243a",
+            "on-primary": "#ffffff",
+            "on-primary-container": "#778ca6",
+            "primary-fixed": "#d1e4ff",
+            "primary-fixed-dim": "#b3c8e5",
+            "secondary": "#b6191a",
+            "secondary-container": "#d9352f",
+            "secondary-fixed": "#ffdad6",
+            "secondary-fixed-dim": "#ffb4ab",
+            "tertiary": "#190900",
+            "tertiary-container": "#391b00",
+            "surface": "#f7f9fb",
+            "surface-dim": "#d8dadc",
+            "surface-bright": "#f7f9fb",
+            "surface-container-lowest": "#ffffff",
+            "surface-container-low": "#f2f4f6",
+            "surface-container": "#eceef0",
+            "surface-container-high": "#e6e8ea",
+            "surface-container-highest": "#e0e3e5",
+            "on-surface": "#191c1e",
+            "on-surface-variant": "#43474d",
+            "outline": "#74777d",
+            "outline-variant": "#c4c6cd"
+          },
+          borderRadius: {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "2xl": "1rem",
+            "full": "9999px"
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif']
+          }
+        }
+      }
+    };
+  </script>
+
+  <!-- Chart.js for Statistics -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- D3.js for Interactive Family Tree (Tarombo) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+
+  <!-- Stylesheet Include -->
+  <!-- Google Fonts & Material Symbols -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+
+<style>
+  :root {
+    --primary: #000e1e;
+    --primary-container: #0e243a;
+    --on-primary: #ffffff;
+    --on-primary-container: #778ca6;
+    --secondary: #b6191a;
+    --secondary-container: #d9352f;
+    --on-secondary: #ffffff;
+    --secondary-fixed: #ffdad6;
+    --tertiary: #190900;
+    --tertiary-container: #391b00;
+    --tertiary-gold: #d97706;
+    --surface: #f7f9fb;
+    --surface-container-lowest: #ffffff;
+    --surface-container-low: #f2f4f6;
+    --surface-container: #eceef0;
+    --surface-container-high: #e6e8ea;
+    --surface-container-highest: #e0e3e5;
+    --on-surface: #191c1e;
+    --on-surface-variant: #43474d;
+    --outline: #74777d;
+    --outline-variant: #c4c6cd;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    background-color: var(--surface);
+    color: var(--on-surface);
+    overflow-x: hidden;
+  }
+
+  /* Custom Scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #f1f5f9;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+  }
+
+  /* Tree Diagram & Nodes (D3.js) */
+  .tree-container {
+    background: radial-gradient(circle, #e2e8f0 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+  
+  .tree-node {
+    cursor: pointer;
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), filter 0.2s ease;
+  }
+  .tree-node:hover {
+    filter: drop-shadow(0px 8px 20px rgba(14, 36, 58, 0.18));
+  }
+  .tree-node:active {
+    transform: scale(0.98);
+  }
+
+  .tree-link {
+    fill: none;
+    stroke: #94a3b8;
+    stroke-width: 2px;
+    stroke-dasharray: 4, 4;
+    transition: stroke 0.3s ease;
+  }
+  .tree-link.solid {
+    stroke-dasharray: none;
+    stroke: #64748b;
+  }
+
+  /* Glassmorphism Panels */
+  .glass-header {
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+  
+  .glass-card {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(226, 232, 240, 0.8);
+  }
+
+  /* Active Sidebar Link */
+  .nav-active {
+    background-color: #0e243a !important;
+    color: #ffffff !important;
+    font-weight: 600;
+  }
+  .nav-active .material-symbols-outlined {
+    color: #ffffff !important;
+  }
+
+  /* Modal Transition Utilities */
+  .modal-backdrop {
+    background-color: rgba(0, 14, 30, 0.65);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    transition: opacity 0.25s ease-in-out;
+  }
+
+  /* Tabular figures for numbers */
+  .num-tabular {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Subtle cultural ulos ribbon animation */
+  @keyframes ulosShimmer {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+  .ulos-gradient {
+    background: linear-gradient(90deg, #b6191a, #0e243a, #d97706, #b6191a);
+    background-size: 300% 300%;
+    animation: ulosShimmer 12s ease infinite;
+  }
+</style>
+
+</head>
+<body class="bg-surface font-sans text-on-surface antialiased min-h-screen">
+
+  <!-- ===================================================================== -->
+  <!-- 1. VIEW LOGIN & PORTAL MASUK (Berbasis Google SSO & Manual Role)      -->
+  <!-- ===================================================================== -->
+  <div id="view-login" class="min-h-screen flex flex-col justify-between">
+    <!-- Header Mini -->
+    <header class="w-full bg-surface-container-lowest/90 backdrop-blur-md border-b border-surface-container-high py-3 px-6 shadow-sm">
+      <div class="max-w-7xl mx-auto flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <img src="https://lh3.googleusercontent.com/aida/AEtjO1WUmZhSEbvhF4355BLhvwRiFqzI1zmB7EdUzaGpClqYrS3t97jeEaV_3D6JUOdyI4wMmObNweYwChpOoE94Aq7aGqncR3499fI2bjOPxoUDdIAduI-OA1JBYTezETv4Jhsz541WElDKbrqsOTcz2VDMnMUwNej4Wbm80HQWH7Jcjjrlpx1ovVto5OZWchEfeaZr8UvbI7szVkEq0KlSex-czKIjOZpczqiW3xU6WymRQUQjrYol2D-mxkBs" alt="iManurung Logo" class="h-8 w-auto">
+          <div class="flex flex-col">
+            <span class="font-bold text-primary text-base leading-none">iManurung</span>
+            <span class="text-[10px] text-on-surface-variant uppercase tracking-wider font-semibold">Portal Marga & Silsilah</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="openRegistrationModal()" class="text-xs font-semibold text-secondary hover:text-secondary-container px-3 py-1.5 rounded-lg border border-secondary/30 hover:bg-secondary/5 transition">
+            Daftar Anggota Baru
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Login Body -->
+    <main class="max-w-7xl mx-auto px-4 py-8 sm:py-12 w-full flex-1 flex items-center">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch w-full">
+        <!-- Brand & Community Showcase Column -->
+        <div class="lg:col-span-6 flex flex-col justify-between rounded-2xl bg-primary-container text-white p-6 sm:p-10 shadow-2xl relative overflow-hidden">
+          <div class="absolute -right-24 -top-24 w-80 h-80 rounded-full bg-secondary/20 blur-3xl pointer-events-none"></div>
+          <div class="absolute -left-20 -bottom-20 w-80 h-80 rounded-full bg-blue-500/10 blur-3xl pointer-events-none"></div>
+          
+          <div class="relative z-10 space-y-6">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span class="text-xs text-white uppercase tracking-wider font-bold">Terhubung: 8 Sektor & DPP Pusat</span>
+              </div>
+              <span class="inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-full bg-secondary text-white font-semibold">
+                <span class="material-symbols-outlined text-[14px]">verified</span> Edisi 2025
+              </span>
+            </div>
+
+            <div class="space-y-2">
+              <span class="text-xs uppercase tracking-widest text-amber-300 font-bold">Gerbang Digital Parsadaan</span>
+              <h1 class="text-3xl sm:text-4xl font-bold tracking-tight leading-tight">
+                Selamat Datang di Portal Resmi <span class="text-secondary-fixed">iManurung</span>
+              </h1>
+              <p class="text-sm text-slate-300 leading-relaxed">
+                Satu akses terpadu untuk Tarombo Silsilah (Ompu Silau Raja), Kas Iuran Gotong Royong, Warta Komunitas Adat, dan Tata Kelola Kepengurusan Patambor se-Indonesia.
+              </p>
+            </div>
+
+            <!-- Features -->
+            <div class="space-y-3 pt-2">
+              <div class="flex items-start gap-3 p-3 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10">
+                <div class="w-9 h-9 rounded-lg bg-secondary/20 flex items-center justify-center text-amber-300 shrink-0">
+                  <span class="material-symbols-outlined text-[20px]">lock_reset</span>
+                </div>
+                <div>
+                  <h4 class="text-sm font-semibold text-white">Google SSO Terenkripsi</h4>
+                  <p class="text-xs text-slate-300">Akses cepat dan aman menggunakan akun Google terverifikasi.</p>
+                </div>
+              </div>
+
+              <div class="flex items-start gap-3 p-3 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10">
+                <div class="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center text-amber-300 shrink-0">
+                  <span class="material-symbols-outlined text-[20px]">account_tree</span>
+                </div>
+                <div>
+                  <h4 class="text-sm font-semibold text-white">Tarombo Digital 3 Rumpun</h4>
+                  <p class="text-xs text-slate-300">Sinkronisasi silsilah Hutagurgur, Hutagaol, dan Simanoroni.</p>
+                </div>
+              </div>
+
+              <div class="flex items-start gap-3 p-3 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10">
+                <div class="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center text-emerald-400 shrink-0">
+                  <span class="material-symbols-outlined text-[20px]">shield</span>
+                </div>
+                <div>
+                  <h4 class="text-sm font-semibold text-white">Perlindungan Multi-Role RBAC</h4>
+                  <p class="text-xs text-slate-300">Akses bertingkat untuk Pengurus DPP, DPD, dan Anggota Warga.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Trust card -->
+          <div class="relative z-10 mt-8 pt-4 bg-white/10 rounded-xl p-4 backdrop-blur-md border border-white/10 flex items-center justify-between">
+            <div>
+              <div class="flex items-center gap-1 text-amber-400 text-xs">
+                <span class="material-symbols-outlined text-[16px]">star</span>
+                <span class="material-symbols-outlined text-[16px]">star</span>
+                <span class="material-symbols-outlined text-[16px]">star</span>
+                <span class="material-symbols-outlined text-[16px]">star</span>
+                <span class="material-symbols-outlined text-[16px]">star</span>
+              </div>
+              <p class="text-xs text-slate-200 mt-0.5">Telah digunakan <strong>4.820+</strong> warga & keturunan Manurung.</p>
+            </div>
+            <span class="text-xs bg-emerald-500/20 text-emerald-300 px-2.5 py-1 rounded-full font-bold border border-emerald-400/30">Terverifikasi</span>
+          </div>
+        </div>
+
+        <!-- Auth Form Column -->
+        <div class="lg:col-span-6 flex flex-col justify-center">
+          <div class="bg-surface-container-lowest rounded-2xl shadow-xl p-6 sm:p-10 border border-surface-container-high flex flex-col justify-between">
+            <div>
+              <div class="mb-6">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs uppercase tracking-wider text-secondary font-bold">Autentikasi Aman</span>
+                  <span class="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface-variant font-medium">
+                    <span class="material-symbols-outlined text-[14px]">shield</span> SSL 256-Bit
+                  </span>
+                </div>
+                <h2 class="text-2xl font-bold text-primary mt-1">Masuk ke Portal iManurung</h2>
+                <p class="text-xs text-on-surface-variant mt-1">
+                  Pilih metode akses sesuai profil atau penugasan Anda dalam kepengurusan.
+                </p>
+              </div>
+
+              <!-- Google SSO 1-Click Button -->
+              <button onclick="loginWithGoogleSSO()" class="w-full flex items-center justify-center gap-3 py-3 px-4 rounded-xl bg-surface-container-low hover:bg-surface-container border border-surface-container-high transition shadow-sm group font-semibold text-sm text-on-surface">
+                <svg class="w-5 h-5 transition-transform group-hover:scale-105" viewBox="0 0 24 24">
+                  <path d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z" fill="#4285F4"></path>
+                  <path d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.26v3.15C3.25 21.37 7.32 24 12 24z" fill="#34A853"></path>
+                  <path d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.26C.46 8.16 0 9.99 0 12s.46 3.84 1.26 5.42l4.02-3.15z" fill="#FBBC05"></path>
+                  <path d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.32 0 3.25 2.63 1.26 6.58l4.02 3.15c.95-2.83 3.6-4.98 6.72-4.98z" fill="#EA4335"></path>
+                </svg>
+                <span>Lanjutkan dengan Google SSO</span>
+              </button>
+
+              <div class="relative my-6 flex items-center justify-center">
+                <div class="absolute inset-0 flex items-center"><div class="w-full bg-surface-container-high h-[1px]"></div></div>
+                <div class="relative bg-surface-container-lowest px-3">
+                  <span class="text-[11px] uppercase tracking-wider text-on-surface-variant font-medium">atau masuk dengan KTA / Demo Akun</span>
+                </div>
+              </div>
+
+              <!-- Role Switcher Toggle Tabs -->
+              <div class="bg-surface-container-low p-1 rounded-xl flex mb-4">
+                <button id="tab-login-warga" onclick="switchLoginRoleTab('warga')" type="button" class="flex-1 py-2 px-3 rounded-lg text-xs font-bold transition text-center flex items-center justify-center gap-1.5 bg-surface-container-lowest text-primary shadow-sm">
+                  <span class="material-symbols-outlined text-[18px]">badge</span>
+                  <span>Anggota / Warga</span>
+                </button>
+                <button id="tab-login-pengurus" onclick="switchLoginRoleTab('pengurus')" type="button" class="flex-1 py-2 px-3 rounded-lg text-xs font-semibold transition text-center flex items-center justify-center gap-1.5 text-on-surface-variant hover:text-on-surface">
+                  <span class="material-symbols-outlined text-[18px]">admin_panel_settings</span>
+                  <span>Pengurus & Admin</span>
+                  <span class="text-[9px] uppercase bg-secondary/10 text-secondary px-1 py-0.5 rounded font-bold">2FA</span>
+                </button>
+              </div>
+
+              <!-- Manual Form -->
+              <form id="loginForm" onsubmit="handleManualLogin(event)" class="space-y-4">
+                <div>
+                  <label id="login-identifier-label" class="block text-xs font-semibold text-on-surface mb-1">
+                    Nomor KTA Marga atau Email Terdaftar
+                  </label>
+                  <div class="relative flex items-center">
+                    <span class="material-symbols-outlined absolute left-3 text-on-surface-variant text-[20px] pointer-events-none">assignment_ind</span>
+                    <input id="login-identifier" type="text" value="ricardo.manurung@gmail.com" required placeholder="Contoh: MNR-2022-00012 atau email" class="w-full pl-10 pr-4 py-2.5 rounded-lg bg-surface-container-low text-on-surface text-sm placeholder:text-outline-variant focus:outline-none focus:ring-2 focus:ring-primary border border-surface-container-high transition">
+                  </div>
+                </div>
+
+                <div>
+                  <div class="flex items-center justify-between mb-1">
+                    <label class="block text-xs font-semibold text-on-surface">Kata Sandi</label>
+                    <a href="#" class="text-[11px] text-secondary hover:underline font-semibold">Lupa Sandi?</a>
+                  </div>
+                  <div class="relative flex items-center">
+                    <span class="material-symbols-outlined absolute left-3 text-on-surface-variant text-[20px] pointer-events-none">key</span>
+                    <input id="login-password" type="password" value="demo12345" required placeholder="••••••••••••" class="w-full pl-10 pr-10 py-2.5 rounded-lg bg-surface-container-low text-on-surface text-sm placeholder:text-outline-variant focus:outline-none focus:ring-2 focus:ring-primary border border-surface-container-high transition">
+                    <button type="button" onclick="togglePasswordVisibility('login-password')" class="absolute right-3 text-on-surface-variant hover:text-on-surface">
+                      <span class="material-symbols-outlined text-[20px]">visibility</span>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Quick Demo Role Selector (Sangat membantu testing) -->
+                <div class="p-3 bg-surface-container-low rounded-xl border border-surface-container-high">
+                  <div class="flex items-center justify-between mb-2">
+                    <span class="text-[11px] font-bold text-primary flex items-center gap-1">
+                      <span class="material-symbols-outlined text-[15px] text-amber-500">bolt</span> Quick Switch Demo Role:
+                    </span>
+                  </div>
+                  <div class="grid grid-cols-3 gap-2">
+                    <button type="button" onclick="quickSelectUser('admin')" class="py-1.5 px-2 bg-surface-container-lowest hover:bg-primary hover:text-white rounded-lg text-[11px] font-semibold border border-surface-container-high transition text-center shadow-xs">
+                      Admin Pengurus
+                    </button>
+                    <button type="button" onclick="quickSelectUser('pengurus')" class="py-1.5 px-2 bg-surface-container-lowest hover:bg-primary hover:text-white rounded-lg text-[11px] font-semibold border border-surface-container-high transition text-center shadow-xs">
+                      Pengurus Sektor
+                    </button>
+                    <button type="button" onclick="quickSelectUser('member')" class="py-1.5 px-2 bg-surface-container-lowest hover:bg-primary hover:text-white rounded-lg text-[11px] font-semibold border border-surface-container-high transition text-center shadow-xs">
+                      Anggota Warga
+                    </button>
+                  </div>
+                </div>
+
+                <button type="submit" class="w-full py-3 px-4 rounded-xl bg-primary hover:bg-primary-container text-white font-semibold text-sm transition shadow-md flex items-center justify-center gap-2 group">
+                  <span>Masuk ke Portal iManurung</span>
+                  <span class="material-symbols-outlined text-[18px] transition-transform group-hover:translate-x-1">arrow_forward</span>
+                </button>
+              </form>
+            </div>
+
+            <div class="mt-6 pt-4 border-t border-surface-container-high space-y-2 text-center sm:text-left">
+              <div class="flex flex-col sm:flex-row items-center justify-between text-xs">
+                <span class="text-on-surface-variant">Belum terdaftar sebagai anggota resmi?</span>
+                <button onclick="openRegistrationModal()" class="text-secondary font-bold hover:underline flex items-center gap-1">
+                  <span>Daftar & Registrasi Tarombo</span>
+                  <span class="material-symbols-outlined text-[14px]">how_to_reg</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- 2. MAIN APPLICATION SHELL (DASHBOARD, ANGGOTA, TREE, IURAN, ARTIKEL)   -->
+  <!-- ===================================================================== -->
+  <div id="view-app" class="hidden min-h-screen flex">
+    
+    <!-- Fixed Sidebar Navigation -->
+    <aside id="appSidebar" class="fixed left-0 top-0 h-full w-64 bg-surface-container-lowest border-r border-surface-container-high z-50 flex flex-col justify-between shadow-sm transition-transform -translate-x-full md:translate-x-0">
+      <div class="flex flex-col">
+        <!-- Brand Header -->
+        <div class="h-16 px-4 flex items-center justify-between border-b border-surface-container-high">
+          <div class="flex items-center gap-2.5">
+            <img src="https://lh3.googleusercontent.com/aida/AEtjO1WUmZhSEbvhF4355BLhvwRiFqzI1zmB7EdUzaGpClqYrS3t97jeEaV_3D6JUOdyI4wMmObNweYwChpOoE94Aq7aGqncR3499fI2bjOPxoUDdIAduI-OA1JBYTezETv4Jhsz541WElDKbrqsOTcz2VDMnMUwNej4Wbm80HQWH7Jcjjrlpx1ovVto5OZWchEfeaZr8UvbI7szVkEq0KlSex-czKIjOZpczqiW3xU6WymRQUQjrYol2D-mxkBs" alt="iManurung Logo" class="h-8 w-auto">
+            <div class="flex flex-col">
+              <span class="font-bold text-primary text-base leading-none">iManurung</span>
+              <span class="text-[10px] text-on-surface-variant font-medium mt-0.5">Portal Marga & Komunitas</span>
+            </div>
+          </div>
+          <button onclick="toggleSidebar()" class="md:hidden text-on-surface-variant p-1">
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        </div>
+
+        <!-- Sektor Aktif Selector -->
+        <div class="p-3">
+          <div class="bg-surface-container-low rounded-xl p-2.5 flex items-center justify-between">
+            <div class="flex flex-col">
+              <span class="text-[10px] font-semibold text-on-surface-variant uppercase tracking-wider">Sektor Aktif</span>
+              <span id="currentSectorLabel" class="text-xs font-bold text-primary truncate">Jabodetabek Barat</span>
+            </div>
+            <span class="material-symbols-outlined text-on-surface-variant text-sm">unfold_more</span>
+          </div>
+        </div>
+
+        <!-- Menu Navigation Links -->
+        <nav class="flex flex-col gap-1 px-3 mt-1">
+          <button onclick="switchViewTab('dashboard')" id="btnNav-dashboard" class="nav-active flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-on-surface-variant hover:bg-surface-container hover:text-primary transition">
+            <span class="material-symbols-outlined text-[20px]">grid_view</span>
+            <span>Dashboard</span>
+          </button>
+          <button onclick="switchViewTab('data-anggota')" id="btnNav-data-anggota" class="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold text-on-surface-variant hover:bg-surface-container hover:text-primary transition">
+            <div class="flex items-center gap-3">
+              <span class="material-symbols-outlined text-[20px]">group</span>
+              <span>Data Anggota</span>
+            </div>
+            <span class="px-1.5 py-0.5 rounded-full bg-secondary text-white text-[9px] font-bold">4.8K</span>
+          </button>
+          <button onclick="switchViewTab('pohon-silsilah')" id="btnNav-pohon-silsilah" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-on-surface-variant hover:bg-surface-container hover:text-primary transition">
+            <span class="material-symbols-outlined text-[20px]">account_tree</span>
+            <span>Pohon Silsilah</span>
+          </button>
+          <button onclick="switchViewTab('iuran-keuangan')" id="btnNav-iuran-keuangan" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-on-surface-variant hover:bg-surface-container hover:text-primary transition">
+            <span class="material-symbols-outlined text-[20px]">account_balance_wallet</span>
+            <span>Iuran & Keuangan</span>
+          </button>
+          <button onclick="switchViewTab('artikel-berita')" id="btnNav-artikel-berita" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-on-surface-variant hover:bg-surface-container hover:text-primary transition">
+            <span class="material-symbols-outlined text-[20px]">newspaper</span>
+            <span>Artikel & Warta</span>
+          </button>
+          <button onclick="switchViewTab('role-management')" id="btnNav-role-management" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-on-surface-variant hover:bg-surface-container hover:text-primary transition">
+            <span class="material-symbols-outlined text-[20px]">admin_panel_settings</span>
+            <span>Role Management</span>
+          </button>
+        </nav>
+      </div>
+
+      <!-- Bottom User Profile Card & Logout -->
+      <div class="p-3 border-t border-surface-container-high bg-surface-container-lowest">
+        <div class="bg-surface-container-low rounded-xl p-3 flex items-center justify-between">
+          <div class="flex items-center gap-2.5 overflow-hidden">
+            <img id="userSidebarAvatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80" alt="Avatar" class="w-8 h-8 rounded-full object-cover shrink-0 ring-1 ring-primary/20">
+            <div class="flex flex-col overflow-hidden">
+              <span id="userSidebarName" class="text-xs font-bold text-primary truncate">St. Ricardo Manurung</span>
+              <span id="userSidebarRole" class="text-[10px] text-secondary font-bold uppercase">Admin Pengurus</span>
+            </div>
+          </div>
+          <button onclick="logout()" title="Keluar" class="p-1.5 text-on-surface-variant hover:text-secondary rounded-lg hover:bg-surface-container transition">
+            <span class="material-symbols-outlined text-[18px]">logout</span>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Right Area -->
+    <div class="flex-1 md:pl-64 flex flex-col min-h-screen">
+      
+      <!-- Sticky Top Header -->
+      <header class="sticky top-0 h-16 bg-surface-container-lowest/90 backdrop-blur-md z-40 border-b border-surface-container-high px-4 sm:px-8 flex items-center justify-between gap-4">
+        <div class="flex items-center gap-3 flex-1 max-w-xl">
+          <button onclick="toggleSidebar()" class="md:hidden text-on-surface p-1.5 rounded-lg hover:bg-surface-container">
+            <span class="material-symbols-outlined">menu</span>
+          </button>
+          <!-- Global Search Input -->
+          <div class="relative w-full flex items-center">
+            <span class="material-symbols-outlined absolute left-3 text-on-surface-variant text-[20px] pointer-events-none">search</span>
+            <input id="globalSearchInput" oninput="handleGlobalSearch(this.value)" type="text" placeholder="Cari nama anggota, no. KTA, atau tarombo..." class="w-full bg-surface-container-low text-on-surface placeholder:text-on-surface-variant text-xs pl-9 pr-14 py-2 rounded-xl outline-none focus:ring-1 focus:ring-primary transition">
+            <div class="absolute right-2.5 bg-surface-container-high px-1.5 py-0.5 rounded text-[10px] font-mono text-on-surface-variant">Ctrl+K</div>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <!-- Setup Spreadsheet Helper Button -->
+          <button onclick="initDatabaseFromUI()" title="Inisialisasi Database Sheet" class="hidden sm:inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-xl bg-surface-container-high hover:bg-surface-container text-primary transition">
+            <span class="material-symbols-outlined text-[16px] text-secondary">database</span>
+            <span>Sync Sheets</span>
+          </button>
+
+          <!-- Notification Icon -->
+          <button onclick="showToast('Notifikasi', 'Tidak ada pengumuman mendesak baru saat ini.')" class="relative p-2 rounded-full text-on-surface-variant hover:bg-surface-container transition">
+            <span class="material-symbols-outlined text-[20px]">notifications</span>
+            <span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-secondary"></span>
+          </button>
+
+          <!-- Topbar Avatar -->
+          <div class="flex items-center gap-2 pl-2 border-l border-surface-container-high">
+            <img id="userTopbarAvatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80" alt="Profile" class="w-8 h-8 rounded-full object-cover ring-1 ring-primary/20">
+          </div>
+        </div>
+      </header>
+
+      <!-- Main Section Container -->
+      <main class="flex-1 p-4 sm:p-8 bg-surface">
+
+        <!-- =============================================================== -->
+        <!-- TAB 1: DASHBOARD STATISTIK & AKTIVITAS                          -->
+        <!-- =============================================================== -->
+        <section id="tab-dashboard" class="space-y-6">
+          <!-- Header Bar -->
+          <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-surface-container-high text-primary text-[10px] uppercase font-bold tracking-wider">
+                  <span class="w-1.5 h-1.5 rounded-full bg-secondary animate-pulse"></span> Statistik Terpadu
+                </span>
+                <span class="text-on-surface-variant text-xs">• Pembaruan Real-Time</span>
+              </div>
+              <h1 class="text-2xl sm:text-3xl font-bold text-primary tracking-tight mt-1">Dashboard Statistik & Aktivitas</h1>
+              <p class="text-xs text-on-surface-variant">Monitoring demografi warga marga Manurung, iuran kas, dan aktivitas komunitas.</p>
+            </div>
+            <div class="flex flex-wrap items-center gap-2">
+              <button onclick="openAddMemberModal()" class="flex items-center gap-1.5 bg-secondary hover:bg-secondary-container text-white text-xs font-semibold px-3.5 py-2 rounded-xl shadow-sm transition">
+                <span class="material-symbols-outlined text-[18px]">person_add</span>
+                <span>Tambah Anggota</span>
+              </button>
+              <button onclick="openRecordDuesModal()" class="flex items-center gap-1.5 bg-primary hover:bg-primary-container text-white text-xs font-semibold px-3.5 py-2 rounded-xl shadow-sm transition">
+                <span class="material-symbols-outlined text-[18px]">add_card</span>
+                <span>Catat Iuran</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- 4 KPI Summary Cards -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+            <!-- Total Anggota -->
+            <div class="bg-surface-container-lowest rounded-2xl p-5 shadow-xs border border-surface-container-high relative overflow-hidden group hover:shadow-md transition">
+              <div class="absolute top-0 left-0 right-0 h-1 bg-primary"></div>
+              <div class="flex items-start justify-between">
+                <div>
+                  <span class="text-[11px] font-semibold text-on-surface-variant uppercase tracking-wider">Total Anggota</span>
+                  <div id="statTotalAnggota" class="text-3xl font-extrabold text-primary mt-1">4.820</div>
+                </div>
+                <div class="w-10 h-10 rounded-xl bg-surface-container-low flex items-center justify-center text-primary">
+                  <span class="material-symbols-outlined text-[22px]">groups</span>
+                </div>
+              </div>
+              <div class="mt-3 pt-2 flex items-center justify-between text-xs border-t border-surface-container-high">
+                <span id="statTerverifikasiLabel" class="text-on-surface-variant">4.434 Terverifikasi</span>
+                <span class="text-emerald-700 font-bold bg-emerald-50 px-1.5 py-0.5 rounded text-[10px]">92% Valid</span>
+              </div>
+            </div>
+
+            <!-- Kas Iuran 2025 -->
+            <div class="bg-surface-container-lowest rounded-2xl p-5 shadow-xs border border-surface-container-high relative overflow-hidden group hover:shadow-md transition">
+              <div class="absolute top-0 left-0 right-0 h-1 bg-secondary"></div>
+              <div class="flex items-start justify-between">
+                <div>
+                  <span class="text-[11px] font-semibold text-on-surface-variant uppercase tracking-wider">Kas Iuran 2025</span>
+                  <div id="statKasIuran" class="text-2xl sm:text-3xl font-extrabold text-primary mt-1">Rp 348,6 Jt</div>
+                </div>
+                <div class="w-10 h-10 rounded-xl bg-secondary/10 flex items-center justify-center text-secondary">
+                  <span class="material-symbols-outlined text-[22px]">account_balance</span>
+                </div>
+              </div>
+              <div class="mt-3 pt-2 flex items-center justify-between text-xs border-t border-surface-container-high">
+                <span class="text-on-surface-variant">Target Rp 450 Jt</span>
+                <span class="text-secondary font-bold text-[10px]">78% Tercapai</span>
+              </div>
+            </div>
+
+            <!-- Kepatuhan Iuran -->
+            <div class="bg-surface-container-lowest rounded-2xl p-5 shadow-xs border border-surface-container-high relative overflow-hidden group hover:shadow-md transition">
+              <div class="absolute top-0 left-0 right-0 h-1 bg-amber-500"></div>
+              <div class="flex items-start justify-between">
+                <div>
+                  <span class="text-[11px] font-semibold text-on-surface-variant uppercase tracking-wider">Kepatuhan Iuran</span>
+                  <div id="statKepatuhanIuran" class="text-3xl font-extrabold text-primary mt-1">84.6%</div>
+                </div>
+                <div class="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center text-amber-700">
+                  <span class="material-symbols-outlined text-[22px]">payments</span>
+                </div>
+              </div>
+              <div class="mt-3 pt-2 flex items-center justify-between text-xs border-t border-surface-container-high">
+                <span class="text-on-surface-variant">Gotong Royong</span>
+                <span class="text-amber-800 font-bold text-[10px]">8 Sektor Aktif</span>
+              </div>
+            </div>
+
+            <!-- Rumpun Silau Raja -->
+            <div class="bg-surface-container-lowest rounded-2xl p-5 shadow-xs border border-surface-container-high relative overflow-hidden group hover:shadow-md transition">
+              <div class="absolute top-0 left-0 right-0 h-1 bg-blue-600"></div>
+              <div class="flex items-start justify-between">
+                <div>
+                  <span class="text-[11px] font-semibold text-on-surface-variant uppercase tracking-wider">3 Rumpun Utama</span>
+                  <div class="text-lg font-bold text-primary mt-1">Ompu Silau Raja</div>
+                </div>
+                <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-700">
+                  <span class="material-symbols-outlined text-[22px]">diversity_3</span>
+                </div>
+              </div>
+              <div class="mt-3 pt-2 flex flex-col gap-1 text-[11px] border-t border-surface-container-high">
+                <div class="flex justify-between font-semibold">
+                  <span>Hutagurgur (46%)</span>
+                  <span>Hutagaol (32%)</span>
+                  <span>Simanoroni (22%)</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Charts Row -->
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <div class="lg:col-span-7 bg-surface-container-lowest rounded-2xl p-5 border border-surface-container-high shadow-xs">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="text-sm font-bold text-primary">Distribusi Generasi (Sundut Tarombo)</h3>
+                <span class="text-xs text-on-surface-variant">Dari Generasi Leluhur ke-1 hingga ke-19</span>
+              </div>
+              <div class="h-64">
+                <canvas id="generasiChart"></canvas>
+              </div>
+            </div>
+
+            <div class="lg:col-span-5 bg-surface-container-lowest rounded-2xl p-5 border border-surface-container-high shadow-xs">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="text-sm font-bold text-primary">Proporsi 3 Rumpun Marga</h3>
+                <span class="text-xs text-on-surface-variant">Persentase</span>
+              </div>
+              <div class="h-64 flex items-center justify-center">
+                <canvas id="rumpunChart"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- Activity Audit Log & Recent Publications -->
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <!-- Audit Trail -->
+            <div class="lg:col-span-7 bg-surface-container-lowest rounded-2xl p-5 border border-surface-container-high shadow-xs">
+              <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-2">
+                  <span class="material-symbols-outlined text-primary text-[20px]">history</span>
+                  <h3 class="text-sm font-bold text-primary">Log Aktivitas & Perubahan Terakhir</h3>
+                </div>
+                <span class="text-xs text-on-surface-variant">Audit Trail NFR-5</span>
+              </div>
+              <div id="dashboardActivityLogList" class="space-y-3 max-h-80 overflow-y-auto pr-1">
+                <!-- Injected via JavaScript -->
+              </div>
+            </div>
+
+            <!-- Recent Articles Highlights -->
+            <div class="lg:col-span-5 bg-surface-container-lowest rounded-2xl p-5 border border-surface-container-high shadow-xs">
+              <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-2">
+                  <span class="material-symbols-outlined text-secondary text-[20px]">campaign</span>
+                  <h3 class="text-sm font-bold text-primary">Warta Adat & Pengumuman</h3>
+                </div>
+                <button onclick="switchViewTab('artikel-berita')" class="text-xs text-secondary font-bold hover:underline">Lihat Semua</button>
+              </div>
+              <div id="dashboardArticlesList" class="space-y-3">
+                <!-- Injected via JavaScript -->
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- =============================================================== -->
+        <!-- TAB 2: DIREKTORI & MASTER DATA ANGGOTA                           -->
+        <!-- =============================================================== -->
+        <section id="tab-data-anggota" class="hidden space-y-6">
+          <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+            <div>
+              <div class="flex items-center gap-2 text-xs text-on-surface-variant">
+                <span>Beranda</span>
+                <span class="material-symbols-outlined text-[14px]">chevron_right</span>
+                <span>Komunitas</span>
+                <span class="material-symbols-outlined text-[14px]">chevron_right</span>
+                <span class="text-primary font-bold">Direktori Anggota</span>
+              </div>
+              <h1 class="text-2xl sm:text-3xl font-bold text-primary tracking-tight mt-1">Direktori & Master Data Anggota</h1>
+              <p class="text-xs text-on-surface-variant">Kelola data kependudukan marga, penelusuran silsilah, dan status kepengurusan sektor.</p>
+            </div>
+            <div class="flex flex-wrap items-center gap-2">
+              <button onclick="openAddMemberModal()" class="flex items-center gap-1.5 bg-secondary hover:bg-secondary-container text-white text-xs font-semibold px-4 py-2 rounded-xl shadow-sm transition">
+                <span class="material-symbols-outlined text-[18px]">person_add</span>
+                <span>Tambah Anggota</span>
+              </button>
+              <button onclick="switchViewTab('pohon-silsilah')" class="flex items-center gap-1.5 bg-surface-container-lowest hover:bg-surface-container text-primary text-xs font-semibold px-4 py-2 rounded-xl border border-surface-container-high shadow-sm transition">
+                <span class="material-symbols-outlined text-[18px]">account_tree</span>
+                <span>Buka Pohon Silsilah</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Advanced Batak Tarombo Filter Bar -->
+          <div class="bg-surface-container-lowest p-4 rounded-2xl border border-surface-container-high shadow-xs space-y-3">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3">
+              <!-- Search Input -->
+              <div class="lg:col-span-4 relative flex items-center">
+                <span class="material-symbols-outlined absolute left-3 text-on-surface-variant text-[20px] pointer-events-none">search</span>
+                <input id="filterMemberSearch" oninput="applyMemberFilters()" type="text" placeholder="Cari nama, KTA, ayah, kota..." class="w-full bg-surface-container-low text-xs pl-9 pr-4 py-2 rounded-xl outline-none focus:ring-1 focus:ring-primary border border-surface-container-high transition">
+              </div>
+              <!-- Rumpun Dropdown -->
+              <div class="lg:col-span-2">
+                <select id="filterMemberRumpun" onchange="applyMemberFilters()" class="w-full bg-surface-container-low text-xs px-3 py-2 rounded-xl outline-none border border-surface-container-high cursor-pointer font-medium">
+                  <option value="">Semua Rumpun</option>
+                  <option value="Hutagurgur">Hutagurgur</option>
+                  <option value="Hutagaol">Hutagaol</option>
+                  <option value="Simanoroni">Simanoroni</option>
+                </select>
+              </div>
+              <!-- Sundut Dropdown -->
+              <div class="lg:col-span-2">
+                <select id="filterMemberSundut" onchange="applyMemberFilters()" class="w-full bg-surface-container-low text-xs px-3 py-2 rounded-xl outline-none border border-surface-container-high cursor-pointer font-medium">
+                  <option value="">Semua Sundut</option>
+                  <option value="14">Sundut 14</option>
+                  <option value="15">Sundut 15</option>
+                  <option value="16">Sundut 16</option>
+                  <option value="17">Sundut 17</option>
+                  <option value="18">Sundut 18</option>
+                </select>
+              </div>
+              <!-- Sektor Dropdown -->
+              <div class="lg:col-span-2">
+                <select id="filterMemberSektor" onchange="applyMemberFilters()" class="w-full bg-surface-container-low text-xs px-3 py-2 rounded-xl outline-none border border-surface-container-high cursor-pointer font-medium">
+                  <option value="">Semua Sektor</option>
+                  <option value="Jabodetabek Barat">Jabodetabek Barat</option>
+                  <option value="Jabodetabek Timur">Jabodetabek Timur</option>
+                  <option value="Toba & Bona Pasogit">Toba & Bona Pasogit</option>
+                  <option value="Medan & Deli">Medan & Deli</option>
+                  <option value="Surabaya & Jatim">Surabaya & Jatim</option>
+                </select>
+              </div>
+              <!-- Status Berkas Dropdown -->
+              <div class="lg:col-span-2">
+                <select id="filterMemberStatus" onchange="applyMemberFilters()" class="w-full bg-surface-container-low text-xs px-3 py-2 rounded-xl outline-none border border-surface-container-high cursor-pointer font-medium">
+                  <option value="">Semua Status</option>
+                  <option value="Aktif">Aktif</option>
+                  <option value="NonAktif">Non-Aktif</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="flex flex-wrap items-center justify-between gap-2 pt-1 text-xs">
+              <div class="flex items-center gap-2">
+                <span class="text-on-surface-variant font-medium">Ditemukan:</span>
+                <span id="memberCountBadge" class="font-bold text-primary">0 Anggota</span>
+                <button onclick="resetMemberFilters()" class="text-secondary font-semibold hover:underline ml-2">Reset Filter</button>
+              </div>
+              <div class="text-on-surface-variant text-[11px]">
+                Tip: Klik baris anggota untuk membuka profil lengkap & silsilah mini 3 generasi.
+              </div>
+            </div>
+          </div>
+
+          <!-- Master-Detail Content Grid: Table + Side Profile Drawer -->
+          <div class="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
+            <!-- Left: Table of Members -->
+            <div class="xl:col-span-8 bg-surface-container-lowest rounded-2xl border border-surface-container-high shadow-xs overflow-hidden flex flex-col">
+              <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs border-collapse">
+                  <thead>
+                    <tr class="bg-surface-container-low text-on-surface-variant uppercase tracking-wider font-semibold border-b border-surface-container-high">
+                      <th class="py-3 px-4">Anggota & No. KTA</th>
+                      <th class="py-3 px-4">Rumpun & Sundut</th>
+                      <th class="py-3 px-4 hidden md:table-cell">Sektor / Domisili</th>
+                      <th class="py-3 px-4">Status</th>
+                      <th class="py-3 px-4 text-right">Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody id="memberTableBody" class="divide-y divide-surface-container-high">
+                    <!-- Injected via JavaScript -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Right: Side Preview Drawer (Sticky) -->
+            <div id="memberDetailDrawer" class="xl:col-span-4 bg-surface-container-lowest rounded-2xl border border-surface-container-high shadow-md overflow-hidden sticky top-20">
+              <div class="h-1.5 w-full bg-gradient-to-r from-secondary via-amber-500 to-primary"></div>
+              <div class="p-4 border-b border-surface-container-high flex items-center justify-between bg-surface-container-low/50">
+                <div class="flex items-center gap-2">
+                  <span class="material-symbols-outlined text-primary text-[20px]">contact_page</span>
+                  <span class="font-bold text-sm text-primary">Detail Profil & Tarombo</span>
+                </div>
+                <span id="drawerStatusBadge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">Terverifikasi</span>
+              </div>
+
+              <div class="p-5 space-y-4">
+                <!-- Hero Member Info -->
+                <div class="flex items-start gap-3.5">
+                  <img id="drawerAvatar" src="" alt="" class="w-14 h-14 rounded-xl object-cover shrink-0 shadow-sm ring-1 ring-primary/20">
+                  <div class="min-w-0">
+                    <h3 id="drawerName" class="font-bold text-base text-primary truncate">-</h3>
+                    <div class="flex items-center gap-1.5 text-xs text-secondary font-semibold mt-0.5">
+                      <span id="drawerRumpun">-</span>
+                      <span>•</span>
+                      <span id="drawerSundut">-</span>
+                    </div>
+                    <span id="drawerKta" class="font-mono text-[11px] text-on-surface-variant block mt-0.5">-</span>
+                  </div>
+                </div>
+
+                <!-- Quick Action Buttons -->
+                <div class="grid grid-cols-2 gap-2">
+                  <a id="drawerWaLink" href="#" target="_blank" class="flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-semibold text-xs transition">
+                    <span class="material-symbols-outlined text-[16px] text-emerald-600">chat</span>
+                    <span>Hubungi WA</span>
+                  </a>
+                  <button id="drawerEditBtn" onclick="editSelectedMember()" class="flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-surface-container hover:bg-surface-container-high text-primary font-semibold text-xs transition">
+                    <span class="material-symbols-outlined text-[16px]">edit</span>
+                    <span>Edit Profil</span>
+                  </button>
+                </div>
+
+                <!-- Mini 3-Generasi Tarombo Box -->
+                <div class="bg-surface-container-low p-4 rounded-xl space-y-3">
+                  <div class="flex items-center justify-between">
+                    <span class="text-[11px] uppercase tracking-wider font-bold text-secondary flex items-center gap-1">
+                      <span class="material-symbols-outlined text-[15px]">account_tree</span> Bagan Tarombo 3 Generasi
+                    </span>
+                  </div>
+                  
+                  <div class="relative pl-5 before:absolute before:left-2 before:top-2 before:bottom-2 before:w-0.5 before:bg-outline-variant space-y-3">
+                    <!-- Ompung -->
+                    <div class="relative bg-surface-container-lowest p-2.5 rounded-lg shadow-xs text-xs">
+                      <span class="text-[10px] text-on-surface-variant font-bold block">Ompung (Kakek)</span>
+                      <p id="drawerOmpungName" class="font-bold text-primary mt-0.5">-</p>
+                    </div>
+                    <!-- Ayah -->
+                    <div class="relative bg-surface-container-lowest p-2.5 rounded-lg shadow-xs text-xs">
+                      <span class="text-[10px] text-on-surface-variant font-bold block">Ayah / Orang Tua</span>
+                      <p id="drawerAyahName" class="font-bold text-primary mt-0.5">-</p>
+                      <span id="drawerIbuName" class="text-[10px] text-on-surface-variant block mt-0.5">-</span>
+                    </div>
+                    <!-- Anggota Sendiri -->
+                    <div class="relative bg-primary-container text-white p-2.5 rounded-lg shadow-xs text-xs">
+                      <span class="text-[10px] text-amber-300 font-bold block">Anggota Terpilih</span>
+                      <p id="drawerSelfName" class="font-bold mt-0.5">-</p>
+                      <span id="drawerPasangan" class="text-[10px] text-slate-300 block mt-0.5">-</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Info detail rows -->
+                <div class="space-y-2 text-xs border-t border-surface-container-high pt-3">
+                  <div class="flex justify-between">
+                    <span class="text-on-surface-variant">Pekerjaan:</span>
+                    <span id="drawerPekerjaan" class="font-semibold text-primary">-</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="text-on-surface-variant">Bona Pasogit:</span>
+                    <span id="drawerBonaPasogit" class="font-semibold text-primary">-</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="text-on-surface-variant">Alamat Domisili:</span>
+                    <span id="drawerAlamat" class="font-semibold text-primary truncate max-w-[200px]">-</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- =============================================================== -->
+        <!-- TAB 3: POHON SILSILAH INTERAKTIF (D3.JS FAMILY TREE)            -->
+        <!-- =============================================================== -->
+        <section id="tab-pohon-silsilah" class="hidden space-y-4">
+          <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+            <div>
+              <h1 class="text-2xl sm:text-3xl font-bold text-primary tracking-tight">Pohon Silsilah Keluarga (Tarombo)</h1>
+              <p class="text-xs text-on-surface-variant">Visualisasi hierarkis dari Ompu Silau Raja hingga generasi termuda. Dapat digeser (pan) dan diperbesar (zoom).</p>
+            </div>
+
+            <!-- Controls Toolbar -->
+            <div class="flex flex-wrap items-center gap-2">
+              <div class="flex items-center gap-1.5 bg-surface-container-lowest px-3 py-1.5 rounded-xl border border-surface-container-high text-xs font-semibold shadow-xs">
+                <span>Leluhur Awal:</span>
+                <select id="treeRootSelect" onchange="renderFamilyTree()" class="bg-transparent text-primary font-bold outline-none cursor-pointer">
+                  <!-- Injected via JS -->
+                </select>
+              </div>
+
+              <div class="flex items-center bg-surface-container-lowest rounded-xl border border-surface-container-high shadow-xs overflow-hidden">
+                <button onclick="zoomInTree()" title="Perbesar" class="p-2 hover:bg-surface-container text-on-surface transition">
+                  <span class="material-symbols-outlined text-[18px]">zoom_in</span>
+                </button>
+                <button onclick="zoomOutTree()" title="Perkecil" class="p-2 hover:bg-surface-container text-on-surface transition">
+                  <span class="material-symbols-outlined text-[18px]">zoom_out</span>
+                </button>
+                <button onclick="resetTreeZoom()" title="Reset Posisi" class="p-2 hover:bg-surface-container text-on-surface transition">
+                  <span class="material-symbols-outlined text-[18px]">restart_alt</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Color Legend -->
+          <div class="flex flex-wrap items-center gap-4 text-xs font-semibold px-4 py-2.5 rounded-xl bg-surface-container-lowest border border-surface-container-high">
+            <span class="text-on-surface-variant">Rumpun Warna:</span>
+            <div class="flex items-center gap-1.5">
+              <span class="w-3 h-3 rounded-full bg-primary-container"></span>
+              <span>Hutagurgur (Raja 1)</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <span class="w-3 h-3 rounded-full bg-secondary"></span>
+              <span>Hutagaol (Raja 2)</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <span class="w-3 h-3 rounded-full bg-amber-600"></span>
+              <span>Simanoroni (Raja 3)</span>
+            </div>
+          </div>
+
+          <!-- SVG Canvas Container -->
+          <div class="w-full bg-white rounded-2xl border border-surface-container-high shadow-inner relative overflow-hidden min-h-[580px] tree-container" id="treeContainer">
+            <svg id="treeSvg" class="w-full h-full min-h-[580px] cursor-grab active:cursor-grabbing"></svg>
+          </div>
+        </section>
+
+        <!-- =============================================================== -->
+        <!-- TAB 4: IURAN & KEUANGAN KOMUNITAS                               -->
+        <!-- =============================================================== -->
+        <section id="tab-iuran-keuangan" class="hidden space-y-6">
+          <div class="w-full h-1 bg-gradient-to-r from-secondary via-secondary-container to-amber-500 rounded-full"></div>
+          
+          <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+            <div>
+              <div class="flex items-center gap-2">
+                <h1 class="text-2xl sm:text-3xl font-bold text-primary tracking-tight">Pencatatan & Verifikasi Iuran Kas</h1>
+                <span class="text-xs px-2 py-0.5 rounded-full bg-secondary/10 text-secondary font-bold">2025</span>
+              </div>
+              <p class="text-xs text-on-surface-variant mt-0.5">Kelola rekap penerimaan kas iuran tahunan, dana sosial duka, dan gotong royong anggota marga.</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <button onclick="openRecordDuesModal()" class="flex items-center gap-1.5 bg-secondary hover:bg-secondary-container text-white text-xs font-semibold px-4 py-2 rounded-xl shadow-sm transition">
+                <span class="material-symbols-outlined text-[18px]">add_circle</span>
+                <span>Catat Iuran Baru</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Financial Bento Metric Cards -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+            <div class="bg-surface-container-lowest p-5 rounded-2xl border border-surface-container-high shadow-xs">
+              <span class="text-[11px] font-semibold text-on-surface-variant uppercase tracking-wider">Total Kas Terkumpul</span>
+              <div id="statDuesCollected" class="text-2xl font-extrabold text-primary mt-1">Rp 348.650.000</div>
+              <div class="mt-2 text-xs text-emerald-700 font-semibold flex items-center gap-1">
+                <span class="material-symbols-outlined text-[16px]">trending_up</span> Surplus Q1
+              </div>
+            </div>
+
+            <div class="bg-surface-container-lowest p-5 rounded-2xl border border-surface-container-high shadow-xs">
+              <span class="text-[11px] font-semibold text-on-surface-variant uppercase tracking-wider">Target Kas 2025</span>
+              <div class="text-2xl font-extrabold text-primary mt-1">Rp 450.000.000</div>
+              <div class="w-full bg-surface-container-high rounded-full h-1.5 mt-3 overflow-hidden">
+                <div class="bg-primary h-full" style="width: 77.4%"></div>
+              </div>
+            </div>
+
+            <div class="bg-surface-container-lowest p-5 rounded-2xl border border-surface-container-high shadow-xs">
+              <span class="text-[11px] font-semibold text-on-surface-variant uppercase tracking-wider">Anggota Tertib Bayar</span>
+              <div class="text-2xl font-extrabold text-primary mt-1">4.078 KK</div>
+              <div class="mt-2 text-xs text-on-surface-variant">Dari total 4.820 terdata</div>
+            </div>
+
+            <div class="bg-surface-container-lowest p-5 rounded-2xl border border-surface-container-high shadow-xs">
+              <span class="text-[11px] font-semibold text-on-surface-variant uppercase tracking-wider">Dana Gotong Royong / Duka</span>
+              <div class="text-2xl font-extrabold text-secondary mt-1">Rp 82.400.000</div>
+              <div class="mt-2 text-xs text-secondary font-semibold">Siap Salur Bencana & Duka</div>
+            </div>
+          </div>
+
+          <!-- Transaction Table -->
+          <div class="bg-surface-container-lowest rounded-2xl border border-surface-container-high shadow-xs overflow-hidden">
+            <div class="p-4 border-b border-surface-container-high flex flex-wrap items-center justify-between gap-3 bg-surface-container-low/50">
+              <h3 class="text-sm font-bold text-primary">Rekap Transaksi Iuran Terkini</h3>
+              <div class="flex items-center gap-2">
+                <select id="filterDuesPeriod" onchange="renderDuesTable()" class="bg-surface-container-lowest text-xs px-3 py-1.5 rounded-lg border border-surface-container-high outline-none font-medium">
+                  <option value="">Semua Periode</option>
+                  <option value="2025">Tahun 2025</option>
+                  <option value="2025-01">Januari 2025</option>
+                  <option value="2025-02">Februari 2025</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs border-collapse">
+                <thead>
+                  <tr class="bg-surface-container-low text-on-surface-variant uppercase tracking-wider font-semibold border-b border-surface-container-high">
+                    <th class="py-3 px-4">No. Kuitansi</th>
+                    <th class="py-3 px-4">Nama Anggota</th>
+                    <th class="py-3 px-4">Periode</th>
+                    <th class="py-3 px-4">Nominal</th>
+                    <th class="py-3 px-4">Tanggal Bayar</th>
+                    <th class="py-3 px-4">Status</th>
+                    <th class="py-3 px-4">Catatan</th>
+                  </tr>
+                </thead>
+                <tbody id="duesTableBody" class="divide-y divide-surface-container-high">
+                  <!-- Injected via JavaScript -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- =============================================================== -->
+        <!-- TAB 5: CMS ARTIKEL, WARTA ADAT & BERITA KOMUNITAS               -->
+        <!-- =============================================================== -->
+        <section id="tab-artikel-berita" class="hidden space-y-6">
+          <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+            <div>
+              <div class="flex items-center gap-2 text-xs text-on-surface-variant">
+                <span>Beranda</span>
+                <span class="material-symbols-outlined text-[14px]">chevron_right</span>
+                <span class="text-primary font-bold">Publikasi Komunitas</span>
+              </div>
+              <h1 class="text-2xl sm:text-3xl font-bold text-primary tracking-tight mt-1">Artikel, Warta Adat & Berita Marga</h1>
+              <p class="text-xs text-on-surface-variant">Pusat informasi resmi peribadahan Bona Taon, warta suka/duka, dan artikel silsilah.</p>
+            </div>
+            <button onclick="openArticleEditorModal()" class="flex items-center gap-1.5 bg-secondary hover:bg-secondary-container text-white text-xs font-semibold px-4 py-2 rounded-xl shadow-sm transition">
+              <span class="material-symbols-outlined text-[18px]">edit_square</span>
+              <span>+ Tulis Artikel Baru</span>
+            </button>
+          </div>
+
+          <!-- Category filter pills -->
+          <div class="flex flex-wrap items-center gap-2 text-xs">
+            <button onclick="filterArticlesByCategory('all')" id="artCat-all" class="px-3 py-1.5 rounded-full bg-primary text-white font-bold transition">Semua</button>
+            <button onclick="filterArticlesByCategory('Warta Adat')" id="artCat-warta" class="px-3 py-1.5 rounded-full bg-surface-container-lowest hover:bg-surface-container border border-surface-container-high text-on-surface font-semibold transition">Warta Adat</button>
+            <button onclick="filterArticlesByCategory('Sejarah & Tarombo')" id="artCat-sejarah" class="px-3 py-1.5 rounded-full bg-surface-container-lowest hover:bg-surface-container border border-surface-container-high text-on-surface font-semibold transition">Sejarah & Tarombo</button>
+            <button onclick="filterArticlesByCategory('Pengumuman Resmi')" id="artCat-pengumuman" class="px-3 py-1.5 rounded-full bg-surface-container-lowest hover:bg-surface-container border border-surface-container-high text-on-surface font-semibold transition">Pengumuman Resmi</button>
+          </div>
+
+          <!-- Article Cards Grid -->
+          <div id="articlesCardsGrid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            <!-- Injected via JavaScript -->
+          </div>
+        </section>
+
+        <!-- =============================================================== -->
+        <!-- TAB 6: ROLE MANAGEMENT & RBAC                                   -->
+        <!-- =============================================================== -->
+        <section id="tab-role-management" class="hidden space-y-6">
+          <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+            <div>
+              <div class="flex items-center gap-2">
+                <h1 class="text-2xl sm:text-3xl font-bold text-primary tracking-tight">Manajemen Role & Hak Akses Kepengurusan</h1>
+                <span class="text-xs px-2.5 py-0.5 rounded-full bg-primary/10 text-primary font-bold uppercase">RBAC</span>
+              </div>
+              <p class="text-xs text-on-surface-variant mt-0.5">Kelola wewenang akun pengurus pusat, koordinator sektor, dan akses anggota biasa.</p>
+            </div>
+          </div>
+
+          <!-- Users Role Table -->
+          <div class="bg-surface-container-lowest rounded-2xl border border-surface-container-high shadow-xs overflow-hidden">
+            <div class="p-4 border-b border-surface-container-high bg-surface-container-low/50">
+              <h3 class="text-sm font-bold text-primary">Daftar Akun Pengguna & Hak Akses</h3>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs border-collapse">
+                <thead>
+                  <tr class="bg-surface-container-low text-on-surface-variant uppercase tracking-wider font-semibold border-b border-surface-container-high">
+                    <th class="py-3 px-4">Nama Pengguna</th>
+                    <th class="py-3 px-4">Email Google SSO</th>
+                    <th class="py-3 px-4">Role Saat Ini</th>
+                    <th class="py-3 px-4">Status</th>
+                    <th class="py-3 px-4 text-right">Ubah Role</th>
+                  </tr>
+                </thead>
+                <tbody id="roleUsersTableBody" class="divide-y divide-surface-container-high">
+                  <!-- Injected via JavaScript -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- 3. MODALS & POPUPS                                                    -->
+  <!-- ===================================================================== -->
+
+  <!-- MODAL: Tambah / Edit Anggota Keluarga (Skema 16 Kolom PRD) -->
+  <div id="modalAddMember" class="fixed inset-0 z-50 modal-backdrop hidden flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-surface-container-lowest rounded-2xl max-w-3xl w-full p-6 shadow-2xl border border-surface-container-high my-auto space-y-4">
+      <div class="flex items-center justify-between border-b border-surface-container-high pb-3">
+        <div class="flex items-center gap-2">
+          <span class="material-symbols-outlined text-secondary text-[24px]">person_add</span>
+          <h3 id="modalMemberTitle" class="text-base font-bold text-primary">Tambah Anggota Keluarga Baru</h3>
+        </div>
+        <button onclick="closeModal('modalAddMember')" class="text-on-surface-variant hover:text-on-surface">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <form id="formMember" onsubmit="handleSaveMember(event)" class="space-y-4">
+        <input type="hidden" id="memberFormId" value="">
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+          <!-- Nama Lengkap -->
+          <div>
+            <label class="block font-semibold text-on-surface mb-1">Nama Lengkap *</label>
+            <input id="inputNama" required type="text" placeholder="Contoh: St. Ricardo Manurung, M.Si" class="w-full bg-surface-container-low p-2.5 rounded-lg border border-surface-container-high outline-none focus:ring-1 focus:ring-primary">
+          </div>
+
+          <!-- Jenis Kelamin -->
+          <div>
+            <label class="block font-semibold text-on-surface mb-1">Jenis Kelamin</label>
+            <select id="inputJenisKelamin" class="w-full bg-surface-container-low p-2.5 rounded-lg border border-surface-container-high outline-none cursor-pointer">
+              <option value="L">Laki-laki</option>
+              <option value="P">Perempuan (Boru)</option>
+            </select>
+          </div>
+
+          <!-- Rumpun -->
+          <div>
+            <label class="block font-semibold text-on-surface mb-1">Rumpun Manurung *</label>
+            <select id="inputRumpun" class="w-full bg-surface-container-low p-2.5 rounded-lg border border-surface-container-high outline-none cursor-pointer font-medium">
+              <option value="Hutagurgur">Hutagurgur (Raja 1)</option>
+              <option value="Hutagaol">Hutagaol (Raja 2)</option>
+              <option value="Simanoroni">Simanoroni (Raja 3)</option>
+            </select>
+          </div>
+
+          <!-- Generasi (Sundut) -->
+          <div>
+            <label class="block font-semibold text-on-surface mb-1">Sundut (Generasi ke-) *</label>
+            <input id="inputGenerasi" type="number" min="1" max="25" value="16" class="w-full bg-surface-container-low p-2.5 rounded-lg border border-surface-container-high outline-none focus:ring-1 focus:ring-primary">
+          </div>
+
+          <!-- Orang Tua (ParentID) -->
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <label class="block font-semibold text-on-surface">Orang Tua / Ayah (ParentID)</label>
+              <button type="button" onclick="openSearchTaromboModal('formMember')" class="text-[10px] text-secondary font-bold hover:underline">Cari Tarombo</button>
+            </div>
+            <select id="inputParentID" class="w-full bg-surface-container-low p-2.5 rounded-lg border border-surface-container-high outline-none cursor-pointer">
+              <option value="">-- Tidak ada (Leluhur Awal) --</option>
+              <!-- Injected via JS -->
+            </select>
+          </div>
+
+          <!-- Pasangan (Spouse) -->
+          <div>
+            <label class="block font-semibold text-on-surface mb-1">Nama Pasangan (Istri / Suami)</label>
+            <input id="inputSpouse" type="text" placeholder="Contoh: Tiurma br. Simanjuntak" class="w-full bg-surface-container-low p-2.5 rounded-lg border border-surface-container-high outline-none">
+          </div>
+
+          <!-- Tanggal Lahir -->
+          <div>
+            <label class="block font-semibold text-on-surface mb-1">Tanggal Lahir</label>
+            <input id="inputTanggalLahir" type="date" class="w-full bg-surface-container-low p-2.5 rounded-lg border border-surface-container-high outline-none">
+          </div>
+
+          <!-- No HP / WA -->
+          <div>
+            <label class="block font-semibold text-on-surface mb-1">No. WhatsApp / HP</label>
+            <input id="inputNoHP" type="text" placeholder="0812xxxx" class="w-full bg-surface-container-low p-2.5 rounded-lg border border-surface-container-high outline-none">
+          </div>
+
+          <!-- Sektor Wilayah -->
+          <div>
+            <label class="block font-semibold text-on-surface mb-1">Sektor Kepengurusan</label>
+            <select id="inputSektor" class="w-full bg-surface-container-low p-2.5 rounded-lg border border-surface-container-high outline-none cursor-pointer">
+              <option value="Jabodetabek Barat">Jabodetabek Barat</option>
+              <option value="Jabodetabek Timur">Jabodetabek Timur</option>
+              <option value="Toba & Bona Pasogit">Toba & Bona Pasogit</option>
+              <option value="Medan & Deli">Medan & Deli</option>
+              <option value="Surabaya & Jatim">Surabaya & Jatim</option>
+            </select>
+          </div>
+
+          <!-- Bona Pasogit Asal -->
+          <div>
+            <label class="block font-semibold text-on-surface mb-1">Bona Pasogit (Kampung Asal)</label>
+            <input id="inputBonaPasogitForm" type="text" placeholder="Misal: Sibisa, Narumonda, Porsea" class="w-full bg-surface-container-low p-2.5 rounded-lg border border-surface-container-high outline-none">
+          </div>
+
+          <!-- Alamat Domisili -->
+          <div class="sm:col-span-2">
+            <label class="block font-semibold text-on-surface mb-1">Alamat Domisili Sekarang</label>
+            <input id="inputAlamat" type="text" placeholder="Alamat lengkap tempat tinggal" class="w-full bg-surface-container-low p-2.5 rounded-lg border border-surface-container-high outline-none">
+          </div>
+        </div>
+
+        <div class="flex items-center justify-end gap-3 pt-3 border-t border-surface-container-high">
+          <button type="button" onclick="closeModal('modalAddMember')" class="px-4 py-2 rounded-xl bg-surface-container hover:bg-surface-container-high text-xs font-semibold text-on-surface transition">
+            Batal
+          </button>
+          <button type="submit" class="px-5 py-2 rounded-xl bg-primary hover:bg-primary-container text-white text-xs font-semibold transition shadow-sm">
+            Simpan Data Anggota
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: Cari Tarombo Ayah / Kakek (Database Silsilah Nasional) -->
+  <div id="modalSearchTarombo" class="fixed inset-0 z-50 modal-backdrop hidden flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-surface-container-lowest rounded-2xl max-w-2xl w-full p-6 shadow-2xl border border-surface-container-high my-auto space-y-4">
+      <div class="flex items-center justify-between border-b border-surface-container-high pb-3">
+        <div class="flex items-center gap-2">
+          <span class="material-symbols-outlined text-secondary text-[24px]">family_history</span>
+          <div>
+            <h3 class="text-sm font-bold text-primary">Cari & Hubungkan Tarombo Ayah / Kakek</h3>
+            <p class="text-[11px] text-on-surface-variant">Cari anggota terdaftar di database untuk dihubungkan sebagai Parent silsilah.</p>
+          </div>
+        </div>
+        <button onclick="closeModal('modalSearchTarombo')" class="text-on-surface-variant hover:text-on-surface">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <div class="space-y-3">
+        <div class="relative flex items-center">
+          <span class="material-symbols-outlined absolute left-3 text-on-surface-variant text-[20px]">search</span>
+          <input id="modalSearchTaromboInput" oninput="searchTaromboCandidates(this.value)" type="text" placeholder="Ketik nama ayah, nomor KTA, atau kota..." class="w-full pl-10 pr-4 py-2.5 rounded-xl bg-surface-container-low text-xs border border-surface-container-high outline-none focus:ring-1 focus:ring-primary">
+        </div>
+
+        <div id="taromboSearchResults" class="space-y-2 max-h-64 overflow-y-auto pr-1">
+          <!-- Injected via JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Pencatatan Iuran Kas Manual -->
+  <div id="modalRecordDues" class="fixed inset-0 z-50 modal-backdrop hidden flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-surface-container-lowest rounded-2xl max-w-md w-full p-6 shadow-2xl border border-surface-container-high my-auto space-y-4">
+      <div class="flex items-center justify-between border-b border-surface-container-high pb-3">
+        <div class="flex items-center gap-2">
+          <span class="material-symbols-outlined text-secondary text-[22px]">add_card</span>
+          <h3 class="text-sm font-bold text-primary">Catat Iuran Anggota</h3>
+        </div>
+        <button onclick="closeModal('modalRecordDues')" class="text-on-surface-variant hover:text-on-surface">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <form onsubmit="handleSaveDues(event)" class="space-y-3 text-xs">
+        <div>
+          <label class="block font-semibold text-on-surface mb-1">Pilih Anggota *</label>
+          <select id="duesMemberSelect" required class="w-full bg-surface-container-low p-2.5 rounded-lg border border-surface-container-high outline-none cursor-pointer">
+            <!-- Injected via JS -->
+          </select>
+        </div>
+
+        <div>
+          <label class="block font-semibold text-on-surface mb-1">Periode (Tahun-Bulan) *</label>
+          <input id="duesPeriode" type="month" value="2025-02" required class="w-full bg-surface-container-low p-2.5 rounded-lg border border-surface-container-high outline-none">
+        </div>
+
+        <div>
+          <label class="block font-semibold text-on-surface mb-1">Nominal (Rp) *</label>
+          <input id="duesJumlah" type="number" step="5000" value="50000" required class="w-full bg-surface-container-low p-2.5 rounded-lg border border-surface-container-high outline-none font-bold text-primary">
+        </div>
+
+        <div>
+          <label class="block font-semibold text-on-surface mb-1">Status Pembayaran</label>
+          <select id="duesStatus" class="w-full bg-surface-container-low p-2.5 rounded-lg border border-surface-container-high outline-none">
+            <option value="Lunas">Lunas</option>
+            <option value="BelumLunas">Belum Lunas (Menunggu Konfirmasi)</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block font-semibold text-on-surface mb-1">Catatan Tambahan</label>
+          <input id="duesCatatan" type="text" placeholder="Misal: Transfer Mandiri An. St. Ricardo" class="w-full bg-surface-container-low p-2.5 rounded-lg border border-surface-container-high outline-none">
+        </div>
+
+        <div class="flex items-center justify-end gap-3 pt-3 border-t border-surface-container-high">
+          <button type="button" onclick="closeModal('modalRecordDues')" class="px-4 py-2 rounded-xl bg-surface-container text-on-surface font-semibold">Batal</button>
+          <button type="submit" class="px-5 py-2 rounded-xl bg-secondary text-white font-semibold">Simpan Iuran</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: Editor Tulis / Edit Artikel -->
+  <div id="modalArticleEditor" class="fixed inset-0 z-50 modal-backdrop hidden flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-surface-container-lowest rounded-2xl max-w-2xl w-full p-6 shadow-2xl border border-surface-container-high my-auto space-y-4">
+      <div class="flex items-center justify-between border-b border-surface-container-high pb-3">
+        <div class="flex items-center gap-2">
+          <span class="material-symbols-outlined text-secondary text-[22px]">edit_square</span>
+          <h3 class="text-sm font-bold text-primary">Tulis / Edit Artikel Warta Marga</h3>
+        </div>
+        <button onclick="closeModal('modalArticleEditor')" class="text-on-surface-variant hover:text-on-surface">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <form onsubmit="handleSaveArticle(event)" class="space-y-3 text-xs">
+        <input type="hidden" id="articleFormId" value="">
+        <div>
+          <label class="block font-semibold text-on-surface mb-1">Judul Artikel *</label>
+          <input id="articleJudul" type="text" required placeholder="Judul berita atau pengumuman adat" class="w-full bg-surface-container-low p-2.5 rounded-lg border border-surface-container-high outline-none font-bold text-primary">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-on-surface mb-1">Kategori</label>
+            <select id="articleKategori" class="w-full bg-surface-container-low p-2.5 rounded-lg border border-surface-container-high outline-none">
+              <option value="Warta Adat">Warta Adat</option>
+              <option value="Sejarah & Tarombo">Sejarah & Tarombo</option>
+              <option value="Pengumuman Resmi">Pengumuman Resmi</option>
+              <option value="Warta Sosial Duka">Warta Sosial Duka</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold text-on-surface mb-1">Status Publikasi</label>
+            <select id="articleStatus" class="w-full bg-surface-container-low p-2.5 rounded-lg border border-surface-container-high outline-none">
+              <option value="Published">Published (Langsung Tayang)</option>
+              <option value="Draft">Draft (Konsep)</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-semibold text-on-surface mb-1">URL Gambar Thumbnail</label>
+          <input id="articleThumbnail" type="url" placeholder="https://images.unsplash.com/..." class="w-full bg-surface-container-low p-2.5 rounded-lg border border-surface-container-high outline-none">
+        </div>
+
+        <div>
+          <label class="block font-semibold text-on-surface mb-1">Isi Konten Artikel *</label>
+          <textarea id="articleKonten" rows="5" required placeholder="Tuliskan berita lengkap di sini..." class="w-full bg-surface-container-low p-2.5 rounded-lg border border-surface-container-high outline-none"></textarea>
+        </div>
+
+        <div class="flex items-center justify-end gap-3 pt-3 border-t border-surface-container-high">
+          <button type="button" onclick="closeModal('modalArticleEditor')" class="px-4 py-2 rounded-xl bg-surface-container text-on-surface font-semibold">Batal</button>
+          <button type="submit" class="px-5 py-2 rounded-xl bg-secondary text-white font-semibold">Publikasikan Artikel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: Baca Artikel Lengkap -->
+  <div id="modalReadArticle" class="fixed inset-0 z-50 modal-backdrop hidden flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-surface-container-lowest rounded-2xl max-w-2xl w-full p-6 shadow-2xl border border-surface-container-high my-auto space-y-4">
+      <div class="flex items-center justify-between border-b border-surface-container-high pb-3">
+        <span id="readArticleCategory" class="text-xs px-2.5 py-0.5 rounded-full bg-secondary/10 text-secondary font-bold">Warta Adat</span>
+        <button onclick="closeModal('modalReadArticle')" class="text-on-surface-variant hover:text-on-surface">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <div class="space-y-3">
+        <img id="readArticleImage" src="" alt="" class="w-full h-48 rounded-xl object-cover">
+        <h2 id="readArticleTitle" class="text-lg sm:text-xl font-bold text-primary">-</h2>
+        <div class="flex items-center gap-2 text-[11px] text-on-surface-variant">
+          <span id="readArticleAuthor">Penulis: Admin</span>
+          <span>•</span>
+          <span id="readArticleDate">-</span>
+        </div>
+        <div id="readArticleContent" class="text-xs text-on-surface leading-relaxed whitespace-pre-line pt-2 border-t border-surface-container-high">
+          <!-- Injected via JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION -->
+  <div id="toastNotification" class="fixed bottom-6 right-6 z-50 bg-primary text-white px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-3 transform translate-y-24 opacity-0 transition-all duration-300 pointer-events-none border border-white/10">
+    <span class="material-symbols-outlined text-secondary-fixed text-[24px]">check_circle</span>
+    <div class="flex flex-col">
+      <span id="toastTitle" class="text-xs font-bold text-white">Berhasil!</span>
+      <span id="toastMessage" class="text-[11px] text-slate-300">Data telah diperbarui.</span>
+    </div>
+  </div>
+
+  <!-- JavaScript Include -->
+  <script>
+/**
+ * ============================================================================
+ * iManurung - Client Logic & Dual-Mode Bridge Runtime
+ * ============================================================================
+ */
+
+// Global State
+var AppState = {
+  isGasEnvironment: typeof google !== 'undefined' && typeof google.script !== 'undefined' && typeof google.script.run !== 'undefined',
+  currentUser: null,
+  currentTab: 'dashboard',
+  selectedMemberId: null,
+  stats: {},
+  members: [],
+  filteredMembers: [],
+  dues: [],
+  articles: [],
+  filteredArticles: [],
+  logs: [],
+  users: [],
+  treeZoom: null,
+  charts: {
+    generasi: null,
+    rumpun: null
+  }
+};
+
+// ============================================================================
+// INITIALIZATION & DUAL-MODE BRIDGE
+// ============================================================================
+document.addEventListener('DOMContentLoaded', function() {
+  initApp();
+});
+
+function initApp() {
+  if (AppState.isGasEnvironment) {
+    // Jalankan via Google Apps Script Backend
+    google.script.run
+      .withSuccessHandler(function(response) {
+        handleInitialDataSuccess(response);
+      })
+      .withFailureHandler(function(error) {
+        console.error('GAS Initial Data Error:', error);
+        showToast('Error Server', error.message || 'Gagal memuat data dari Spreadsheet');
+        fallbackToMockData();
+      })
+      .getInitialAppData();
+  } else {
+    // Mode Standalone / Browser Preview
+    console.info('Running in Standalone Local Preview Mode');
+    fallbackToMockData();
+  }
+}
+
+function handleInitialDataSuccess(data) {
+  AppState.currentUser = data.currentUser;
+  AppState.stats = data.stats || {};
+  AppState.members = data.members || [];
+  AppState.filteredMembers = AppState.members.slice();
+  AppState.dues = data.dues || [];
+  AppState.articles = data.articles || [];
+  AppState.filteredArticles = AppState.articles.slice();
+  AppState.logs = data.logs || [];
+  AppState.users = data.users || [];
+
+  if (AppState.currentUser && AppState.currentUser.isRegistered) {
+    showAppView();
+  } else {
+    showLoginView();
+  }
+}
+
+function fallbackToMockData() {
+  var mockMembers = [
+    // Generasi 1: Leluhur Utama
+    { MemberID: 'MNR-ROOT-001', Nama: 'Ompu Silau Raja', JenisKelamin: 'L', TanggalLahir: '1350-01-01', TanggalMeninggal: '1420-01-01', Generasi: 1, ParentID: '', SpouseID: '', Alamat: 'Bona Pasogit Sibisa', NoHP: '', Email: '', Pekerjaan: 'Tokoh Marga Leluhur', FotoURL: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&auto=format&fit=crop&q=80', Status: 'Aktif', Rumpun: 'Silau Raja', BonaPasogit: 'Sibisa', Sektor: 'Bona Pasogit', Kategori: 'manurung' },
+    
+    // Generasi 2: 3 Rumpun Utama
+    { MemberID: 'MNR-RUMPUN-01', Nama: 'Raja Palti (Hutagurgur)', JenisKelamin: 'L', TanggalLahir: '1380-01-01', TanggalMeninggal: '1450-01-01', Generasi: 2, ParentID: 'MNR-ROOT-001', SpouseID: '', Alamat: 'Sibisa, Toba', NoHP: '', Email: '', Pekerjaan: 'Raja Manurung 1', FotoURL: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=120&auto=format&fit=crop&q=80', Status: 'Aktif', Rumpun: 'Hutagurgur', BonaPasogit: 'Sibisa', Sektor: 'Bona Pasogit', Kategori: 'manurung' },
+    { MemberID: 'MNR-RUMPUN-02', Nama: 'Tuan Sori (Hutagaol)', JenisKelamin: 'L', TanggalLahir: '1382-01-01', TanggalMeninggal: '1455-01-01', Generasi: 2, ParentID: 'MNR-ROOT-001', SpouseID: '', Alamat: 'Porsea, Toba', NoHP: '', Email: '', Pekerjaan: 'Raja Manurung 2', FotoURL: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=120&auto=format&fit=crop&q=80', Status: 'Aktif', Rumpun: 'Hutagaol', BonaPasogit: 'Porsea', Sektor: 'Bona Pasogit', Kategori: 'manurung' },
+    { MemberID: 'MNR-RUMPUN-03', Nama: 'Raja Mual (Simanoroni)', JenisKelamin: 'L', TanggalLahir: '1385-01-01', TanggalMeninggal: '1460-01-01', Generasi: 2, ParentID: 'MNR-ROOT-001', SpouseID: '', Alamat: 'Ajibata, Toba', NoHP: '', Email: '', Pekerjaan: 'Raja Manurung 3', FotoURL: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=120&auto=format&fit=crop&q=80', Status: 'Aktif', Rumpun: 'Simanoroni', BonaPasogit: 'Ajibata', Sektor: 'Bona Pasogit', Kategori: 'manurung' },
+
+    // Generasi 14, 15, 16, 17 Hutagurgur
+    { MemberID: 'MNR-G14-001', Nama: 'Ompu Tahan Manurung', JenisKelamin: 'L', TanggalLahir: '1910-03-12', TanggalMeninggal: '1985-08-19', Generasi: 14, ParentID: 'MNR-RUMPUN-01', SpouseID: 'Nai Tahan br. Sitorus', Alamat: 'Bona Pasogit Sibisa', NoHP: '08112233445', Email: '', Pekerjaan: 'Petani & Tokoh Adat', FotoURL: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=120&auto=format&fit=crop&q=80', Status: 'Aktif', Rumpun: 'Hutagurgur', BonaPasogit: 'Sibisa', Sektor: 'Bona Pasogit', Kategori: 'manurung' },
+    { MemberID: 'MNR-G15-001', Nama: 'St. Marulam Manurung', JenisKelamin: 'L', TanggalLahir: '1941-06-20', TanggalMeninggal: '2018-11-04', Generasi: 15, ParentID: 'MNR-G14-001', SpouseID: 'Dra. Tioria br. Sitorus', Alamat: 'Sibisa / Jakarta Barat', NoHP: '08123456789', Email: 'marulam.m@gmail.com', Pekerjaan: 'Pensiunan Guru & Sintua', FotoURL: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=120&auto=format&fit=crop&q=80', Status: 'Aktif', Rumpun: 'Hutagurgur', BonaPasogit: 'Sibisa', Sektor: 'Jabodetabek Barat', Kategori: 'manurung' },
+    { MemberID: 'MNR-2022-00012', Nama: 'St. Ricardo Manurung, M.Si', JenisKelamin: 'L', TanggalLahir: '1973-04-15', TanggalMeninggal: '', Generasi: 16, ParentID: 'MNR-G15-001', SpouseID: 'Tiurma br. Simanjuntak', Alamat: 'Jl. Kebon Jeruk No. 45, Jakarta Barat', NoHP: '081299998888', Email: 'ricardo.manurung@gmail.com', Pekerjaan: 'Dosen & Admin DPP', FotoURL: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80', Status: 'Aktif', Rumpun: 'Hutagurgur', BonaPasogit: 'Sibisa, Kec. Ajibata', Sektor: 'Jabodetabek Barat', Kategori: 'manurung' },
+    { MemberID: 'MNR-2024-00101', Nama: 'Drs. Togar Manurung', JenisKelamin: 'L', TanggalLahir: '1975-09-10', TanggalMeninggal: '', Generasi: 16, ParentID: 'MNR-G15-001', SpouseID: 'Erna br. Panjaitan', Alamat: 'Tangerang Kota', NoHP: '081388776655', Email: 'togar@imanurung.or.id', Pekerjaan: 'Wiraswasta', FotoURL: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&auto=format&fit=crop&q=80', Status: 'Aktif', Rumpun: 'Hutagurgur', BonaPasogit: 'Sibisa', Sektor: 'Jabodetabek Barat', Kategori: 'manurung' },
+    { MemberID: 'MNR-2024-00102', Nama: 'Yohanes Manurung, S.Kom', JenisKelamin: 'L', TanggalLahir: '2001-02-14', TanggalMeninggal: '', Generasi: 17, ParentID: 'MNR-2022-00012', SpouseID: '', Alamat: 'Jakarta Barat', NoHP: '085711223344', Email: 'yohanes.m@gmail.com', Pekerjaan: 'Software Engineer', FotoURL: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=120&auto=format&fit=crop&q=80', Status: 'Aktif', Rumpun: 'Hutagurgur', BonaPasogit: 'Sibisa', Sektor: 'Jabodetabek Barat', Kategori: 'manurung' },
+
+    // Generasi Hutagaol
+    { MemberID: 'MNR-2024-01844', Nama: 'Kapten (Laut) Edward Manurung', JenisKelamin: 'L', TanggalLahir: '1978-08-17', TanggalMeninggal: '', Generasi: 16, ParentID: 'MNR-RUMPUN-02', SpouseID: 'Ria br. Nababan', Alamat: 'Krembangan, Surabaya', NoHP: '081277665544', Email: 'edward.m@tni-al.mil.id', Pekerjaan: 'Perwira TNI AL', FotoURL: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=120&auto=format&fit=crop&q=80', Status: 'Aktif', Rumpun: 'Hutagaol', BonaPasogit: 'Porsea', Sektor: 'Surabaya & Jatim', Kategori: 'manurung' },
+    { MemberID: 'MNR-2024-03102', Nama: 'Bona Ventura Manurung', JenisKelamin: 'L', TanggalLahir: '1998-11-20', TanggalMeninggal: '', Generasi: 17, ParentID: 'MNR-2024-01844', SpouseID: '', Alamat: 'Porsea, Kab. Toba', NoHP: '082144556677', Email: 'bonaventura@gmail.com', Pekerjaan: 'Mahasiswa', FotoURL: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=120&auto=format&fit=crop&q=80', Status: 'Aktif', Rumpun: 'Hutagaol', BonaPasogit: 'Porsea', Sektor: 'Toba & Bona Pasogit', Kategori: 'manurung' },
+
+    // Generasi Simanoroni
+    { MemberID: 'MNR-2024-02319', Nama: 'dr. Grace Yohana br. Manurung, Sp.A', JenisKelamin: 'P', TanggalLahir: '1985-05-12', TanggalMeninggal: '', Generasi: 17, ParentID: 'MNR-RUMPUN-03', SpouseID: 'dr. Antonius Hutabarat, Sp.PD', Alamat: 'Medan Baru, Kota Medan', NoHP: '08119988776', Email: 'grace.yohana@rsu.co.id', Pekerjaan: 'Dokter Spesialis Anak', FotoURL: 'https://images.unsplash.com/photo-1594824813627-24831804f3ae?w=120&auto=format&fit=crop&q=80', Status: 'Aktif', Rumpun: 'Simanoroni', BonaPasogit: 'Ajibata', Sektor: 'Medan & Deli', Kategori: 'boru' },
+    { MemberID: 'MNR-2021-00450', Nama: 'Drs. Poltak Manurung', JenisKelamin: 'L', TanggalLahir: '1962-12-05', TanggalMeninggal: '', Generasi: 15, ParentID: 'MNR-RUMPUN-03', SpouseID: 'Murni br. Sinaga', Alamat: 'Rawamangun, Jakarta Timur', NoHP: '081355443322', Email: 'poltak.m@gmail.com', Pekerjaan: 'Pensiunan BUMN', FotoURL: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=120&auto=format&fit=crop&q=80', Status: 'Aktif', Rumpun: 'Simanoroni', BonaPasogit: 'Ajibata', Sektor: 'Jabodetabek Timur', Kategori: 'manurung' }
+  ];
+
+  var mockDues = [
+    { IuranID: 'IUR-202501-001', MemberID: 'MNR-2022-00012', Periode: '2025-01', Jumlah: 100000, TanggalBayar: '2025-01-05', Status: 'Lunas', Catatan: 'Iuran Tahunan & Kas Sosial 2025' },
+    { IuranID: 'IUR-202501-002', MemberID: 'MNR-2024-01844', Periode: '2025-01', Jumlah: 50000, TanggalBayar: '2025-01-10', Status: 'Lunas', Catatan: 'Iuran Rutin Semester 1' },
+    { IuranID: 'IUR-202501-003', MemberID: 'MNR-2024-02319', Periode: '2025-01', Jumlah: 150000, TanggalBayar: '2025-01-15', Status: 'Lunas', Catatan: 'Iuran Tahunan & Donasi Sosial' },
+    { IuranID: 'IUR-202502-001', MemberID: 'MNR-2024-00101', Periode: '2025-02', Jumlah: 50000, TanggalBayar: '2025-02-03', Status: 'Lunas', Catatan: 'Iuran Sektor Barat' },
+    { IuranID: 'IUR-202502-002', MemberID: 'MNR-2024-00102', Periode: '2025-02', Jumlah: 25000, TanggalBayar: '', Status: 'BelumLunas', Catatan: 'Iuran Pemuda Naposobulung' }
+  ];
+
+  var mockArticles = [
+    {
+      ArticleID: 'ART-20250101-001',
+      Judul: 'Warta Partangiangan Bona Taon 2025 Marga Manurung Se-Indonesia',
+      Konten: 'Punguan Pomparan Ompu Silau Raja (Patambor) Indonesia mengundang seluruh dongan tubu, boru, bere, dan ibebere untuk menghadiri Ibadah Syukur Bona Taon 2025 yang akan diselenggarakan secara serentak di 8 Sektor Wilayah.',
+      Kategori: 'Warta Adat',
+      PenulisEmail: 'ricardo.manurung@gmail.com',
+      TanggalPublish: '2025-01-01',
+      Status: 'Published',
+      Thumbnail: 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=600&auto=format&fit=crop&q=80'
+    },
+    {
+      ArticleID: 'ART-20250105-002',
+      Judul: 'Penelusuran Silsilah Tarombo: Mengenal 3 Rumpun Utama Marga Manurung',
+      Konten: 'Marga Manurung berasal dari Ompu Silau Raja yang memiliki tiga anak utama: Raja Palti (Hutagurgur), Tuan Sori (Hutagaol), dan Raja Mual (Simanoroni). Dokumentasi digital ini dibuat demi menjaga kemurnian silsilah antargenerasi.',
+      Kategori: 'Sejarah & Tarombo',
+      PenulisEmail: 'admin@imanurung.or.id',
+      TanggalPublish: '2025-01-05',
+      Status: 'Published',
+      Thumbnail: 'https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?w=600&auto=format&fit=crop&q=80'
+    },
+    {
+      ArticleID: 'ART-20250110-003',
+      Judul: 'Laporan Pertanggungjawaban Kas Iuran dan Dana Abadi Patambor 2024',
+      Konten: 'Audit kas tahun 2024 telah rampung dengan status Wajar Tanpa Pengecualian (WTP). Saldo kas gotong royong terhimpun Rp 348.650.000 dialokasikan untuk santunan duka dan beasiswa anak berprestasi.',
+      Kategori: 'Pengumuman Resmi',
+      PenulisEmail: 'ricardo.manurung@gmail.com',
+      TanggalPublish: '2025-01-10',
+      Status: 'Published',
+      Thumbnail: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=600&auto=format&fit=crop&q=80'
+    }
+  ];
+
+  var mockLogs = [
+    { LogID: 'LOG-001', Email: 'ricardo.manurung@gmail.com', Aksi: 'UPDATE_MEMBER', Detail: 'Memperbarui profil: St. Ricardo Manurung', Timestamp: 'Hari ini, 09:42 WIB' },
+    { LogID: 'LOG-002', Email: 'admin@imanurung.or.id', Aksi: 'ADD_DUES', Detail: 'Mencatat iuran Rp 100.000 (MNR-2022-00012)', Timestamp: 'Hari ini, 08:30 WIB' },
+    { LogID: 'LOG-003', Email: 'admin@imanurung.or.id', Aksi: 'PUBLISH_ARTICLE', Detail: 'Menerbitkan warta Partangiangan Bona Taon', Timestamp: 'Kemarin, 14:15 WIB' }
+  ];
+
+  var mockUsers = [
+    { Email: 'ricardo.manurung@gmail.com', Nama: 'St. Ricardo Manurung, M.Si', Role: 'Admin', Status: 'Aktif' },
+    { Email: 'admin@imanurung.or.id', Nama: 'Sekretariat DPP Patambor', Role: 'Super Admin', Status: 'Aktif' },
+    { Email: 'edward.m@tni-al.mil.id', Nama: 'Kapten (Laut) Edward Manurung', Role: 'Pengurus', Status: 'Aktif' },
+    { Email: 'grace.yohana@rsu.co.id', Nama: 'dr. Grace Yohana br. Manurung', Role: 'Member', Status: 'Aktif' },
+    { Email: 'yohanes.m@gmail.com', Nama: 'Yohanes Manurung, S.Kom', Role: 'Member', Status: 'Aktif' }
+  ];
+
+  handleInitialDataSuccess({
+    currentUser: {
+      isRegistered: true,
+      email: 'ricardo.manurung@gmail.com',
+      name: 'St. Ricardo Manurung, M.Si',
+      role: 'Admin',
+      memberId: 'MNR-2022-00012',
+      permissions: ['dashboard', 'data-anggota', 'pohon-silsilah', 'iuran-keuangan', 'artikel-berita', 'role-management']
+    },
+    members: mockMembers,
+    dues: mockDues,
+    articles: mockArticles,
+    logs: mockLogs,
+    users: mockUsers
+  });
+}
+
+// ============================================================================
+// AUTH & VIEW SWITCHING
+// ============================================================================
+function showLoginView() {
+  document.getElementById('view-login').classList.remove('hidden');
+  document.getElementById('view-app').classList.add('hidden');
+}
+
+function showAppView() {
+  document.getElementById('view-login').classList.add('hidden');
+  document.getElementById('view-app').classList.remove('hidden');
+  updateCurrentUserUI();
+  populateRootSelect();
+  populateParentSelect();
+  renderDashboardData();
+  renderMembersTable();
+  renderDuesTable();
+  renderArticlesGrid();
+  renderRoleUsersTable();
+  selectMemberById('MNR-2022-00012');
+}
+
+function updateCurrentUserUI() {
+  var user = AppState.currentUser;
+  if (!user) return;
+  var nameEl = document.getElementById('userSidebarName');
+  var roleEl = document.getElementById('userSidebarRole');
+  var avatarEl = document.getElementById('userSidebarAvatar');
+  var topAvatarEl = document.getElementById('userTopbarAvatar');
+
+  if (nameEl) nameEl.textContent = user.name;
+  if (roleEl) roleEl.textContent = user.role + ' Pengurus';
+
+  // Sembunyikan menu Role Management jika bukan admin
+  var btnRoleNav = document.getElementById('btnNav-role-management');
+  if (btnRoleNav) {
+    if (user.role === 'Admin' || user.role === 'Super Admin') {
+      btnRoleNav.classList.remove('hidden');
+    } else {
+      btnRoleNav.classList.add('hidden');
+    }
+  }
+}
+
+function switchLoginRoleTab(type) {
+  var btnWarga = document.getElementById('tab-login-warga');
+  var btnPengurus = document.getElementById('tab-login-pengurus');
+  var label = document.getElementById('login-identifier-label');
+  var input = document.getElementById('login-identifier');
+
+  if (type === 'warga') {
+    btnWarga.className = 'flex-1 py-2 px-3 rounded-lg text-xs font-bold transition text-center flex items-center justify-center gap-1.5 bg-surface-container-lowest text-primary shadow-sm';
+    btnPengurus.className = 'flex-1 py-2 px-3 rounded-lg text-xs font-semibold transition text-center flex items-center justify-center gap-1.5 text-on-surface-variant hover:text-on-surface';
+    label.textContent = 'Nomor KTA Marga atau No. WhatsApp';
+    input.placeholder = 'Contoh: MNR-2022-00012 atau 0812xxxx';
+  } else {
+    btnPengurus.className = 'flex-1 py-2 px-3 rounded-lg text-xs font-bold transition text-center flex items-center justify-center gap-1.5 bg-surface-container-lowest text-primary shadow-sm';
+    btnWarga.className = 'flex-1 py-2 px-3 rounded-lg text-xs font-semibold transition text-center flex items-center justify-center gap-1.5 text-on-surface-variant hover:text-on-surface';
+    label.textContent = 'Email Resmi Pengurus / Google Account (2FA)';
+    input.placeholder = 'Contoh: nama@imanurung.or.id';
+  }
+}
+
+function quickSelectUser(roleType) {
+  var inputId = document.getElementById('login-identifier');
+  if (roleType === 'admin') {
+    inputId.value = 'ricardo.manurung@gmail.com';
+    switchLoginRoleTab('pengurus');
+  } else if (roleType === 'pengurus') {
+    inputId.value = 'edward.m@tni-al.mil.id';
+    switchLoginRoleTab('pengurus');
+  } else {
+    inputId.value = 'yohanes.m@gmail.com';
+    switchLoginRoleTab('warga');
+  }
+}
+
+function handleManualLogin(e) {
+  e.preventDefault();
+  var identifier = document.getElementById('login-identifier').value.trim();
+  
+  if (AppState.isGasEnvironment) {
+    google.script.run
+      .withSuccessHandler(function(response) {
+        handleInitialDataSuccess(response);
+        showToast('Selamat Datang', 'Berhasil masuk ke portal iManurung');
+      })
+      .withFailureHandler(function(err) {
+        showToast('Login Gagal', err.message);
+      })
+      .getInitialAppData(identifier);
+  } else {
+    // Cari di mock users
+    var foundUser = AppState.users.find(function(u) {
+      return u.Email.toLowerCase() === identifier.toLowerCase();
+    });
+
+    if (foundUser) {
+      AppState.currentUser = {
+        isRegistered: true,
+        email: foundUser.Email,
+        name: foundUser.Nama,
+        role: foundUser.Role,
+        memberId: 'MNR-2022-00012',
+        permissions: ['dashboard', 'data-anggota', 'pohon-silsilah', 'iuran-keuangan', 'artikel-berita', 'role-management']
+      };
+    } else {
+      AppState.currentUser = {
+        isRegistered: true,
+        email: identifier,
+        name: 'Warga Marga Manurung',
+        role: 'Member',
+        memberId: 'MNR-2024-00102',
+        permissions: ['dashboard', 'data-anggota', 'pohon-silsilah', 'iuran-keuangan', 'artikel-berita']
+      };
+    }
+    showAppView();
+    showToast('Masuk Berhasil', 'Selamat datang di portal iManurung');
+  }
+}
+
+function loginWithGoogleSSO() {
+  if (AppState.isGasEnvironment) {
+    google.script.run
+      .withSuccessHandler(function(response) {
+        handleInitialDataSuccess(response);
+      })
+      .getInitialAppData();
+  } else {
+    quickSelectUser('admin');
+    handleManualLogin(new Event('submit'));
+  }
+}
+
+function logout() {
+  AppState.currentUser = null;
+  showLoginView();
+  showToast('Keluar', 'Sesi Anda telah diakhiri.');
+}
+
+function togglePasswordVisibility(inputId) {
+  var input = document.getElementById(inputId);
+  if (input) {
+    input.type = input.type === 'password' ? 'text' : 'password';
+  }
+}
+
+function toggleSidebar() {
+  var sidebar = document.getElementById('appSidebar');
+  if (sidebar) {
+    sidebar.classList.toggle('-translate-x-full');
+  }
+}
+
+// ============================================================================
+// TAB ROUTING & NAVIGATION
+// ============================================================================
+function switchViewTab(tabId) {
+  var tabs = ['dashboard', 'data-anggota', 'pohon-silsilah', 'iuran-keuangan', 'artikel-berita', 'role-management'];
+  tabs.forEach(function(t) {
+    var el = document.getElementById('tab-' + t);
+    var btn = document.getElementById('btnNav-' + t);
+    if (el) el.classList.add('hidden');
+    if (btn) btn.classList.remove('nav-active');
+  });
+
+  var activeEl = document.getElementById('tab-' + tabId);
+  var activeBtn = document.getElementById('btnNav-' + tabId);
+  if (activeEl) activeEl.classList.remove('hidden');
+  if (activeBtn) activeBtn.classList.add('nav-active');
+
+  AppState.currentTab = tabId;
+
+  // Render spesifik saat tab aktif
+  if (tabId === 'dashboard') {
+    setTimeout(renderDashboardCharts, 100);
+  } else if (tabId === 'pohon-silsilah') {
+    setTimeout(renderFamilyTree, 100);
+  }
+
+  // Tutup sidebar mobile jika terbuka
+  var sidebar = document.getElementById('appSidebar');
+  if (sidebar && window.innerWidth < 768) {
+    sidebar.classList.add('-translate-x-full');
+  }
+}
+
+// ============================================================================
+// DASHBOARD LOGIC & CHARTS
+// ============================================================================
+function renderDashboardData() {
+  var members = AppState.members;
+  var dues = AppState.dues;
+
+  // Hitung stats
+  var total = members.length;
+  var terverifikasi = members.filter(function(m) { return m.Status === 'Aktif'; }).length;
+  var elTotal = document.getElementById('statTotalAnggota');
+  var elVerif = document.getElementById('statTerverifikasiLabel');
+  if (elTotal) elTotal.textContent = total.toLocaleString('id-ID');
+  if (elVerif) elVerif.textContent = terverifikasi + ' Terverifikasi';
+
+  // Audit Logs
+  var logList = document.getElementById('dashboardActivityLogList');
+  if (logList) {
+    logList.innerHTML = AppState.logs.map(function(log) {
+      return '<div class="p-3 bg-surface-container-low rounded-xl flex items-start gap-3 text-xs border border-surface-container-high">' +
+        '<div class="w-8 h-8 rounded-lg bg-primary-container text-white flex items-center justify-center shrink-0">' +
+          '<span class="material-symbols-outlined text-[16px]">history</span>' +
+        '</div>' +
+        '<div class="flex-1 min-w-0">' +
+          '<div class="flex items-center justify-between">' +
+            '<span class="font-bold text-primary truncate">' + escapeHtml(log.Aksi) + '</span>' +
+            '<span class="text-[10px] text-on-surface-variant">' + escapeHtml(log.Timestamp || '') + '</span>' +
+          '</div>' +
+          '<p class="text-on-surface-variant text-[11px] mt-0.5 truncate">' + escapeHtml(log.Detail) + '</p>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  // Highlights Warta Adat
+  var articlesList = document.getElementById('dashboardArticlesList');
+  if (articlesList) {
+    articlesList.innerHTML = AppState.articles.slice(0, 3).map(function(art) {
+      return '<div onclick="openReadArticleModal(\'' + art.ArticleID + '\')" class="p-3 bg-surface-container-low hover:bg-surface-container rounded-xl flex items-center gap-3 cursor-pointer transition border border-surface-container-high">' +
+        '<img src="' + escapeHtml(art.Thumbnail || '') + '" class="w-12 h-12 rounded-lg object-cover shrink-0">' +
+        '<div class="min-w-0 flex-1">' +
+          '<span class="text-[10px] uppercase font-bold text-secondary tracking-wider">' + escapeHtml(art.Kategori) + '</span>' +
+          '<h4 class="font-bold text-xs text-primary truncate">' + escapeHtml(art.Judul) + '</h4>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  renderDashboardCharts();
+}
+
+function renderDashboardCharts() {
+  // 1. Chart Generasi
+  var ctxGen = document.getElementById('generasiChart');
+  if (ctxGen) {
+    if (AppState.charts.generasi) AppState.charts.generasi.destroy();
+
+    var genCounts = {};
+    AppState.members.forEach(function(m) {
+      var g = 'Sundut ' + (m.Generasi || 16);
+      genCounts[g] = (genCounts[g] || 0) + 1;
+    });
+
+    var labels = Object.keys(genCounts).sort(function(a, b) {
+      return parseInt(a.replace('Sundut ', '')) - parseInt(b.replace('Sundut ', ''));
+    });
+    var data = labels.map(function(k) { return genCounts[k]; });
+
+    AppState.charts.generasi = new Chart(ctxGen, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'Jumlah Anggota',
+          data: data,
+          backgroundColor: '#0e243a',
+          borderRadius: 6
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: { beginAtZero: true, grid: { color: '#f1f5f9' } },
+          x: { grid: { display: false } }
+        }
+      }
+    });
+  }
+
+  // 2. Chart Rumpun
+  var ctxRumpun = document.getElementById('rumpunChart');
+  if (ctxRumpun) {
+    if (AppState.charts.rumpun) AppState.charts.rumpun.destroy();
+
+    var rCounts = { Hutagurgur: 0, Hutagaol: 0, Simanoroni: 0 };
+    AppState.members.forEach(function(m) {
+      var r = m.Rumpun || '';
+      if (r.indexOf('Hutagurgur') !== -1) rCounts.Hutagurgur++;
+      else if (r.indexOf('Hutagaol') !== -1) rCounts.Hutagaol++;
+      else if (r.indexOf('Simanoroni') !== -1) rCounts.Simanoroni++;
+    });
+
+    AppState.charts.rumpun = new Chart(ctxRumpun, {
+      type: 'doughnut',
+      data: {
+        labels: ['Hutagurgur', 'Hutagaol', 'Simanoroni'],
+        datasets: [{
+          data: [rCounts.Hutagurgur, rCounts.Hutagaol, rCounts.Simanoroni],
+          backgroundColor: ['#0e243a', '#b6191a', '#d97706'],
+          borderWidth: 2,
+          borderColor: '#ffffff'
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } }
+        }
+      }
+    });
+  }
+}
+
+// ============================================================================
+// DIREKTORI ANGGOTA & MULTI-FILTER
+// ============================================================================
+function applyMemberFilters() {
+  var search = (document.getElementById('filterMemberSearch')?.value || '').toLowerCase();
+  var rumpun = document.getElementById('filterMemberRumpun')?.value || '';
+  var sundut = document.getElementById('filterMemberSundut')?.value || '';
+  var sektor = document.getElementById('filterMemberSektor')?.value || '';
+  var status = document.getElementById('filterMemberStatus')?.value || '';
+
+  AppState.filteredMembers = AppState.members.filter(function(m) {
+    var matchSearch = !search ||
+      (m.Nama && m.Nama.toLowerCase().indexOf(search) !== -1) ||
+      (m.MemberID && m.MemberID.toLowerCase().indexOf(search) !== -1) ||
+      (m.Alamat && m.Alamat.toLowerCase().indexOf(search) !== -1);
+    
+    var matchRumpun = !rumpun || (m.Rumpun && m.Rumpun.indexOf(rumpun) !== -1);
+    var matchSundut = !sundut || String(m.Generasi) === String(sundut);
+    var matchSektor = !sektor || (m.Sektor && m.Sektor.indexOf(sektor) !== -1);
+    var matchStatus = !status || m.Status === status;
+
+    return matchSearch && matchRumpun && matchSundut && matchSektor && matchStatus;
+  });
+
+  renderMembersTable();
+}
+
+function resetMemberFilters() {
+  if (document.getElementById('filterMemberSearch')) document.getElementById('filterMemberSearch').value = '';
+  if (document.getElementById('filterMemberRumpun')) document.getElementById('filterMemberRumpun').value = '';
+  if (document.getElementById('filterMemberSundut')) document.getElementById('filterMemberSundut').value = '';
+  if (document.getElementById('filterMemberSektor')) document.getElementById('filterMemberSektor').value = '';
+  if (document.getElementById('filterMemberStatus')) document.getElementById('filterMemberStatus').value = '';
+  AppState.filteredMembers = AppState.members.slice();
+  renderMembersTable();
+}
+
+function renderMembersTable() {
+  var tbody = document.getElementById('memberTableBody');
+  var badge = document.getElementById('memberCountBadge');
+  if (!tbody) return;
+
+  if (badge) badge.textContent = AppState.filteredMembers.length + ' Anggota';
+
+  if (AppState.filteredMembers.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="5" class="p-8 text-center text-on-surface-variant">Tidak ada data anggota yang cocok dengan filter.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = AppState.filteredMembers.map(function(m) {
+    var isSelected = m.MemberID === AppState.selectedMemberId;
+    var rowBg = isSelected ? 'bg-primary/5 font-medium' : 'hover:bg-surface-container-low';
+    
+    var rumpunColor = 'bg-primary-container/10 text-primary';
+    if ((m.Rumpun || '').indexOf('Hutagaol') !== -1) rumpunColor = 'bg-secondary/10 text-secondary';
+    if ((m.Rumpun || '').indexOf('Simanoroni') !== -1) rumpunColor = 'bg-amber-50 text-amber-800';
+
+    return '<tr onclick="selectMemberById(\'' + m.MemberID + '\')" class="' + rowBg + ' cursor-pointer transition border-b border-surface-container-high">' +
+      '<td class="py-3 px-4">' +
+        '<div class="flex items-center gap-3">' +
+          '<img src="' + escapeHtml(m.FotoURL || '') + '" class="w-9 h-9 rounded-full object-cover shrink-0 shadow-xs">' +
+          '<div class="min-w-0">' +
+            '<span class="font-bold text-primary block truncate">' + escapeHtml(m.Nama) + '</span>' +
+            '<span class="font-mono text-[10px] text-on-surface-variant">' + escapeHtml(m.MemberID) + '</span>' +
+          '</div>' +
+        '</div>' +
+      '</td>' +
+      '<td class="py-3 px-4">' +
+        '<div class="flex flex-col gap-0.5">' +
+          '<span class="px-2 py-0.5 rounded-full ' + rumpunColor + ' text-[10px] font-bold w-fit">' + escapeHtml(m.Rumpun || 'Manurung') + '</span>' +
+          '<span class="text-[10px] text-on-surface-variant font-semibold">Sundut ke-' + (m.Generasi || 16) + '</span>' +
+        '</div>' +
+      '</td>' +
+      '<td class="py-3 px-4 hidden md:table-cell">' +
+        '<span class="text-on-surface font-semibold block">' + escapeHtml(m.Sektor || 'Bona Pasogit') + '</span>' +
+        '<span class="text-[10px] text-on-surface-variant truncate block">' + escapeHtml(m.Alamat || '') + '</span>' +
+      '</td>' +
+      '<td class="py-3 px-4">' +
+        (m.Status === 'Aktif' 
+          ? '<span class="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>Aktif</span>'
+          : '<span class="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-surface-container text-on-surface-variant"><span class="w-1.5 h-1.5 rounded-full bg-outline"></span>Non-Aktif</span>') +
+      '</td>' +
+      '<td class="py-3 px-4 text-right whitespace-nowrap">' +
+        '<div class="flex items-center justify-end gap-1" onclick="event.stopPropagation()">' +
+          '<button onclick="openEditMemberModal(\'' + m.MemberID + '\')" title="Edit" class="p-1 rounded hover:bg-surface-container text-primary transition">' +
+            '<span class="material-symbols-outlined text-[18px]">edit</span>' +
+          '</button>' +
+        '</div>' +
+      '</td>' +
+    '</tr>';
+  }).join('');
+}
+
+function selectMemberById(memberId) {
+  AppState.selectedMemberId = memberId;
+  var member = AppState.members.find(function(m) { return m.MemberID === memberId; });
+  if (!member) return;
+
+  // Update Drawer UI
+  var nameEl = document.getElementById('drawerName');
+  var avatarEl = document.getElementById('drawerAvatar');
+  var rumpunEl = document.getElementById('drawerRumpun');
+  var sundutEl = document.getElementById('drawerSundut');
+  var ktaEl = document.getElementById('drawerKta');
+  var selfNameEl = document.getElementById('drawerSelfName');
+  var pasanganEl = document.getElementById('drawerPasangan');
+  var ayahNameEl = document.getElementById('drawerAyahName');
+  var ompungNameEl = document.getElementById('drawerOmpungName');
+  var pekerjaanEl = document.getElementById('drawerPekerjaan');
+  var bonaPasogitEl = document.getElementById('drawerBonaPasogit');
+  var alamatEl = document.getElementById('drawerAlamat');
+  var waLinkEl = document.getElementById('drawerWaLink');
+
+  if (nameEl) nameEl.textContent = member.Nama;
+  if (avatarEl) avatarEl.src = member.FotoURL || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100';
+  if (rumpunEl) rumpunEl.textContent = member.Rumpun || 'Hutagurgur';
+  if (sundutEl) sundutEl.textContent = 'Sundut ke-' + (member.Generasi || 16);
+  if (ktaEl) ktaEl.textContent = 'KTA: ' + member.MemberID;
+  if (selfNameEl) selfNameEl.textContent = member.Nama;
+  if (pasanganEl) pasanganEl.textContent = member.SpouseID ? ('Pasangan: ' + member.SpouseID) : 'Belum menikah';
+  if (pekerjaanEl) pekerjaanEl.textContent = member.Pekerjaan || '-';
+  if (bonaPasogitEl) bonaPasogitEl.textContent = member.BonaPasogit || 'Sibisa, Toba';
+  if (alamatEl) alamatEl.textContent = member.Alamat || '-';
+
+  if (waLinkEl && member.NoHP) {
+    waLinkEl.href = 'https://wa.me/' + member.NoHP.replace(/\D/g, '');
+  }
+
+  // Cari Ayah & Ompung
+  var ayah = AppState.members.find(function(m) { return m.MemberID === member.ParentID; });
+  if (ayah) {
+    if (ayahNameEl) ayahNameEl.textContent = ayah.Nama + ' (Sundut ' + ayah.Generasi + ')';
+    var ompung = AppState.members.find(function(m) { return m.MemberID === ayah.ParentID; });
+    if (ompungNameEl) {
+      ompungNameEl.textContent = ompung ? (ompung.Nama + ' (Sundut ' + ompung.Generasi + ')') : 'Ompu Tahan Manurung';
+    }
+  } else {
+    if (ayahNameEl) ayahNameEl.textContent = 'St. Marulam Manurung';
+    if (ompungNameEl) ompungNameEl.textContent = 'Ompu Tahan Manurung';
+  }
+
+  renderMembersTable();
+}
+
+// ============================================================================
+// POHON SILSILAH INTERAKTIF (D3.JS FAMILY TREE)
+// ============================================================================
+function populateRootSelect() {
+  var sel = document.getElementById('treeRootSelect');
+  if (!sel) return;
+  var rootCandidates = AppState.members.filter(function(m) {
+    return !m.ParentID || m.Generasi <= 2 || m.MemberID === 'MNR-ROOT-001';
+  });
+  if (rootCandidates.length === 0) rootCandidates = AppState.members.slice(0, 3);
+
+  sel.innerHTML = rootCandidates.map(function(m) {
+    return '<option value="' + m.MemberID + '">' + escapeHtml(m.Nama) + ' (G-' + m.Generasi + ')</option>';
+  }).join('');
+}
+
+function renderFamilyTree() {
+  var container = document.getElementById('treeContainer');
+  var svgEl = d3.select('#treeSvg');
+  if (!container || !svgEl.node()) return;
+
+  svgEl.selectAll('*').remove();
+
+  var width = container.clientWidth || 900;
+  var height = container.clientHeight || 580;
+
+  var rootId = document.getElementById('treeRootSelect')?.value || 'MNR-ROOT-001';
+  var rootMember = AppState.members.find(function(m) { return m.MemberID === rootId; }) || AppState.members[0];
+
+  if (!rootMember) return;
+
+  // Build Hierarchical JSON from flat ParentID
+  function buildHierarchy(member) {
+    var children = AppState.members.filter(function(m) {
+      return m.ParentID === member.MemberID;
+    });
+    return {
+      data: member,
+      children: children.map(buildHierarchy)
+    };
+  }
+
+  var treeData = buildHierarchy(rootMember);
+  var rootNode = d3.hierarchy(treeData);
+
+  var treeLayout = d3.tree().nodeSize([210, 140]);
+  treeLayout(rootNode);
+
+  var svg = svgEl.attr('viewBox', [0, 0, width, height]);
+  var g = svg.append('g').attr('id', 'treeGroup');
+
+  // Zoom Setup
+  AppState.treeZoom = d3.zoom()
+    .scaleExtent([0.25, 2.5])
+    .on('zoom', function(event) {
+      g.attr('transform', event.transform);
+    });
+
+  svg.call(AppState.treeZoom);
+
+  // Initial Center Position
+  var initialTransform = d3.zoomIdentity.translate(width / 2, 70).scale(0.85);
+  svg.call(AppState.treeZoom.transform, initialTransform);
+
+  // Draw Curved Links
+  g.selectAll('.tree-link')
+    .data(rootNode.links())
+    .enter()
+    .append('path')
+    .attr('class', 'tree-link solid')
+    .attr('d', d3.linkVertical()
+      .x(function(d) { return d.x; })
+      .y(function(d) { return d.y; })
+    );
+
+  // Draw Node Containers
+  var node = g.selectAll('.tree-node')
+    .data(rootNode.descendants())
+    .enter()
+    .append('g')
+    .attr('class', 'tree-node')
+    .attr('transform', function(d) { return 'translate(' + d.x + ',' + d.y + ')'; })
+    .on('click', function(event, d) {
+      selectMemberById(d.data.data.MemberID);
+      showToast('Anggota Dipilih', d.data.data.Nama);
+    });
+
+  // Node Background Card (ForeignObject for modern HTML card styling)
+  node.append('foreignObject')
+    .attr('width', 180)
+    .attr('height', 85)
+    .attr('x', -90)
+    .attr('y', -30)
+    .html(function(d) {
+      var m = d.data.data;
+      var borderColor = '#0e243a';
+      var badgeBg = 'bg-primary-container text-white';
+
+      if ((m.Rumpun || '').indexOf('Hutagaol') !== -1) {
+        borderColor = '#b6191a';
+        badgeBg = 'bg-secondary text-white';
+      } else if ((m.Rumpun || '').indexOf('Simanoroni') !== -1) {
+        borderColor = '#d97706';
+        badgeBg = 'bg-amber-600 text-white';
+      }
+
+      return '<div style="border-left: 4px solid ' + borderColor + ';" class="w-full h-full bg-white rounded-xl shadow-md p-2 flex flex-col justify-between border border-slate-200">' +
+        '<div class="flex items-center gap-2">' +
+          '<img src="' + (m.FotoURL || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80') + '" class="w-7 h-7 rounded-full object-cover shrink-0">' +
+          '<div class="min-w-0 flex-1">' +
+            '<h5 class="text-[11px] font-bold text-slate-900 truncate leading-tight">' + escapeHtml(m.Nama) + '</h5>' +
+            '<span class="text-[9px] text-slate-500 font-semibold block">Sundut ' + m.Generasi + '</span>' +
+          '</div>' +
+        '</div>' +
+        '<div class="flex items-center justify-between text-[9px] pt-1 border-t border-slate-100">' +
+          '<span class="px-1.5 py-0.2 rounded ' + badgeBg + ' font-bold truncate max-w-[100px]">' + escapeHtml(m.Rumpun || 'Silau Raja') + '</span>' +
+          '<span class="text-slate-400 font-mono text-[8px]">' + (m.JenisKelamin === 'L' ? 'Laki-laki' : 'Boru') + '</span>' +
+        '</div>' +
+      '</div>';
+    });
+}
+
+function zoomInTree() {
+  if (AppState.treeZoom) {
+    d3.select('#treeSvg').transition().duration(250).call(AppState.treeZoom.scaleBy, 1.25);
+  }
+}
+function zoomOutTree() {
+  if (AppState.treeZoom) {
+    d3.select('#treeSvg').transition().duration(250).call(AppState.treeZoom.scaleBy, 0.8);
+  }
+}
+function resetTreeZoom() {
+  if (AppState.treeZoom) {
+    var container = document.getElementById('treeContainer');
+    var width = container.clientWidth || 900;
+    var initialTransform = d3.zoomIdentity.translate(width / 2, 70).scale(0.85);
+    d3.select('#treeSvg').transition().duration(350).call(AppState.treeZoom.transform, initialTransform);
+  }
+}
+
+// ============================================================================
+// IURAN & KEUANGAN
+// ============================================================================
+function renderDuesTable() {
+  var tbody = document.getElementById('duesTableBody');
+  var periodFilter = document.getElementById('filterDuesPeriod')?.value || '';
+  if (!tbody) return;
+
+  var filtered = AppState.dues.filter(function(d) {
+    return !periodFilter || (d.Periode && d.Periode.indexOf(periodFilter) !== -1);
+  });
+
+  tbody.innerHTML = filtered.map(function(d) {
+    var member = AppState.members.find(function(m) { return m.MemberID === d.MemberID; });
+    var memberName = member ? member.Nama : d.MemberID;
+
+    return '<tr class="hover:bg-surface-container-low transition border-b border-surface-container-high">' +
+      '<td class="py-3 px-4 font-mono font-semibold text-primary">' + escapeHtml(d.IuranID) + '</td>' +
+      '<td class="py-3 px-4 font-bold text-on-surface">' + escapeHtml(memberName) + '</td>' +
+      '<td class="py-3 px-4">' + escapeHtml(d.Periode) + '</td>' +
+      '<td class="py-3 px-4 font-extrabold text-primary">Rp ' + Number(d.Jumlah).toLocaleString('id-ID') + '</td>' +
+      '<td class="py-3 px-4 text-on-surface-variant">' + escapeHtml(d.TanggalBayar || '-') + '</td>' +
+      '<td class="py-3 px-4">' +
+        (d.Status === 'Lunas'
+          ? '<span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">Lunas</span>'
+          : '<span class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[10px] font-bold">Belum Lunas</span>') +
+      '</td>' +
+      '<td class="py-3 px-4 text-on-surface-variant truncate max-w-[200px]">' + escapeHtml(d.Catatan || '-') + '</td>' +
+    '</tr>';
+  }).join('');
+}
+
+function openRecordDuesModal() {
+  var sel = document.getElementById('duesMemberSelect');
+  if (sel) {
+    sel.innerHTML = AppState.members.map(function(m) {
+      return '<option value="' + m.MemberID + '">' + escapeHtml(m.Nama) + ' (' + m.MemberID + ')</option>';
+    }).join('');
+  }
+  openModal('modalRecordDues');
+}
+
+function handleSaveDues(e) {
+  e.preventDefault();
+  var duesData = {
+    MemberID: document.getElementById('duesMemberSelect').value,
+    Periode: document.getElementById('duesPeriode').value,
+    Jumlah: document.getElementById('duesJumlah').value,
+    Status: document.getElementById('duesStatus').value,
+    Catatan: document.getElementById('duesCatatan').value,
+    TanggalBayar: new Date().toISOString().split('T')[0]
+  };
+
+  if (AppState.isGasEnvironment) {
+    google.script.run
+      .withSuccessHandler(function(res) {
+        closeModal('modalRecordDues');
+        showToast('Iuran Dicatat', 'Data iuran berhasil disimpan');
+        initApp();
+      })
+      .withFailureHandler(function(err) {
+        showToast('Error', err.message);
+      })
+      .saveDuesRecord(duesData);
+  } else {
+    duesData.IuranID = 'IUR-' + Date.now().toString().slice(-6);
+    AppState.dues.unshift(duesData);
+    closeModal('modalRecordDues');
+    renderDuesTable();
+    showToast('Iuran Dicatat', 'Data iuran berhasil ditambahkan (Demo Mode)');
+  }
+}
+
+// ============================================================================
+// ARTIKEL & WARTA ADAT
+// ============================================================================
+function renderArticlesGrid() {
+  var grid = document.getElementById('articlesCardsGrid');
+  if (!grid) return;
+
+  grid.innerHTML = AppState.filteredArticles.map(function(art) {
+    return '<div class="bg-surface-container-lowest rounded-2xl border border-surface-container-high shadow-xs overflow-hidden flex flex-col group hover:shadow-md transition">' +
+      '<img src="' + escapeHtml(art.Thumbnail || '') + '" class="w-full h-44 object-cover group-hover:scale-105 transition-transform duration-300">' +
+      '<div class="p-4 flex flex-col justify-between flex-1 space-y-3">' +
+        '<div>' +
+          '<div class="flex items-center justify-between text-[10px] uppercase font-bold text-secondary tracking-wider mb-1">' +
+            '<span>' + escapeHtml(art.Kategori) + '</span>' +
+            '<span class="text-on-surface-variant font-normal">' + escapeHtml(art.TanggalPublish || '') + '</span>' +
+          '</div>' +
+          '<h3 class="font-bold text-sm text-primary leading-snug">' + escapeHtml(art.Judul) + '</h3>' +
+          '<p class="text-xs text-on-surface-variant line-clamp-2 mt-1">' + escapeHtml(art.Konten) + '</p>' +
+        '</div>' +
+        '<div class="pt-2 border-t border-surface-container-high flex items-center justify-between">' +
+          '<button onclick="openReadArticleModal(\'' + art.ArticleID + '\')" class="text-xs text-primary font-bold hover:underline flex items-center gap-1">' +
+            '<span>Baca Selengkapnya</span><span class="material-symbols-outlined text-[14px]">arrow_forward</span>' +
+          '</button>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function filterArticlesByCategory(cat) {
+  if (cat === 'all') {
+    AppState.filteredArticles = AppState.articles.slice();
+  } else {
+    AppState.filteredArticles = AppState.articles.filter(function(a) { return a.Kategori === cat; });
+  }
+  renderArticlesGrid();
+}
+
+function openReadArticleModal(artId) {
+  var art = AppState.articles.find(function(a) { return a.ArticleID === artId; });
+  if (!art) return;
+
+  document.getElementById('readArticleTitle').textContent = art.Judul;
+  document.getElementById('readArticleCategory').textContent = art.Kategori;
+  document.getElementById('readArticleAuthor').textContent = 'Penulis: ' + (art.PenulisEmail || 'Admin');
+  document.getElementById('readArticleDate').textContent = art.TanggalPublish || '';
+  document.getElementById('readArticleContent').textContent = art.Konten;
+  document.getElementById('readArticleImage').src = art.Thumbnail || 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=600';
+
+  openModal('modalReadArticle');
+}
+
+function openArticleEditorModal() {
+  document.getElementById('articleFormId').value = '';
+  document.getElementById('articleJudul').value = '';
+  document.getElementById('articleKonten').value = '';
+  document.getElementById('articleThumbnail').value = '';
+  openModal('modalArticleEditor');
+}
+
+function handleSaveArticle(e) {
+  e.preventDefault();
+  var articleData = {
+    ArticleID: document.getElementById('articleFormId').value,
+    Judul: document.getElementById('articleJudul').value,
+    Kategori: document.getElementById('articleKategori').value,
+    Status: document.getElementById('articleStatus').value,
+    Thumbnail: document.getElementById('articleThumbnail').value,
+    Konten: document.getElementById('articleKonten').value
+  };
+
+  if (AppState.isGasEnvironment) {
+    google.script.run
+      .withSuccessHandler(function() {
+        closeModal('modalArticleEditor');
+        showToast('Artikel Disimpan', 'Publikasi artikel berhasil.');
+        initApp();
+      })
+      .saveArticle(articleData);
+  } else {
+    articleData.ArticleID = 'ART-' + Date.now().toString().slice(-6);
+    articleData.TanggalPublish = new Date().toISOString().split('T')[0];
+    AppState.articles.unshift(articleData);
+    AppState.filteredArticles = AppState.articles.slice();
+    closeModal('modalArticleEditor');
+    renderArticlesGrid();
+    showToast('Artikel Disimpan', 'Artikel baru telah ditambahkan (Demo Mode)');
+  }
+}
+
+// ============================================================================
+// ROLE MANAGEMENT
+// ============================================================================
+function renderRoleUsersTable() {
+  var tbody = document.getElementById('roleUsersTableBody');
+  if (!tbody) return;
+
+  tbody.innerHTML = AppState.users.map(function(u) {
+    return '<tr class="hover:bg-surface-container-low transition border-b border-surface-container-high">' +
+      '<td class="py-3 px-4 font-bold text-primary">' + escapeHtml(u.Nama) + '</td>' +
+      '<td class="py-3 px-4 text-on-surface-variant font-mono">' + escapeHtml(u.Email) + '</td>' +
+      '<td class="py-3 px-4">' +
+        '<span class="px-2 py-0.5 rounded-full bg-primary-container text-white text-[10px] font-bold">' + escapeHtml(u.Role) + '</span>' +
+      '</td>' +
+      '<td class="py-3 px-4">' +
+        '<span class="text-emerald-700 font-bold text-[10px] bg-emerald-50 px-2 py-0.5 rounded-full">Aktif</span>' +
+      '</td>' +
+      '<td class="py-3 px-4 text-right">' +
+        '<select onchange="changeUserRole(\'' + u.Email + '\', this.value)" class="bg-surface-container-low border border-surface-container-high rounded-lg text-xs px-2 py-1 outline-none cursor-pointer">' +
+          '<option value="Member"' + (u.Role === 'Member' ? ' selected' : '') + '>Member</option>' +
+          '<option value="Pengurus"' + (u.Role === 'Pengurus' ? ' selected' : '') + '>Pengurus Sektor</option>' +
+          '<option value="Admin"' + (u.Role === 'Admin' ? ' selected' : '') + '>Admin DPP</option>' +
+        '</select>' +
+      '</td>' +
+    '</tr>';
+  }).join('');
+}
+
+function changeUserRole(email, newRole) {
+  if (AppState.isGasEnvironment) {
+    google.script.run
+      .withSuccessHandler(function() {
+        showToast('Role Diperbarui', email + ' menjadi ' + newRole);
+        initApp();
+      })
+      .updateUserRole(email, newRole);
+  } else {
+    var u = AppState.users.find(function(x) { return x.Email === email; });
+    if (u) u.Role = newRole;
+    showToast('Role Diperbarui', email + ' menjadi ' + newRole + ' (Demo Mode)');
+  }
+}
+
+// ============================================================================
+// MODAL & MEMBER FORM ACTIONS
+// ============================================================================
+function populateParentSelect() {
+  var sel = document.getElementById('inputParentID');
+  if (!sel) return;
+  sel.innerHTML = '<option value="">-- Tidak ada (Leluhur Pertama) --</option>' +
+    AppState.members.map(function(m) {
+      return '<option value="' + m.MemberID + '">' + escapeHtml(m.Nama) + ' (' + (m.Rumpun || '') + ' - G' + m.Generasi + ')</option>';
+    }).join('');
+}
+
+function openAddMemberModal() {
+  document.getElementById('memberFormId').value = '';
+  document.getElementById('modalMemberTitle').textContent = 'Tambah Anggota Keluarga Baru';
+  document.getElementById('inputNama').value = '';
+  document.getElementById('inputSpouse').value = '';
+  document.getElementById('inputNoHP').value = '';
+  document.getElementById('inputAlamat').value = '';
+  document.getElementById('inputBonaPasogitForm').value = '';
+  openModal('modalAddMember');
+}
+
+function editSelectedMember() {
+  if (!AppState.selectedMemberId) return;
+  openEditMemberModal(AppState.selectedMemberId);
+}
+
+function openEditMemberModal(memberId) {
+  var m = AppState.members.find(function(x) { return x.MemberID === memberId; });
+  if (!m) return;
+
+  document.getElementById('memberFormId').value = m.MemberID;
+  document.getElementById('modalMemberTitle').textContent = 'Edit Data Anggota (' + m.MemberID + ')';
+  document.getElementById('inputNama').value = m.Nama || '';
+  document.getElementById('inputJenisKelamin').value = m.JenisKelamin || 'L';
+  document.getElementById('inputRumpun').value = m.Rumpun || 'Hutagurgur';
+  document.getElementById('inputGenerasi').value = m.Generasi || 16;
+  document.getElementById('inputParentID').value = m.ParentID || '';
+  document.getElementById('inputSpouse').value = m.SpouseID || '';
+  document.getElementById('inputTanggalLahir').value = m.TanggalLahir || '';
+  document.getElementById('inputNoHP').value = m.NoHP || '';
+  document.getElementById('inputSektor').value = m.Sektor || 'Jabodetabek Barat';
+  document.getElementById('inputBonaPasogitForm').value = m.BonaPasogit || '';
+  document.getElementById('inputAlamat').value = m.Alamat || '';
+
+  openModal('modalAddMember');
+}
+
+function handleSaveMember(e) {
+  e.preventDefault();
+  var memberData = {
+    MemberID: document.getElementById('memberFormId').value,
+    Nama: document.getElementById('inputNama').value,
+    JenisKelamin: document.getElementById('inputJenisKelamin').value,
+    Rumpun: document.getElementById('inputRumpun').value,
+    Generasi: document.getElementById('inputGenerasi').value,
+    ParentID: document.getElementById('inputParentID').value,
+    SpouseID: document.getElementById('inputSpouse').value,
+    TanggalLahir: document.getElementById('inputTanggalLahir').value,
+    NoHP: document.getElementById('inputNoHP').value,
+    Sektor: document.getElementById('inputSektor').value,
+    BonaPasogit: document.getElementById('inputBonaPasogitForm').value,
+    Alamat: document.getElementById('inputAlamat').value,
+    Status: 'Aktif'
+  };
+
+  if (AppState.isGasEnvironment) {
+    google.script.run
+      .withSuccessHandler(function(res) {
+        closeModal('modalAddMember');
+        showToast('Data Disimpan', 'Anggota keluarga berhasil dicatat');
+        initApp();
+      })
+      .withFailureHandler(function(err) {
+        showToast('Error', err.message);
+      })
+      .saveMember(memberData);
+  } else {
+    if (!memberData.MemberID) {
+      memberData.MemberID = 'MNR-2025-' + ('0000' + (AppState.members.length + 1)).slice(-5);
+      memberData.FotoURL = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100';
+      AppState.members.push(memberData);
+    } else {
+      var idx = AppState.members.findIndex(function(x) { return x.MemberID === memberData.MemberID; });
+      if (idx !== -1) AppState.members[idx] = Object.assign(AppState.members[idx], memberData);
+    }
+    AppState.filteredMembers = AppState.members.slice();
+    closeModal('modalAddMember');
+    renderMembersTable();
+    selectMemberById(memberData.MemberID);
+    showToast('Tersimpan', 'Data anggota berhasil diperbarui (Demo Mode)');
+  }
+}
+
+// Modal Cari Tarombo
+function openSearchTaromboModal(callerContext) {
+  searchTaromboCandidates('');
+  openModal('modalSearchTarombo');
+}
+
+function searchTaromboCandidates(query) {
+  var resultsEl = document.getElementById('taromboSearchResults');
+  if (!resultsEl) return;
+  var q = (query || '').toLowerCase();
+
+  var matches = AppState.members.filter(function(m) {
+    return !q || m.Nama.toLowerCase().indexOf(q) !== -1 || m.MemberID.toLowerCase().indexOf(q) !== -1;
+  });
+
+  resultsEl.innerHTML = matches.map(function(m) {
+    return '<div class="p-3 bg-surface-container-low hover:bg-surface-container rounded-xl flex items-center justify-between gap-3 border border-surface-container-high transition">' +
+      '<div>' +
+        '<h4 class="font-bold text-xs text-primary">' + escapeHtml(m.Nama) + '</h4>' +
+        '<span class="text-[10px] text-on-surface-variant">' + escapeHtml(m.Rumpun || '') + ' • Sundut ' + m.Generasi + ' • ' + escapeHtml(m.MemberID) + '</span>' +
+      '</div>' +
+      '<button type="button" onclick="selectFoundTarombo(\'' + m.MemberID + '\', \'' + escapeHtml(m.Nama) + '\')" class="px-3 py-1 bg-primary text-white text-[10px] font-semibold rounded-lg hover:bg-primary-container">' +
+        'Pilih Sebagai Parent' +
+      '</button>' +
+    '</div>';
+  }).join('');
+}
+
+function selectFoundTarombo(parentMemberId, parentName) {
+  var sel = document.getElementById('inputParentID');
+  if (sel) {
+    sel.value = parentMemberId;
+  }
+  closeModal('modalSearchTarombo');
+  showToast('Tarombo Dihubungkan', parentName + ' dipilih sebagai orang tua silsilah');
+}
+
+function openRegistrationModal() {
+  openAddMemberModal();
+}
+
+function initDatabaseFromUI() {
+  if (AppState.isGasEnvironment) {
+    showToast('Inisialisasi', 'Sedang men-setup sheets...');
+    google.script.run
+      .withSuccessHandler(function(res) {
+        showToast('Berhasil', res.message);
+        initApp();
+      })
+      .setupSpreadsheet();
+  } else {
+    showToast('Mode Demo', 'Database mock telah aktif dengan 13 anggota 3 Rumpun.');
+  }
+}
+
+// ============================================================================
+// UI UTILITIES & TOAST
+// ============================================================================
+function openModal(modalId) {
+  var el = document.getElementById(modalId);
+  if (el) el.classList.remove('hidden');
+}
+
+function closeModal(modalId) {
+  var el = document.getElementById(modalId);
+  if (el) el.classList.add('hidden');
+}
+
+function showToast(title, message) {
+  var toast = document.getElementById('toastNotification');
+  var titleEl = document.getElementById('toastTitle');
+  var msgEl = document.getElementById('toastMessage');
+  if (!toast) return;
+
+  if (titleEl) titleEl.textContent = title;
+  if (msgEl) msgEl.textContent = message;
+
+  toast.classList.remove('translate-y-24', 'opacity-0', 'pointer-events-none');
+  setTimeout(function() {
+    toast.classList.add('translate-y-24', 'opacity-0', 'pointer-events-none');
+  }, 3500);
+}
+
+function handleGlobalSearch(query) {
+  if (AppState.currentTab !== 'data-anggota') {
+    switchViewTab('data-anggota');
+  }
+  var input = document.getElementById('filterMemberSearch');
+  if (input) {
+    input.value = query;
+    applyMemberFilters();
+  }
+}
+
+function escapeHtml(text) {
+  if (!text) return '';
+  return String(text)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+</script>
+
+</body>
+</html>

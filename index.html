@@ -1,0 +1,1272 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>iManurung - Portal Marga, Tarombo & Komunitas</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#000e1e",
+            "primary-container": "#0e243a",
+            "on-primary": "#ffffff",
+            "on-primary-container": "#778ca6",
+            "primary-fixed": "#d1e4ff",
+            "primary-fixed-dim": "#b3c8e5",
+            "secondary": "#b6191a",
+            "secondary-container": "#d9352f",
+            "secondary-fixed": "#ffdad6",
+            "secondary-fixed-dim": "#ffb4ab",
+            "tertiary": "#190900",
+            "tertiary-container": "#391b00",
+            "surface": "#f7f9fb",
+            "surface-dim": "#d8dadc",
+            "surface-bright": "#f7f9fb",
+            "surface-container-lowest": "#ffffff",
+            "surface-container-low": "#f2f4f6",
+            "surface-container": "#eceef0",
+            "surface-container-high": "#e6e8ea",
+            "surface-container-highest": "#e0e3e5",
+            "on-surface": "#191c1e",
+            "on-surface-variant": "#43474d",
+            "outline": "#74777d",
+            "outline-variant": "#c4c6cd"
+          },
+          borderRadius: {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "2xl": "1rem",
+            "full": "9999px"
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif']
+          }
+        }
+      }
+    };
+  </script>
+
+  <!-- Chart.js for Statistics -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- D3.js for Interactive Family Tree (Tarombo) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+
+  <!-- Stylesheet Include -->
+  <?!= include('Stylesheet'); ?>
+</head>
+<body class="bg-surface font-sans text-on-surface antialiased min-h-screen">
+
+  <!-- ===================================================================== -->
+  <!-- 0. LOADING SCREEN (tampil saat inisialisasi session dari server)       -->
+  <!-- ===================================================================== -->
+  <div id="app-loading-screen" class="fixed inset-0 z-[9999] bg-surface flex flex-col items-center justify-center gap-6">
+    <div class="flex flex-col items-center gap-4">
+      <div class="w-16 h-16 rounded-2xl bg-primary-container flex items-center justify-center shadow-xl">
+        <span class="material-symbols-outlined text-white text-4xl">family_restroom</span>
+      </div>
+      <div class="flex flex-col items-center">
+        <span class="font-bold text-primary text-2xl">iManurung</span>
+        <span class="text-xs text-on-surface-variant uppercase tracking-widest font-semibold mt-1">Portal Marga & Silsilah</span>
+      </div>
+    </div>
+    <div class="flex flex-col items-center gap-2">
+      <div class="flex gap-1.5">
+        <div class="w-2 h-2 rounded-full bg-primary animate-bounce" style="animation-delay:0ms"></div>
+        <div class="w-2 h-2 rounded-full bg-primary animate-bounce" style="animation-delay:150ms"></div>
+        <div class="w-2 h-2 rounded-full bg-primary animate-bounce" style="animation-delay:300ms"></div>
+      </div>
+      <span class="text-xs text-on-surface-variant">Memuat data portal...</span>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- 1. VIEW LOGIN & PORTAL MASUK (Berbasis Google SSO & Manual Role)      -->
+  <!-- ===================================================================== -->
+  <div id="view-login" class="hidden min-h-screen flex flex-col justify-between">
+    <!-- Header Mini -->
+    <header class="w-full bg-surface-container-lowest/90 backdrop-blur-md border-b border-surface-container-high py-3 px-6 shadow-sm">
+      <div class="max-w-7xl mx-auto flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <img src="https://lh3.googleusercontent.com/aida/AEtjO1WUmZhSEbvhF4355BLhvwRiFqzI1zmB7EdUzaGpClqYrS3t97jeEaV_3D6JUOdyI4wMmObNweYwChpOoE94Aq7aGqncR3499fI2bjOPxoUDdIAduI-OA1JBYTezETv4Jhsz541WElDKbrqsOTcz2VDMnMUwNej4Wbm80HQWH7Jcjjrlpx1ovVto5OZWchEfeaZr8UvbI7szVkEq0KlSex-czKIjOZpczqiW3xU6WymRQUQjrYol2D-mxkBs" alt="iManurung Logo" class="h-8 w-auto">
+          <div class="flex flex-col">
+            <span class="font-bold text-primary text-base leading-none">iManurung</span>
+            <span class="text-[10px] text-on-surface-variant uppercase tracking-wider font-semibold">Portal Marga & Silsilah</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="openRegistrationModal()" class="text-xs font-semibold text-secondary hover:text-secondary-container px-3 py-1.5 rounded-lg border border-secondary/30 hover:bg-secondary/5 transition">
+            Daftar Anggota Baru
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Login Body -->
+    <main class="max-w-7xl mx-auto px-4 py-8 sm:py-12 w-full flex-1 flex items-center">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch w-full">
+        <!-- Brand & Community Showcase Column -->
+        <div class="lg:col-span-6 flex flex-col justify-between rounded-2xl bg-primary-container text-white p-6 sm:p-10 shadow-2xl relative overflow-hidden">
+          <div class="absolute -right-24 -top-24 w-80 h-80 rounded-full bg-secondary/20 blur-3xl pointer-events-none"></div>
+          <div class="absolute -left-20 -bottom-20 w-80 h-80 rounded-full bg-blue-500/10 blur-3xl pointer-events-none"></div>
+          
+          <div class="relative z-10 space-y-6">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span class="text-xs text-white uppercase tracking-wider font-bold">Terhubung: 8 Sektor & DPP Pusat</span>
+              </div>
+              <span class="inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-full bg-secondary text-white font-semibold">
+                <span class="material-symbols-outlined text-[14px]">verified</span> Edisi 2025
+              </span>
+            </div>
+
+            <div class="space-y-2">
+              <span class="text-xs uppercase tracking-widest text-amber-300 font-bold">Gerbang Digital Parsadaan</span>
+              <h1 class="text-3xl sm:text-4xl font-bold tracking-tight leading-tight">
+                Selamat Datang di Portal Resmi <span class="text-secondary-fixed">iManurung</span>
+              </h1>
+              <p class="text-sm text-slate-300 leading-relaxed">
+                Satu akses terpadu untuk Tarombo Silsilah (Ompu Silau Raja), Kas Iuran Gotong Royong, Warta Komunitas Adat, dan Tata Kelola Kepengurusan Patambor se-Indonesia.
+              </p>
+            </div>
+
+            <!-- Features -->
+            <div class="space-y-3 pt-2">
+              <div class="flex items-start gap-3 p-3 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10">
+                <div class="w-9 h-9 rounded-lg bg-secondary/20 flex items-center justify-center text-amber-300 shrink-0">
+                  <span class="material-symbols-outlined text-[20px]">lock_reset</span>
+                </div>
+                <div>
+                  <h4 class="text-sm font-semibold text-white">Google SSO Terenkripsi</h4>
+                  <p class="text-xs text-slate-300">Akses cepat dan aman menggunakan akun Google terverifikasi.</p>
+                </div>
+              </div>
+
+              <div class="flex items-start gap-3 p-3 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10">
+                <div class="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center text-amber-300 shrink-0">
+                  <span class="material-symbols-outlined text-[20px]">account_tree</span>
+                </div>
+                <div>
+                  <h4 class="text-sm font-semibold text-white">Tarombo Digital 3 Rumpun</h4>
+                  <p class="text-xs text-slate-300">Sinkronisasi silsilah Hutagurgur, Hutagaol, dan Simanoroni.</p>
+                </div>
+              </div>
+
+              <div class="flex items-start gap-3 p-3 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10">
+                <div class="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center text-emerald-400 shrink-0">
+                  <span class="material-symbols-outlined text-[20px]">shield</span>
+                </div>
+                <div>
+                  <h4 class="text-sm font-semibold text-white">Perlindungan Multi-Role RBAC</h4>
+                  <p class="text-xs text-slate-300">Akses bertingkat untuk Pengurus DPP, DPD, dan Anggota Warga.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Trust card -->
+          <div class="relative z-10 mt-8 pt-4 bg-white/10 rounded-xl p-4 backdrop-blur-md border border-white/10 flex items-center justify-between">
+            <div>
+              <div class="flex items-center gap-1 text-amber-400 text-xs">
+                <span class="material-symbols-outlined text-[16px]">star</span>
+                <span class="material-symbols-outlined text-[16px]">star</span>
+                <span class="material-symbols-outlined text-[16px]">star</span>
+                <span class="material-symbols-outlined text-[16px]">star</span>
+                <span class="material-symbols-outlined text-[16px]">star</span>
+              </div>
+              <p class="text-xs text-slate-200 mt-0.5">Telah digunakan <strong>4.820+</strong> warga & keturunan Manurung.</p>
+            </div>
+            <span class="text-xs bg-emerald-500/20 text-emerald-300 px-2.5 py-1 rounded-full font-bold border border-emerald-400/30">Terverifikasi</span>
+          </div>
+        </div>
+
+        <!-- Auth Form Column -->
+        <div class="lg:col-span-6 flex flex-col justify-center">
+          <div class="bg-surface-container-lowest rounded-2xl shadow-xl p-6 sm:p-10 border border-surface-container-high">
+            
+            <!-- Header Form -->
+            <div class="mb-8">
+              <div class="flex items-center gap-2 mb-3">
+                <span class="material-symbols-outlined text-secondary text-[18px]">lock</span>
+                <span class="text-xs uppercase tracking-wider text-secondary font-bold">Login Portal</span>
+              </div>
+              <h2 class="text-2xl font-bold text-primary">Masuk ke iManurung</h2>
+              <p class="text-xs text-on-surface-variant mt-1.5 leading-relaxed">
+                Gunakan email dan password yang terdaftar sebagai anggota Marga Manurung Patambor.
+              </p>
+            </div>
+
+            <!-- Login Form -->
+            <form id="loginForm" onsubmit="handleManualLogin(event)" class="space-y-5" autocomplete="on">
+              
+              <!-- Email Field -->
+              <div>
+                <label for="login-email" class="block text-xs font-semibold text-on-surface mb-1.5">
+                  Email Terdaftar
+                </label>
+                <div class="relative flex items-center">
+                  <span class="material-symbols-outlined absolute left-3 text-on-surface-variant text-[20px] pointer-events-none">mail</span>
+                  <input 
+                    id="login-email" 
+                    name="email"
+                    type="email" 
+                    required 
+                    autocomplete="email"
+                    placeholder="nama@email.com" 
+                    class="w-full pl-10 pr-4 py-3 rounded-xl bg-surface-container-low text-on-surface text-sm placeholder:text-outline-variant focus:outline-none focus:ring-2 focus:ring-primary border border-surface-container-high transition">
+                </div>
+              </div>
+
+              <!-- Password Field -->
+              <div>
+                <label for="login-password" class="block text-xs font-semibold text-on-surface mb-1.5">
+                  Password
+                </label>
+                <div class="relative flex items-center">
+                  <span class="material-symbols-outlined absolute left-3 text-on-surface-variant text-[20px] pointer-events-none">key</span>
+                  <input 
+                    id="login-password" 
+                    name="password"
+                    type="password" 
+                    required 
+                    autocomplete="current-password"
+                    placeholder="••••••••••" 
+                    class="w-full pl-10 pr-12 py-3 rounded-xl bg-surface-container-low text-on-surface text-sm placeholder:text-outline-variant focus:outline-none focus:ring-2 focus:ring-primary border border-surface-container-high transition">
+                  <button type="button" onclick="togglePasswordVisibility('login-password')" class="absolute right-3 text-on-surface-variant hover:text-on-surface transition">
+                    <span class="material-symbols-outlined text-[20px]">visibility</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Info Box -->
+              <div class="p-3 bg-primary/5 rounded-xl border border-primary/10 text-[11px] text-on-surface-variant leading-relaxed">
+                <span class="material-symbols-outlined text-[13px] text-primary align-middle mr-1">info</span>
+                Password default: <strong class="text-primary">manurung2025</strong> &nbsp;|&nbsp; Admin: <strong class="text-secondary">admin2025</strong>
+              </div>
+
+              <!-- Submit Button -->
+              <button type="submit" id="btnLoginSubmit" class="w-full py-3.5 px-4 rounded-xl bg-primary hover:bg-primary-container text-white font-bold text-sm transition shadow-md flex items-center justify-center gap-2 group active:scale-[0.98]">
+                <span class="material-symbols-outlined text-[18px]">login</span>
+                <span>Masuk ke Portal</span>
+              </button>
+            </form>
+
+            <!-- Footer -->
+            <div class="mt-6 pt-5 border-t border-surface-container-high">
+              <div class="flex flex-col sm:flex-row items-center justify-between gap-2 text-xs">
+                <span class="text-on-surface-variant">Belum terdaftar sebagai anggota?</span>
+                <button onclick="openRegistrationModal()" class="text-secondary font-bold hover:underline flex items-center gap-1">
+                  <span>Daftar Anggota Baru</span>
+                  <span class="material-symbols-outlined text-[14px]">how_to_reg</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- 2. MAIN APPLICATION SHELL (DASHBOARD, ANGGOTA, TREE, IURAN, ARTIKEL)   -->
+  <!-- ===================================================================== -->
+  <div id="view-app" class="hidden min-h-screen flex">
+    
+    <!-- Fixed Sidebar Navigation -->
+    <aside id="appSidebar" class="fixed left-0 top-0 h-full w-64 bg-surface-container-lowest border-r border-surface-container-high z-50 flex flex-col justify-between shadow-sm transition-transform -translate-x-full md:translate-x-0">
+      <div class="flex flex-col">
+        <!-- Brand Header -->
+        <div class="h-16 px-4 flex items-center justify-between border-b border-surface-container-high">
+          <div class="flex items-center gap-2.5">
+            <img src="https://lh3.googleusercontent.com/aida/AEtjO1WUmZhSEbvhF4355BLhvwRiFqzI1zmB7EdUzaGpClqYrS3t97jeEaV_3D6JUOdyI4wMmObNweYwChpOoE94Aq7aGqncR3499fI2bjOPxoUDdIAduI-OA1JBYTezETv4Jhsz541WElDKbrqsOTcz2VDMnMUwNej4Wbm80HQWH7Jcjjrlpx1ovVto5OZWchEfeaZr8UvbI7szVkEq0KlSex-czKIjOZpczqiW3xU6WymRQUQjrYol2D-mxkBs" alt="iManurung Logo" class="h-8 w-auto">
+            <div class="flex flex-col">
+              <span class="font-bold text-primary text-base leading-none">iManurung</span>
+              <span class="text-[10px] text-on-surface-variant font-medium mt-0.5">Portal Marga & Komunitas</span>
+            </div>
+          </div>
+          <button onclick="toggleSidebar()" class="md:hidden text-on-surface-variant p-1">
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        </div>
+
+        <!-- Sektor Aktif Selector -->
+        <div class="p-3">
+          <div class="bg-surface-container-low rounded-xl p-2.5 flex items-center justify-between">
+            <div class="flex flex-col">
+              <span class="text-[10px] font-semibold text-on-surface-variant uppercase tracking-wider">Sektor Aktif</span>
+              <span id="currentSectorLabel" class="text-xs font-bold text-primary truncate">Jabodetabek Barat</span>
+            </div>
+            <span class="material-symbols-outlined text-on-surface-variant text-sm">unfold_more</span>
+          </div>
+        </div>
+
+        <!-- Menu Navigation Links -->
+        <nav class="flex flex-col gap-1 px-3 mt-1">
+          <button onclick="switchViewTab('dashboard')" id="btnNav-dashboard" class="nav-active flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-on-surface-variant hover:bg-surface-container hover:text-primary transition">
+            <span class="material-symbols-outlined text-[20px]">grid_view</span>
+            <span>Dashboard</span>
+          </button>
+          <button onclick="switchViewTab('data-anggota')" id="btnNav-data-anggota" class="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold text-on-surface-variant hover:bg-surface-container hover:text-primary transition">
+            <div class="flex items-center gap-3">
+              <span class="material-symbols-outlined text-[20px]">group</span>
+              <span>Data Anggota</span>
+            </div>
+            <span class="px-1.5 py-0.5 rounded-full bg-secondary text-white text-[9px] font-bold">4.8K</span>
+          </button>
+          <button onclick="switchViewTab('pohon-silsilah')" id="btnNav-pohon-silsilah" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-on-surface-variant hover:bg-surface-container hover:text-primary transition">
+            <span class="material-symbols-outlined text-[20px]">account_tree</span>
+            <span>Pohon Silsilah</span>
+          </button>
+          <button onclick="switchViewTab('iuran-keuangan')" id="btnNav-iuran-keuangan" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-on-surface-variant hover:bg-surface-container hover:text-primary transition">
+            <span class="material-symbols-outlined text-[20px]">account_balance_wallet</span>
+            <span>Iuran & Keuangan</span>
+          </button>
+          <button onclick="switchViewTab('artikel-berita')" id="btnNav-artikel-berita" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-on-surface-variant hover:bg-surface-container hover:text-primary transition">
+            <span class="material-symbols-outlined text-[20px]">newspaper</span>
+            <span>Artikel & Warta</span>
+          </button>
+          <button onclick="switchViewTab('role-management')" id="btnNav-role-management" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-on-surface-variant hover:bg-surface-container hover:text-primary transition">
+            <span class="material-symbols-outlined text-[20px]">admin_panel_settings</span>
+            <span>Role Management</span>
+          </button>
+        </nav>
+      </div>
+
+      <!-- Bottom User Profile Card & Logout -->
+      <div class="p-3 border-t border-surface-container-high bg-surface-container-lowest">
+        <div class="bg-surface-container-low rounded-xl p-3 flex items-center justify-between">
+          <div class="flex items-center gap-2.5 overflow-hidden">
+            <img id="userSidebarAvatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80" alt="Avatar" class="w-8 h-8 rounded-full object-cover shrink-0 ring-1 ring-primary/20">
+            <div class="flex flex-col overflow-hidden">
+              <span id="userSidebarName" class="text-xs font-bold text-primary truncate">St. Ricardo Manurung</span>
+              <span id="userSidebarRole" class="text-[10px] text-secondary font-bold uppercase">Admin Pengurus</span>
+            </div>
+          </div>
+          <button onclick="logout()" title="Keluar" class="p-1.5 text-on-surface-variant hover:text-secondary rounded-lg hover:bg-surface-container transition">
+            <span class="material-symbols-outlined text-[18px]">logout</span>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Right Area -->
+    <div class="flex-1 md:pl-64 flex flex-col min-h-screen">
+      
+      <!-- Sticky Top Header -->
+      <header class="sticky top-0 h-16 bg-surface-container-lowest/90 backdrop-blur-md z-40 border-b border-surface-container-high px-4 sm:px-8 flex items-center justify-between gap-4">
+        <div class="flex items-center gap-3 flex-1 max-w-xl">
+          <button onclick="toggleSidebar()" class="md:hidden text-on-surface p-1.5 rounded-lg hover:bg-surface-container">
+            <span class="material-symbols-outlined">menu</span>
+          </button>
+          <!-- Global Search Input -->
+          <div class="relative w-full flex items-center">
+            <span class="material-symbols-outlined absolute left-3 text-on-surface-variant text-[20px] pointer-events-none">search</span>
+            <input id="globalSearchInput" oninput="handleGlobalSearch(this.value)" type="text" placeholder="Cari nama anggota, no. KTA, atau tarombo..." class="w-full bg-surface-container-low text-on-surface placeholder:text-on-surface-variant text-xs pl-9 pr-14 py-2 rounded-xl outline-none focus:ring-1 focus:ring-primary transition">
+            <div class="absolute right-2.5 bg-surface-container-high px-1.5 py-0.5 rounded text-[10px] font-mono text-on-surface-variant">Ctrl+K</div>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <!-- Setup Spreadsheet Helper Button -->
+          <button onclick="initDatabaseFromUI()" title="Inisialisasi Database Sheet" class="hidden sm:inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-xl bg-surface-container-high hover:bg-surface-container text-primary transition">
+            <span class="material-symbols-outlined text-[16px] text-secondary">database</span>
+            <span>Sync Sheets</span>
+          </button>
+
+          <!-- Notification Icon -->
+          <button onclick="showToast('Notifikasi', 'Tidak ada pengumuman mendesak baru saat ini.')" class="relative p-2 rounded-full text-on-surface-variant hover:bg-surface-container transition">
+            <span class="material-symbols-outlined text-[20px]">notifications</span>
+            <span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-secondary"></span>
+          </button>
+
+          <!-- Topbar Avatar -->
+          <div class="flex items-center gap-2 pl-2 border-l border-surface-container-high">
+            <img id="userTopbarAvatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80" alt="Profile" class="w-8 h-8 rounded-full object-cover ring-1 ring-primary/20">
+          </div>
+        </div>
+      </header>
+
+      <!-- Main Section Container -->
+      <main class="flex-1 p-4 sm:p-8 bg-surface">
+
+        <!-- =============================================================== -->
+        <!-- TAB 1: DASHBOARD STATISTIK & AKTIVITAS                          -->
+        <!-- =============================================================== -->
+        <section id="tab-dashboard" class="space-y-6">
+          <!-- Header Bar -->
+          <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-surface-container-high text-primary text-[10px] uppercase font-bold tracking-wider">
+                  <span class="w-1.5 h-1.5 rounded-full bg-secondary animate-pulse"></span> Statistik Terpadu
+                </span>
+                <span class="text-on-surface-variant text-xs">• Pembaruan Real-Time</span>
+              </div>
+              <h1 class="text-2xl sm:text-3xl font-bold text-primary tracking-tight mt-1">Dashboard Statistik & Aktivitas</h1>
+              <p class="text-xs text-on-surface-variant">Monitoring demografi warga marga Manurung, iuran kas, dan aktivitas komunitas.</p>
+            </div>
+            <div class="flex flex-wrap items-center gap-2">
+              <button onclick="openAddMemberModal()" class="flex items-center gap-1.5 bg-secondary hover:bg-secondary-container text-white text-xs font-semibold px-3.5 py-2 rounded-xl shadow-sm transition">
+                <span class="material-symbols-outlined text-[18px]">person_add</span>
+                <span>Tambah Anggota</span>
+              </button>
+              <button onclick="openRecordDuesModal()" class="flex items-center gap-1.5 bg-primary hover:bg-primary-container text-white text-xs font-semibold px-3.5 py-2 rounded-xl shadow-sm transition">
+                <span class="material-symbols-outlined text-[18px]">add_card</span>
+                <span>Catat Iuran</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- 4 KPI Summary Cards -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+            <!-- Total Anggota -->
+            <div class="bg-surface-container-lowest rounded-2xl p-5 shadow-xs border border-surface-container-high relative overflow-hidden group hover:shadow-md transition">
+              <div class="absolute top-0 left-0 right-0 h-1 bg-primary"></div>
+              <div class="flex items-start justify-between">
+                <div>
+                  <span class="text-[11px] font-semibold text-on-surface-variant uppercase tracking-wider">Total Anggota</span>
+                  <div id="statTotalAnggota" class="text-3xl font-extrabold text-primary mt-1">4.820</div>
+                </div>
+                <div class="w-10 h-10 rounded-xl bg-surface-container-low flex items-center justify-center text-primary">
+                  <span class="material-symbols-outlined text-[22px]">groups</span>
+                </div>
+              </div>
+              <div class="mt-3 pt-2 flex items-center justify-between text-xs border-t border-surface-container-high">
+                <span id="statTerverifikasiLabel" class="text-on-surface-variant">4.434 Terverifikasi</span>
+                <span class="text-emerald-700 font-bold bg-emerald-50 px-1.5 py-0.5 rounded text-[10px]">92% Valid</span>
+              </div>
+            </div>
+
+            <!-- Kas Iuran 2025 -->
+            <div class="bg-surface-container-lowest rounded-2xl p-5 shadow-xs border border-surface-container-high relative overflow-hidden group hover:shadow-md transition">
+              <div class="absolute top-0 left-0 right-0 h-1 bg-secondary"></div>
+              <div class="flex items-start justify-between">
+                <div>
+                  <span class="text-[11px] font-semibold text-on-surface-variant uppercase tracking-wider">Kas Iuran 2025</span>
+                  <div id="statKasIuran" class="text-2xl sm:text-3xl font-extrabold text-primary mt-1">Rp 348,6 Jt</div>
+                </div>
+                <div class="w-10 h-10 rounded-xl bg-secondary/10 flex items-center justify-center text-secondary">
+                  <span class="material-symbols-outlined text-[22px]">account_balance</span>
+                </div>
+              </div>
+              <div class="mt-3 pt-2 flex items-center justify-between text-xs border-t border-surface-container-high">
+                <span class="text-on-surface-variant">Target Rp 450 Jt</span>
+                <span class="text-secondary font-bold text-[10px]">78% Tercapai</span>
+              </div>
+            </div>
+
+            <!-- Kepatuhan Iuran -->
+            <div class="bg-surface-container-lowest rounded-2xl p-5 shadow-xs border border-surface-container-high relative overflow-hidden group hover:shadow-md transition">
+              <div class="absolute top-0 left-0 right-0 h-1 bg-amber-500"></div>
+              <div class="flex items-start justify-between">
+                <div>
+                  <span class="text-[11px] font-semibold text-on-surface-variant uppercase tracking-wider">Kepatuhan Iuran</span>
+                  <div id="statKepatuhanIuran" class="text-3xl font-extrabold text-primary mt-1">84.6%</div>
+                </div>
+                <div class="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center text-amber-700">
+                  <span class="material-symbols-outlined text-[22px]">payments</span>
+                </div>
+              </div>
+              <div class="mt-3 pt-2 flex items-center justify-between text-xs border-t border-surface-container-high">
+                <span class="text-on-surface-variant">Gotong Royong</span>
+                <span class="text-amber-800 font-bold text-[10px]">8 Sektor Aktif</span>
+              </div>
+            </div>
+
+            <!-- Rumpun Silau Raja -->
+            <div class="bg-surface-container-lowest rounded-2xl p-5 shadow-xs border border-surface-container-high relative overflow-hidden group hover:shadow-md transition">
+              <div class="absolute top-0 left-0 right-0 h-1 bg-blue-600"></div>
+              <div class="flex items-start justify-between">
+                <div>
+                  <span class="text-[11px] font-semibold text-on-surface-variant uppercase tracking-wider">3 Rumpun Utama</span>
+                  <div class="text-lg font-bold text-primary mt-1">Ompu Silau Raja</div>
+                </div>
+                <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-700">
+                  <span class="material-symbols-outlined text-[22px]">diversity_3</span>
+                </div>
+              </div>
+              <div class="mt-3 pt-2 flex flex-col gap-1 text-[11px] border-t border-surface-container-high">
+                <div class="flex justify-between font-semibold">
+                  <span>Hutagurgur (46%)</span>
+                  <span>Hutagaol (32%)</span>
+                  <span>Simanoroni (22%)</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Charts Row -->
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <div class="lg:col-span-7 bg-surface-container-lowest rounded-2xl p-5 border border-surface-container-high shadow-xs">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="text-sm font-bold text-primary">Distribusi Generasi (Sundut Tarombo)</h3>
+                <span class="text-xs text-on-surface-variant">Dari Generasi Leluhur ke-1 hingga ke-19</span>
+              </div>
+              <div class="h-64">
+                <canvas id="generasiChart"></canvas>
+              </div>
+            </div>
+
+            <div class="lg:col-span-5 bg-surface-container-lowest rounded-2xl p-5 border border-surface-container-high shadow-xs">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="text-sm font-bold text-primary">Proporsi 3 Rumpun Marga</h3>
+                <span class="text-xs text-on-surface-variant">Persentase</span>
+              </div>
+              <div class="h-64 flex items-center justify-center">
+                <canvas id="rumpunChart"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- Activity Audit Log & Recent Publications -->
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <!-- Audit Trail -->
+            <div class="lg:col-span-7 bg-surface-container-lowest rounded-2xl p-5 border border-surface-container-high shadow-xs">
+              <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-2">
+                  <span class="material-symbols-outlined text-primary text-[20px]">history</span>
+                  <h3 class="text-sm font-bold text-primary">Log Aktivitas & Perubahan Terakhir</h3>
+                </div>
+                <span class="text-xs text-on-surface-variant">Audit Trail NFR-5</span>
+              </div>
+              <div id="dashboardActivityLogList" class="space-y-3 max-h-80 overflow-y-auto pr-1">
+                <!-- Injected via JavaScript -->
+              </div>
+            </div>
+
+            <!-- Recent Articles Highlights -->
+            <div class="lg:col-span-5 bg-surface-container-lowest rounded-2xl p-5 border border-surface-container-high shadow-xs">
+              <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-2">
+                  <span class="material-symbols-outlined text-secondary text-[20px]">campaign</span>
+                  <h3 class="text-sm font-bold text-primary">Warta Adat & Pengumuman</h3>
+                </div>
+                <button onclick="switchViewTab('artikel-berita')" class="text-xs text-secondary font-bold hover:underline">Lihat Semua</button>
+              </div>
+              <div id="dashboardArticlesList" class="space-y-3">
+                <!-- Injected via JavaScript -->
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- =============================================================== -->
+        <!-- TAB 2: DIREKTORI & MASTER DATA ANGGOTA                           -->
+        <!-- =============================================================== -->
+        <section id="tab-data-anggota" class="hidden space-y-6">
+          <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+            <div>
+              <div class="flex items-center gap-2 text-xs text-on-surface-variant">
+                <span>Beranda</span>
+                <span class="material-symbols-outlined text-[14px]">chevron_right</span>
+                <span>Komunitas</span>
+                <span class="material-symbols-outlined text-[14px]">chevron_right</span>
+                <span class="text-primary font-bold">Direktori Anggota</span>
+              </div>
+              <h1 class="text-2xl sm:text-3xl font-bold text-primary tracking-tight mt-1">Direktori & Master Data Anggota</h1>
+              <p class="text-xs text-on-surface-variant">Kelola data kependudukan marga, penelusuran silsilah, dan status kepengurusan sektor.</p>
+            </div>
+            <div class="flex flex-wrap items-center gap-2">
+              <button onclick="openAddMemberModal()" class="flex items-center gap-1.5 bg-secondary hover:bg-secondary-container text-white text-xs font-semibold px-4 py-2 rounded-xl shadow-sm transition">
+                <span class="material-symbols-outlined text-[18px]">person_add</span>
+                <span>Tambah Anggota</span>
+              </button>
+              <button onclick="switchViewTab('pohon-silsilah')" class="flex items-center gap-1.5 bg-surface-container-lowest hover:bg-surface-container text-primary text-xs font-semibold px-4 py-2 rounded-xl border border-surface-container-high shadow-sm transition">
+                <span class="material-symbols-outlined text-[18px]">account_tree</span>
+                <span>Buka Pohon Silsilah</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Advanced Batak Tarombo Filter Bar -->
+          <div class="bg-surface-container-lowest p-4 rounded-2xl border border-surface-container-high shadow-xs space-y-3">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3">
+              <!-- Search Input -->
+              <div class="lg:col-span-4 relative flex items-center">
+                <span class="material-symbols-outlined absolute left-3 text-on-surface-variant text-[20px] pointer-events-none">search</span>
+                <input id="filterMemberSearch" oninput="applyMemberFilters()" type="text" placeholder="Cari nama, KTA, ayah, kota..." class="w-full bg-surface-container-low text-xs pl-9 pr-4 py-2 rounded-xl outline-none focus:ring-1 focus:ring-primary border border-surface-container-high transition">
+              </div>
+              <!-- Rumpun Dropdown -->
+              <div class="lg:col-span-2">
+                <select id="filterMemberRumpun" onchange="applyMemberFilters()" class="w-full bg-surface-container-low text-xs px-3 py-2 rounded-xl outline-none border border-surface-container-high cursor-pointer font-medium">
+                  <option value="">Semua Rumpun</option>
+                  <option value="Hutagurgur">Hutagurgur</option>
+                  <option value="Hutagaol">Hutagaol</option>
+                  <option value="Simanoroni">Simanoroni</option>
+                </select>
+              </div>
+              <!-- Sundut Dropdown -->
+              <div class="lg:col-span-2">
+                <select id="filterMemberSundut" onchange="applyMemberFilters()" class="w-full bg-surface-container-low text-xs px-3 py-2 rounded-xl outline-none border border-surface-container-high cursor-pointer font-medium">
+                  <option value="">Semua Sundut</option>
+                  <option value="14">Sundut 14</option>
+                  <option value="15">Sundut 15</option>
+                  <option value="16">Sundut 16</option>
+                  <option value="17">Sundut 17</option>
+                  <option value="18">Sundut 18</option>
+                </select>
+              </div>
+              <!-- Sektor Dropdown -->
+              <div class="lg:col-span-2">
+                <select id="filterMemberSektor" onchange="applyMemberFilters()" class="w-full bg-surface-container-low text-xs px-3 py-2 rounded-xl outline-none border border-surface-container-high cursor-pointer font-medium">
+                  <option value="">Semua Sektor</option>
+                  <option value="Jabodetabek Barat">Jabodetabek Barat</option>
+                  <option value="Jabodetabek Timur">Jabodetabek Timur</option>
+                  <option value="Toba & Bona Pasogit">Toba & Bona Pasogit</option>
+                  <option value="Medan & Deli">Medan & Deli</option>
+                  <option value="Surabaya & Jatim">Surabaya & Jatim</option>
+                </select>
+              </div>
+              <!-- Status Berkas Dropdown -->
+              <div class="lg:col-span-2">
+                <select id="filterMemberStatus" onchange="applyMemberFilters()" class="w-full bg-surface-container-low text-xs px-3 py-2 rounded-xl outline-none border border-surface-container-high cursor-pointer font-medium">
+                  <option value="">Semua Status</option>
+                  <option value="Aktif">Aktif</option>
+                  <option value="NonAktif">Non-Aktif</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="flex flex-wrap items-center justify-between gap-2 pt-1 text-xs">
+              <div class="flex items-center gap-2">
+                <span class="text-on-surface-variant font-medium">Ditemukan:</span>
+                <span id="memberCountBadge" class="font-bold text-primary">0 Anggota</span>
+                <button onclick="resetMemberFilters()" class="text-secondary font-semibold hover:underline ml-2">Reset Filter</button>
+              </div>
+              <div class="text-on-surface-variant text-[11px]">
+                Tip: Klik baris anggota untuk membuka profil lengkap & silsilah mini 3 generasi.
+              </div>
+            </div>
+          </div>
+
+          <!-- Master-Detail Content Grid: Table + Side Profile Drawer -->
+          <div class="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
+            <!-- Left: Table of Members -->
+            <div class="xl:col-span-8 bg-surface-container-lowest rounded-2xl border border-surface-container-high shadow-xs overflow-hidden flex flex-col">
+              <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs border-collapse">
+                  <thead>
+                    <tr class="bg-surface-container-low text-on-surface-variant uppercase tracking-wider font-semibold border-b border-surface-container-high">
+                      <th class="py-3 px-4">Anggota & No. KTA</th>
+                      <th class="py-3 px-4">Rumpun & Sundut</th>
+                      <th class="py-3 px-4 hidden md:table-cell">Sektor / Domisili</th>
+                      <th class="py-3 px-4">Status</th>
+                      <th class="py-3 px-4 text-right">Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody id="memberTableBody" class="divide-y divide-surface-container-high">
+                    <!-- Injected via JavaScript -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Right: Side Preview Drawer (Sticky) -->
+            <div id="memberDetailDrawer" class="xl:col-span-4 bg-surface-container-lowest rounded-2xl border border-surface-container-high shadow-md overflow-hidden sticky top-20">
+              <div class="h-1.5 w-full bg-gradient-to-r from-secondary via-amber-500 to-primary"></div>
+              <div class="p-4 border-b border-surface-container-high flex items-center justify-between bg-surface-container-low/50">
+                <div class="flex items-center gap-2">
+                  <span class="material-symbols-outlined text-primary text-[20px]">contact_page</span>
+                  <span class="font-bold text-sm text-primary">Detail Profil & Tarombo</span>
+                </div>
+                <span id="drawerStatusBadge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">Terverifikasi</span>
+              </div>
+
+              <div class="p-5 space-y-4">
+                <!-- Hero Member Info -->
+                <div class="flex items-start gap-3.5">
+                  <img id="drawerAvatar" src="" alt="" class="w-14 h-14 rounded-xl object-cover shrink-0 shadow-sm ring-1 ring-primary/20">
+                  <div class="min-w-0">
+                    <h3 id="drawerName" class="font-bold text-base text-primary truncate">-</h3>
+                    <div class="flex items-center gap-1.5 text-xs text-secondary font-semibold mt-0.5">
+                      <span id="drawerRumpun">-</span>
+                      <span>•</span>
+                      <span id="drawerSundut">-</span>
+                    </div>
+                    <span id="drawerKta" class="font-mono text-[11px] text-on-surface-variant block mt-0.5">-</span>
+                  </div>
+                </div>
+
+                <!-- Quick Action Buttons -->
+                <div class="grid grid-cols-2 gap-2">
+                  <a id="drawerWaLink" href="#" target="_blank" class="flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-semibold text-xs transition">
+                    <span class="material-symbols-outlined text-[16px] text-emerald-600">chat</span>
+                    <span>Hubungi WA</span>
+                  </a>
+                  <button id="drawerEditBtn" onclick="editSelectedMember()" class="flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-surface-container hover:bg-surface-container-high text-primary font-semibold text-xs transition">
+                    <span class="material-symbols-outlined text-[16px]">edit</span>
+                    <span>Edit Profil</span>
+                  </button>
+                </div>
+
+                <!-- Mini 3-Generasi Tarombo Box -->
+                <div class="bg-surface-container-low p-4 rounded-xl space-y-3">
+                  <div class="flex items-center justify-between">
+                    <span class="text-[11px] uppercase tracking-wider font-bold text-secondary flex items-center gap-1">
+                      <span class="material-symbols-outlined text-[15px]">account_tree</span> Bagan Tarombo 3 Generasi
+                    </span>
+                  </div>
+                  
+                  <div class="relative pl-5 before:absolute before:left-2 before:top-2 before:bottom-2 before:w-0.5 before:bg-outline-variant space-y-3">
+                    <!-- Ompung -->
+                    <div class="relative bg-surface-container-lowest p-2.5 rounded-lg shadow-xs text-xs">
+                      <span class="text-[10px] text-on-surface-variant font-bold block">Ompung (Kakek)</span>
+                      <p id="drawerOmpungName" class="font-bold text-primary mt-0.5">-</p>
+                    </div>
+                    <!-- Ayah -->
+                    <div class="relative bg-surface-container-lowest p-2.5 rounded-lg shadow-xs text-xs">
+                      <span class="text-[10px] text-on-surface-variant font-bold block">Ayah / Orang Tua</span>
+                      <p id="drawerAyahName" class="font-bold text-primary mt-0.5">-</p>
+                      <span id="drawerIbuName" class="text-[10px] text-on-surface-variant block mt-0.5">-</span>
+                    </div>
+                    <!-- Anggota Sendiri -->
+                    <div class="relative bg-primary-container text-white p-2.5 rounded-lg shadow-xs text-xs">
+                      <span class="text-[10px] text-amber-300 font-bold block">Anggota Terpilih</span>
+                      <p id="drawerSelfName" class="font-bold mt-0.5">-</p>
+                      <span id="drawerPasangan" class="text-[10px] text-slate-300 block mt-0.5">-</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Info detail rows -->
+                <div class="space-y-2 text-xs border-t border-surface-container-high pt-3">
+                  <div class="flex justify-between">
+                    <span class="text-on-surface-variant">Pekerjaan:</span>
+                    <span id="drawerPekerjaan" class="font-semibold text-primary">-</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="text-on-surface-variant">Bona Pasogit:</span>
+                    <span id="drawerBonaPasogit" class="font-semibold text-primary">-</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="text-on-surface-variant">Alamat Domisili:</span>
+                    <span id="drawerAlamat" class="font-semibold text-primary truncate max-w-[200px]">-</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- =============================================================== -->
+        <!-- TAB 3: POHON SILSILAH INTERAKTIF (D3.JS FAMILY TREE)            -->
+        <!-- =============================================================== -->
+        <section id="tab-pohon-silsilah" class="hidden space-y-4">
+          <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+            <div>
+              <h1 class="text-2xl sm:text-3xl font-bold text-primary tracking-tight">Pohon Silsilah Keluarga (Tarombo)</h1>
+              <p class="text-xs text-on-surface-variant">Visualisasi hierarkis dari Ompu Silau Raja hingga generasi termuda. Dapat digeser (pan) dan diperbesar (zoom).</p>
+            </div>
+
+            <!-- Controls Toolbar -->
+            <div class="flex flex-wrap items-center gap-2">
+              <div class="flex items-center gap-1.5 bg-surface-container-lowest px-3 py-1.5 rounded-xl border border-surface-container-high text-xs font-semibold shadow-xs">
+                <span>Leluhur Awal:</span>
+                <select id="treeRootSelect" onchange="renderFamilyTree()" class="bg-transparent text-primary font-bold outline-none cursor-pointer">
+                  <!-- Injected via JS -->
+                </select>
+              </div>
+
+              <div class="flex items-center bg-surface-container-lowest rounded-xl border border-surface-container-high shadow-xs overflow-hidden">
+                <button onclick="zoomInTree()" title="Perbesar" class="p-2 hover:bg-surface-container text-on-surface transition">
+                  <span class="material-symbols-outlined text-[18px]">zoom_in</span>
+                </button>
+                <button onclick="zoomOutTree()" title="Perkecil" class="p-2 hover:bg-surface-container text-on-surface transition">
+                  <span class="material-symbols-outlined text-[18px]">zoom_out</span>
+                </button>
+                <button onclick="resetTreeZoom()" title="Reset Posisi" class="p-2 hover:bg-surface-container text-on-surface transition">
+                  <span class="material-symbols-outlined text-[18px]">restart_alt</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Color Legend -->
+          <div class="flex flex-wrap items-center gap-4 text-xs font-semibold px-4 py-2.5 rounded-xl bg-surface-container-lowest border border-surface-container-high">
+            <span class="text-on-surface-variant">Rumpun Warna:</span>
+            <div class="flex items-center gap-1.5">
+              <span class="w-3 h-3 rounded-full bg-primary-container"></span>
+              <span>Hutagurgur (Raja 1)</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <span class="w-3 h-3 rounded-full bg-secondary"></span>
+              <span>Hutagaol (Raja 2)</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <span class="w-3 h-3 rounded-full bg-amber-600"></span>
+              <span>Simanoroni (Raja 3)</span>
+            </div>
+          </div>
+
+          <!-- SVG Canvas Container -->
+          <div class="w-full bg-white rounded-2xl border border-surface-container-high shadow-inner relative overflow-hidden min-h-[580px] tree-container" id="treeContainer">
+            <svg id="treeSvg" class="w-full h-full min-h-[580px] cursor-grab active:cursor-grabbing"></svg>
+          </div>
+        </section>
+
+        <!-- =============================================================== -->
+        <!-- TAB 4: IURAN & KEUANGAN KOMUNITAS                               -->
+        <!-- =============================================================== -->
+        <section id="tab-iuran-keuangan" class="hidden space-y-6">
+          <div class="w-full h-1 bg-gradient-to-r from-secondary via-secondary-container to-amber-500 rounded-full"></div>
+          
+          <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+            <div>
+              <div class="flex items-center gap-2">
+                <h1 class="text-2xl sm:text-3xl font-bold text-primary tracking-tight">Pencatatan & Verifikasi Iuran Kas</h1>
+                <span class="text-xs px-2 py-0.5 rounded-full bg-secondary/10 text-secondary font-bold">2025</span>
+              </div>
+              <p class="text-xs text-on-surface-variant mt-0.5">Kelola rekap penerimaan kas iuran tahunan, dana sosial duka, dan gotong royong anggota marga.</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <button onclick="openRecordDuesModal()" class="flex items-center gap-1.5 bg-secondary hover:bg-secondary-container text-white text-xs font-semibold px-4 py-2 rounded-xl shadow-sm transition">
+                <span class="material-symbols-outlined text-[18px]">add_circle</span>
+                <span>Catat Iuran Baru</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Financial Bento Metric Cards -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+            <div class="bg-surface-container-lowest p-5 rounded-2xl border border-surface-container-high shadow-xs">
+              <span class="text-[11px] font-semibold text-on-surface-variant uppercase tracking-wider">Total Kas Terkumpul</span>
+              <div id="statDuesCollected" class="text-2xl font-extrabold text-primary mt-1">Rp 348.650.000</div>
+              <div class="mt-2 text-xs text-emerald-700 font-semibold flex items-center gap-1">
+                <span class="material-symbols-outlined text-[16px]">trending_up</span> Surplus Q1
+              </div>
+            </div>
+
+            <div class="bg-surface-container-lowest p-5 rounded-2xl border border-surface-container-high shadow-xs">
+              <span class="text-[11px] font-semibold text-on-surface-variant uppercase tracking-wider">Target Kas 2025</span>
+              <div class="text-2xl font-extrabold text-primary mt-1">Rp 450.000.000</div>
+              <div class="w-full bg-surface-container-high rounded-full h-1.5 mt-3 overflow-hidden">
+                <div class="bg-primary h-full" style="width: 77.4%"></div>
+              </div>
+            </div>
+
+            <div class="bg-surface-container-lowest p-5 rounded-2xl border border-surface-container-high shadow-xs">
+              <span class="text-[11px] font-semibold text-on-surface-variant uppercase tracking-wider">Anggota Tertib Bayar</span>
+              <div class="text-2xl font-extrabold text-primary mt-1">4.078 KK</div>
+              <div class="mt-2 text-xs text-on-surface-variant">Dari total 4.820 terdata</div>
+            </div>
+
+            <div class="bg-surface-container-lowest p-5 rounded-2xl border border-surface-container-high shadow-xs">
+              <span class="text-[11px] font-semibold text-on-surface-variant uppercase tracking-wider">Dana Gotong Royong / Duka</span>
+              <div class="text-2xl font-extrabold text-secondary mt-1">Rp 82.400.000</div>
+              <div class="mt-2 text-xs text-secondary font-semibold">Siap Salur Bencana & Duka</div>
+            </div>
+          </div>
+
+          <!-- Transaction Table -->
+          <div class="bg-surface-container-lowest rounded-2xl border border-surface-container-high shadow-xs overflow-hidden">
+            <div class="p-4 border-b border-surface-container-high flex flex-wrap items-center justify-between gap-3 bg-surface-container-low/50">
+              <h3 class="text-sm font-bold text-primary">Rekap Transaksi Iuran Terkini</h3>
+              <div class="flex items-center gap-2">
+                <select id="filterDuesPeriod" onchange="renderDuesTable()" class="bg-surface-container-lowest text-xs px-3 py-1.5 rounded-lg border border-surface-container-high outline-none font-medium">
+                  <option value="">Semua Periode</option>
+                  <option value="2025">Tahun 2025</option>
+                  <option value="2025-01">Januari 2025</option>
+                  <option value="2025-02">Februari 2025</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs border-collapse">
+                <thead>
+                  <tr class="bg-surface-container-low text-on-surface-variant uppercase tracking-wider font-semibold border-b border-surface-container-high">
+                    <th class="py-3 px-4">No. Kuitansi</th>
+                    <th class="py-3 px-4">Nama Anggota</th>
+                    <th class="py-3 px-4">Periode</th>
+                    <th class="py-3 px-4">Nominal</th>
+                    <th class="py-3 px-4">Tanggal Bayar</th>
+                    <th class="py-3 px-4">Status</th>
+                    <th class="py-3 px-4">Catatan</th>
+                  </tr>
+                </thead>
+                <tbody id="duesTableBody" class="divide-y divide-surface-container-high">
+                  <!-- Injected via JavaScript -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- =============================================================== -->
+        <!-- TAB 5: CMS ARTIKEL, WARTA ADAT & BERITA KOMUNITAS               -->
+        <!-- =============================================================== -->
+        <section id="tab-artikel-berita" class="hidden space-y-6">
+          <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+            <div>
+              <div class="flex items-center gap-2 text-xs text-on-surface-variant">
+                <span>Beranda</span>
+                <span class="material-symbols-outlined text-[14px]">chevron_right</span>
+                <span class="text-primary font-bold">Publikasi Komunitas</span>
+              </div>
+              <h1 class="text-2xl sm:text-3xl font-bold text-primary tracking-tight mt-1">Artikel, Warta Adat & Berita Marga</h1>
+              <p class="text-xs text-on-surface-variant">Pusat informasi resmi peribadahan Bona Taon, warta suka/duka, dan artikel silsilah.</p>
+            </div>
+            <button onclick="openArticleEditorModal()" class="flex items-center gap-1.5 bg-secondary hover:bg-secondary-container text-white text-xs font-semibold px-4 py-2 rounded-xl shadow-sm transition">
+              <span class="material-symbols-outlined text-[18px]">edit_square</span>
+              <span>+ Tulis Artikel Baru</span>
+            </button>
+          </div>
+
+          <!-- Category filter pills -->
+          <div class="flex flex-wrap items-center gap-2 text-xs">
+            <button onclick="filterArticlesByCategory('all')" id="artCat-all" class="px-3 py-1.5 rounded-full bg-primary text-white font-bold transition">Semua</button>
+            <button onclick="filterArticlesByCategory('Warta Adat')" id="artCat-warta" class="px-3 py-1.5 rounded-full bg-surface-container-lowest hover:bg-surface-container border border-surface-container-high text-on-surface font-semibold transition">Warta Adat</button>
+            <button onclick="filterArticlesByCategory('Sejarah & Tarombo')" id="artCat-sejarah" class="px-3 py-1.5 rounded-full bg-surface-container-lowest hover:bg-surface-container border border-surface-container-high text-on-surface font-semibold transition">Sejarah & Tarombo</button>
+            <button onclick="filterArticlesByCategory('Pengumuman Resmi')" id="artCat-pengumuman" class="px-3 py-1.5 rounded-full bg-surface-container-lowest hover:bg-surface-container border border-surface-container-high text-on-surface font-semibold transition">Pengumuman Resmi</button>
+          </div>
+
+          <!-- Article Cards Grid -->
+          <div id="articlesCardsGrid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            <!-- Injected via JavaScript -->
+          </div>
+        </section>
+
+        <!-- =============================================================== -->
+        <!-- TAB 6: ROLE MANAGEMENT & RBAC                                   -->
+        <!-- =============================================================== -->
+        <section id="tab-role-management" class="hidden space-y-6">
+          <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+            <div>
+              <div class="flex items-center gap-2">
+                <h1 class="text-2xl sm:text-3xl font-bold text-primary tracking-tight">Manajemen Role & Hak Akses Kepengurusan</h1>
+                <span class="text-xs px-2.5 py-0.5 rounded-full bg-primary/10 text-primary font-bold uppercase">RBAC</span>
+              </div>
+              <p class="text-xs text-on-surface-variant mt-0.5">Kelola wewenang akun pengurus pusat, koordinator sektor, dan akses anggota biasa.</p>
+            </div>
+          </div>
+
+          <!-- Users Role Table -->
+          <div class="bg-surface-container-lowest rounded-2xl border border-surface-container-high shadow-xs overflow-hidden">
+            <div class="p-4 border-b border-surface-container-high bg-surface-container-low/50">
+              <h3 class="text-sm font-bold text-primary">Daftar Akun Pengguna & Hak Akses</h3>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs border-collapse">
+                <thead>
+                  <tr class="bg-surface-container-low text-on-surface-variant uppercase tracking-wider font-semibold border-b border-surface-container-high">
+                    <th class="py-3 px-4">Nama Pengguna</th>
+                    <th class="py-3 px-4">Email Google SSO</th>
+                    <th class="py-3 px-4">Role Saat Ini</th>
+                    <th class="py-3 px-4">Status</th>
+                    <th class="py-3 px-4 text-right">Ubah Role</th>
+                  </tr>
+                </thead>
+                <tbody id="roleUsersTableBody" class="divide-y divide-surface-container-high">
+                  <!-- Injected via JavaScript -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- 3. MODALS & POPUPS                                                    -->
+  <!-- ===================================================================== -->
+
+  <!-- MODAL: Tambah / Edit Anggota Keluarga (Skema 16 Kolom PRD) -->
+  <div id="modalAddMember" class="fixed inset-0 z-50 modal-backdrop hidden flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-surface-container-lowest rounded-2xl max-w-3xl w-full p-6 shadow-2xl border border-surface-container-high my-auto space-y-4">
+      <div class="flex items-center justify-between border-b border-surface-container-high pb-3">
+        <div class="flex items-center gap-2">
+          <span class="material-symbols-outlined text-secondary text-[24px]">person_add</span>
+          <h3 id="modalMemberTitle" class="text-base font-bold text-primary">Tambah Anggota Keluarga Baru</h3>
+        </div>
+        <button onclick="closeModal('modalAddMember')" class="text-on-surface-variant hover:text-on-surface">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <form id="formMember" onsubmit="handleSaveMember(event)" class="space-y-4">
+        <input type="hidden" id="memberFormId" value="">
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+          <!-- Nama Lengkap -->
+          <div>
+            <label class="block font-semibold text-on-surface mb-1">Nama Lengkap *</label>
+            <input id="inputNama" required type="text" placeholder="Contoh: St. Ricardo Manurung, M.Si" class="w-full bg-surface-container-low p-2.5 rounded-lg border border-surface-container-high outline-none focus:ring-1 focus:ring-primary">
+          </div>
+
+          <!-- Jenis Kelamin -->
+          <div>
+            <label class="block font-semibold text-on-surface mb-1">Jenis Kelamin</label>
+            <select id="inputJenisKelamin" class="w-full bg-surface-container-low p-2.5 rounded-lg border border-surface-container-high outline-none cursor-pointer">
+              <option value="L">Laki-laki</option>
+              <option value="P">Perempuan (Boru)</option>
+            </select>
+          </div>
+
+          <!-- Rumpun -->
+          <div>
+            <label class="block font-semibold text-on-surface mb-1">Rumpun Manurung *</label>
+            <select id="inputRumpun" class="w-full bg-surface-container-low p-2.5 rounded-lg border border-surface-container-high outline-none cursor-pointer font-medium">
+              <option value="Hutagurgur">Hutagurgur (Raja 1)</option>
+              <option value="Hutagaol">Hutagaol (Raja 2)</option>
+              <option value="Simanoroni">Simanoroni (Raja 3)</option>
+            </select>
+          </div>
+
+          <!-- Generasi (Sundut) -->
+          <div>
+            <label class="block font-semibold text-on-surface mb-1">Sundut (Generasi ke-) *</label>
+            <input id="inputGenerasi" type="number" min="1" max="25" value="16" class="w-full bg-surface-container-low p-2.5 rounded-lg border border-surface-container-high outline-none focus:ring-1 focus:ring-primary">
+          </div>
+
+          <!-- Orang Tua (ParentID) -->
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <label class="block font-semibold text-on-surface">Orang Tua / Ayah (ParentID)</label>
+              <button type="button" onclick="openSearchTaromboModal('formMember')" class="text-[10px] text-secondary font-bold hover:underline">Cari Tarombo</button>
+            </div>
+            <select id="inputParentID" class="w-full bg-surface-container-low p-2.5 rounded-lg border border-surface-container-high outline-none cursor-pointer">
+              <option value="">-- Tidak ada (Leluhur Awal) --</option>
+              <!-- Injected via JS -->
+            </select>
+          </div>
+
+          <!-- Pasangan (Spouse) -->
+          <div>
+            <label class="block font-semibold text-on-surface mb-1">Nama Pasangan (Istri / Suami)</label>
+            <input id="inputSpouse" type="text" placeholder="Contoh: Tiurma br. Simanjuntak" class="w-full bg-surface-container-low p-2.5 rounded-lg border border-surface-container-high outline-none">
+          </div>
+
+          <!-- Tanggal Lahir -->
+          <div>
+            <label class="block font-semibold text-on-surface mb-1">Tanggal Lahir</label>
+            <input id="inputTanggalLahir" type="date" class="w-full bg-surface-container-low p-2.5 rounded-lg border border-surface-container-high outline-none">
+          </div>
+
+          <!-- No HP / WA -->
+          <div>
+            <label class="block font-semibold text-on-surface mb-1">No. WhatsApp / HP</label>
+            <input id="inputNoHP" type="text" placeholder="0812xxxx" class="w-full bg-surface-container-low p-2.5 rounded-lg border border-surface-container-high outline-none">
+          </div>
+
+          <!-- Sektor Wilayah -->
+          <div>
+            <label class="block font-semibold text-on-surface mb-1">Sektor Kepengurusan</label>
+            <select id="inputSektor" class="w-full bg-surface-container-low p-2.5 rounded-lg border border-surface-container-high outline-none cursor-pointer">
+              <option value="Jabodetabek Barat">Jabodetabek Barat</option>
+              <option value="Jabodetabek Timur">Jabodetabek Timur</option>
+              <option value="Toba & Bona Pasogit">Toba & Bona Pasogit</option>
+              <option value="Medan & Deli">Medan & Deli</option>
+              <option value="Surabaya & Jatim">Surabaya & Jatim</option>
+            </select>
+          </div>
+
+          <!-- Bona Pasogit Asal -->
+          <div>
+            <label class="block font-semibold text-on-surface mb-1">Bona Pasogit (Kampung Asal)</label>
+            <input id="inputBonaPasogitForm" type="text" placeholder="Misal: Sibisa, Narumonda, Porsea" class="w-full bg-surface-container-low p-2.5 rounded-lg border border-surface-container-high outline-none">
+          </div>
+
+          <!-- Alamat Domisili -->
+          <div class="sm:col-span-2">
+            <label class="block font-semibold text-on-surface mb-1">Alamat Domisili Sekarang</label>
+            <input id="inputAlamat" type="text" placeholder="Alamat lengkap tempat tinggal" class="w-full bg-surface-container-low p-2.5 rounded-lg border border-surface-container-high outline-none">
+          </div>
+        </div>
+
+        <div class="flex items-center justify-end gap-3 pt-3 border-t border-surface-container-high">
+          <button type="button" onclick="closeModal('modalAddMember')" class="px-4 py-2 rounded-xl bg-surface-container hover:bg-surface-container-high text-xs font-semibold text-on-surface transition">
+            Batal
+          </button>
+          <button type="submit" class="px-5 py-2 rounded-xl bg-primary hover:bg-primary-container text-white text-xs font-semibold transition shadow-sm">
+            Simpan Data Anggota
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: Cari Tarombo Ayah / Kakek (Database Silsilah Nasional) -->
+  <div id="modalSearchTarombo" class="fixed inset-0 z-50 modal-backdrop hidden flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-surface-container-lowest rounded-2xl max-w-2xl w-full p-6 shadow-2xl border border-surface-container-high my-auto space-y-4">
+      <div class="flex items-center justify-between border-b border-surface-container-high pb-3">
+        <div class="flex items-center gap-2">
+          <span class="material-symbols-outlined text-secondary text-[24px]">family_history</span>
+          <div>
+            <h3 class="text-sm font-bold text-primary">Cari & Hubungkan Tarombo Ayah / Kakek</h3>
+            <p class="text-[11px] text-on-surface-variant">Cari anggota terdaftar di database untuk dihubungkan sebagai Parent silsilah.</p>
+          </div>
+        </div>
+        <button onclick="closeModal('modalSearchTarombo')" class="text-on-surface-variant hover:text-on-surface">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <div class="space-y-3">
+        <div class="relative flex items-center">
+          <span class="material-symbols-outlined absolute left-3 text-on-surface-variant text-[20px]">search</span>
+          <input id="modalSearchTaromboInput" oninput="searchTaromboCandidates(this.value)" type="text" placeholder="Ketik nama ayah, nomor KTA, atau kota..." class="w-full pl-10 pr-4 py-2.5 rounded-xl bg-surface-container-low text-xs border border-surface-container-high outline-none focus:ring-1 focus:ring-primary">
+        </div>
+
+        <div id="taromboSearchResults" class="space-y-2 max-h-64 overflow-y-auto pr-1">
+          <!-- Injected via JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Pencatatan Iuran Kas Manual -->
+  <div id="modalRecordDues" class="fixed inset-0 z-50 modal-backdrop hidden flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-surface-container-lowest rounded-2xl max-w-md w-full p-6 shadow-2xl border border-surface-container-high my-auto space-y-4">
+      <div class="flex items-center justify-between border-b border-surface-container-high pb-3">
+        <div class="flex items-center gap-2">
+          <span class="material-symbols-outlined text-secondary text-[22px]">add_card</span>
+          <h3 class="text-sm font-bold text-primary">Catat Iuran Anggota</h3>
+        </div>
+        <button onclick="closeModal('modalRecordDues')" class="text-on-surface-variant hover:text-on-surface">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <form onsubmit="handleSaveDues(event)" class="space-y-3 text-xs">
+        <div>
+          <label class="block font-semibold text-on-surface mb-1">Pilih Anggota *</label>
+          <select id="duesMemberSelect" required class="w-full bg-surface-container-low p-2.5 rounded-lg border border-surface-container-high outline-none cursor-pointer">
+            <!-- Injected via JS -->
+          </select>
+        </div>
+
+        <div>
+          <label class="block font-semibold text-on-surface mb-1">Periode (Tahun-Bulan) *</label>
+          <input id="duesPeriode" type="month" value="2025-02" required class="w-full bg-surface-container-low p-2.5 rounded-lg border border-surface-container-high outline-none">
+        </div>
+
+        <div>
+          <label class="block font-semibold text-on-surface mb-1">Nominal (Rp) *</label>
+          <input id="duesJumlah" type="number" step="5000" value="50000" required class="w-full bg-surface-container-low p-2.5 rounded-lg border border-surface-container-high outline-none font-bold text-primary">
+        </div>
+
+        <div>
+          <label class="block font-semibold text-on-surface mb-1">Status Pembayaran</label>
+          <select id="duesStatus" class="w-full bg-surface-container-low p-2.5 rounded-lg border border-surface-container-high outline-none">
+            <option value="Lunas">Lunas</option>
+            <option value="BelumLunas">Belum Lunas (Menunggu Konfirmasi)</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block font-semibold text-on-surface mb-1">Catatan Tambahan</label>
+          <input id="duesCatatan" type="text" placeholder="Misal: Transfer Mandiri An. St. Ricardo" class="w-full bg-surface-container-low p-2.5 rounded-lg border border-surface-container-high outline-none">
+        </div>
+
+        <div class="flex items-center justify-end gap-3 pt-3 border-t border-surface-container-high">
+          <button type="button" onclick="closeModal('modalRecordDues')" class="px-4 py-2 rounded-xl bg-surface-container text-on-surface font-semibold">Batal</button>
+          <button type="submit" class="px-5 py-2 rounded-xl bg-secondary text-white font-semibold">Simpan Iuran</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: Editor Tulis / Edit Artikel -->
+  <div id="modalArticleEditor" class="fixed inset-0 z-50 modal-backdrop hidden flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-surface-container-lowest rounded-2xl max-w-2xl w-full p-6 shadow-2xl border border-surface-container-high my-auto space-y-4">
+      <div class="flex items-center justify-between border-b border-surface-container-high pb-3">
+        <div class="flex items-center gap-2">
+          <span class="material-symbols-outlined text-secondary text-[22px]">edit_square</span>
+          <h3 class="text-sm font-bold text-primary">Tulis / Edit Artikel Warta Marga</h3>
+        </div>
+        <button onclick="closeModal('modalArticleEditor')" class="text-on-surface-variant hover:text-on-surface">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <form onsubmit="handleSaveArticle(event)" class="space-y-3 text-xs">
+        <input type="hidden" id="articleFormId" value="">
+        <div>
+          <label class="block font-semibold text-on-surface mb-1">Judul Artikel *</label>
+          <input id="articleJudul" type="text" required placeholder="Judul berita atau pengumuman adat" class="w-full bg-surface-container-low p-2.5 rounded-lg border border-surface-container-high outline-none font-bold text-primary">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-on-surface mb-1">Kategori</label>
+            <select id="articleKategori" class="w-full bg-surface-container-low p-2.5 rounded-lg border border-surface-container-high outline-none">
+              <option value="Warta Adat">Warta Adat</option>
+              <option value="Sejarah & Tarombo">Sejarah & Tarombo</option>
+              <option value="Pengumuman Resmi">Pengumuman Resmi</option>
+              <option value="Warta Sosial Duka">Warta Sosial Duka</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold text-on-surface mb-1">Status Publikasi</label>
+            <select id="articleStatus" class="w-full bg-surface-container-low p-2.5 rounded-lg border border-surface-container-high outline-none">
+              <option value="Published">Published (Langsung Tayang)</option>
+              <option value="Draft">Draft (Konsep)</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-semibold text-on-surface mb-1">URL Gambar Thumbnail</label>
+          <input id="articleThumbnail" type="url" placeholder="https://images.unsplash.com/..." class="w-full bg-surface-container-low p-2.5 rounded-lg border border-surface-container-high outline-none">
+        </div>
+
+        <div>
+          <label class="block font-semibold text-on-surface mb-1">Isi Konten Artikel *</label>
+          <textarea id="articleKonten" rows="5" required placeholder="Tuliskan berita lengkap di sini..." class="w-full bg-surface-container-low p-2.5 rounded-lg border border-surface-container-high outline-none"></textarea>
+        </div>
+
+        <div class="flex items-center justify-end gap-3 pt-3 border-t border-surface-container-high">
+          <button type="button" onclick="closeModal('modalArticleEditor')" class="px-4 py-2 rounded-xl bg-surface-container text-on-surface font-semibold">Batal</button>
+          <button type="submit" class="px-5 py-2 rounded-xl bg-secondary text-white font-semibold">Publikasikan Artikel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: Baca Artikel Lengkap -->
+  <div id="modalReadArticle" class="fixed inset-0 z-50 modal-backdrop hidden flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-surface-container-lowest rounded-2xl max-w-2xl w-full p-6 shadow-2xl border border-surface-container-high my-auto space-y-4">
+      <div class="flex items-center justify-between border-b border-surface-container-high pb-3">
+        <span id="readArticleCategory" class="text-xs px-2.5 py-0.5 rounded-full bg-secondary/10 text-secondary font-bold">Warta Adat</span>
+        <button onclick="closeModal('modalReadArticle')" class="text-on-surface-variant hover:text-on-surface">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <div class="space-y-3">
+        <img id="readArticleImage" src="" alt="" class="w-full h-48 rounded-xl object-cover">
+        <h2 id="readArticleTitle" class="text-lg sm:text-xl font-bold text-primary">-</h2>
+        <div class="flex items-center gap-2 text-[11px] text-on-surface-variant">
+          <span id="readArticleAuthor">Penulis: Admin</span>
+          <span>•</span>
+          <span id="readArticleDate">-</span>
+        </div>
+        <div id="readArticleContent" class="text-xs text-on-surface leading-relaxed whitespace-pre-line pt-2 border-t border-surface-container-high">
+          <!-- Injected via JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION -->
+  <div id="toastNotification" class="fixed bottom-6 right-6 z-50 bg-primary text-white px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-3 transform translate-y-24 opacity-0 transition-all duration-300 pointer-events-none border border-white/10">
+    <span class="material-symbols-outlined text-secondary-fixed text-[24px]">check_circle</span>
+    <div class="flex flex-col">
+      <span id="toastTitle" class="text-xs font-bold text-white">Berhasil!</span>
+      <span id="toastMessage" class="text-[11px] text-slate-300">Data telah diperbarui.</span>
+    </div>
+  </div>
+
+  <!-- JavaScript Include -->
+  <?!= include('JavaScript'); ?>
+</body>
+</html>

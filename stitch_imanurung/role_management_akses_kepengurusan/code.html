@@ -1,0 +1,678 @@
+<!DOCTYPE html><html lang="id"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><meta content="web_dashboard" name="shell-type"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&amp;display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "outline": "#74777d", "tertiary-fixed-dim": "#ffb77d", "on-tertiary": "#ffffff", "error-container": "#ffdad6", "on-surface-variant": "#43474d", "surface-container-high": "#e6e8ea", "on-tertiary-fixed": "#2f1500", "surface": "#f7f9fb", "background": "#f7f9fb", "on-primary-fixed": "#051d32", "on-secondary-fixed": "#410002", "on-surface": "#191c1e", "on-primary-fixed-variant": "#344860", "on-error": "#ffffff", "surface-dim": "#d8dadc", "on-tertiary-fixed-variant": "#6e3900", "secondary-container": "#d9352f", "on-secondary-container": "#fffbff", "primary": "#000e1e", "surface-bright": "#f7f9fb", "primary-fixed": "#d1e4ff", "primary-fixed-dim": "#b3c8e5", "surface-container-lowest": "#ffffff", "on-tertiary-container": "#d07100", "inverse-on-surface": "#eff1f3", "secondary-fixed": "#ffdad6", "primary-container": "#0e243a", "inverse-surface": "#2d3133", "tertiary-container": "#391b00", "on-secondary": "#ffffff", "secondary-fixed-dim": "#ffb4ab", "on-primary": "#ffffff", "outline-variant": "#c4c6cd", "tertiary-fixed": "#ffdcc3", "on-primary-container": "#778ca6", "surface-variant": "#e0e3e5", "surface-tint": "#4c6079", "surface-container": "#eceef0", "inverse-primary": "#b3c8e5", "secondary": "#b6191a", "on-error-container": "#93000a", "surface-container-highest": "#e0e3e5", "tertiary": "#190900", "on-secondary-fixed-variant": "#93000b", "surface-container-low": "#f2f4f6", "on-background": "#191c1e", "error": "#ba1a1a" }, borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, spacing: { "gutter-sm": "1rem", "space-xs": "0.25rem", "space-sm": "0.5rem", "space-lg": "1.5rem", "gutter-lg": "2rem", "margin-mobile": "1rem", "margin": "2rem", "gutter": "1.5rem", "space-xl": "2.5rem", "space-md": "1rem", "margin-tablet": "1.5rem" }, fontFamily: { "body-lg": ["Plus Jakarta Sans"], "title-lg": ["Plus Jakarta Sans"], "headline-lg": ["Plus Jakarta Sans"], "body-sm": ["Plus Jakarta Sans"], "title-md": ["Plus Jakarta Sans"], "body-md": ["Plus Jakarta Sans"], "label-sm": ["Plus Jakarta Sans"], "label-lg": ["Plus Jakarta Sans"], "display-lg-mobile": ["Plus Jakarta Sans"], "headline-sm": ["Plus Jakarta Sans"], "headline-md": ["Plus Jakarta Sans"], "display-lg": ["Plus Jakarta Sans"], "label-md": ["Plus Jakarta Sans"], "headline-lg-mobile": ["Plus Jakarta Sans"] }, fontSize: { "body-lg": ["16px", { lineHeight: "24px", fontWeight: "400" }], "title-lg": ["18px", { lineHeight: "26px", fontWeight: "600" }], "headline-lg": ["32px", { lineHeight: "40px", letterSpacing: "-0.015em", fontWeight: "700" }], "body-sm": ["12px", { lineHeight: "18px", fontWeight: "400" }], "title-md": ["16px", { lineHeight: "24px", fontWeight: "600" }], "body-md": ["14px", { lineHeight: "20px", fontWeight: "400" }], "label-sm": ["11px", { lineHeight: "14px", letterSpacing: "0.04em", fontWeight: "700" }], "label-lg": ["14px", { lineHeight: "20px", letterSpacing: "0.01em", fontWeight: "600" }], "display-lg-mobile": ["30px", { lineHeight: "38px", letterSpacing: "-0.02em", fontWeight: "700" }], "headline-sm": ["20px", { lineHeight: "28px", letterSpacing: "-0.005em", fontWeight: "600" }], "headline-md": ["24px", { lineHeight: "32px", letterSpacing: "-0.01em", fontWeight: "600" }], "display-lg": ["40px", { lineHeight: "48px", letterSpacing: "-0.02em", fontWeight: "700" }], "label-md": ["12px", { lineHeight: "16px", letterSpacing: "0.02em", fontWeight: "600" }], "headline-lg-mobile": ["24px", { lineHeight: "32px", letterSpacing: "-0.01em", fontWeight: "700" }] } } } };</script></head><body class="bg-surface font-body-md text-on-surface antialiased min-h-screen"><aside class="fixed left-0 top-0 h-full w-64 bg-surface-container-lowest z-50 flex flex-col justify-between shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="flex flex-col"><div class="h-16 px-gutter-sm flex items-center gap-space-sm"><img alt="Brand logo. - Primary color: #0e243a
+- Font: plusJakartaSans
+- Mode: light
+- Roundness: rounded-md
+" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1WUmZhSEbvhF4355BLhvwRiFqzI1zmB7EdUzaGpClqYrS3t97jeEaV_3D6JUOdyI4wMmObNweYwChpOoE94Aq7aGqncR3499fI2bjOPxoUDdIAduI-OA1JBYTezETv4Jhsz541WElDKbrqsOTcz2VDMnMUwNej4Wbm80HQWH7Jcjjrlpx1ovVto5OZWchEfeaZr8UvbI7szVkEq0KlSex-czKIjOZpczqiW3xU6WymRQUQjrYol2D-mxkBs"><div class="flex flex-col"><span class="font-title-md text-title-md text-primary tracking-tight leading-none">iManurung</span><span class="font-label-sm text-label-sm text-on-surface-variant leading-none mt-1">Portal Marga &amp; Komunitas</span></div></div><div class="px-space-md py-space-sm"><div class="bg-surface-container-low rounded-lg p-space-sm flex items-center justify-between"><div class="flex flex-col"><span class="font-label-sm text-label-sm text-on-surface-variant">Sektor Aktif</span><span class="font-title-md text-body-md text-primary font-semibold truncate">Jabodetabek Barat</span></div><span class="material-symbols-outlined text-on-surface-variant text-body-md">unfold_more</span></div></div><nav class="flex flex-col gap-space-xs px-space-sm mt-space-sm" data-active-classes="bg-primary-container text-white font-title-md"><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="dashboard" href="#"><span class="material-symbols-outlined text-headline-sm">grid_view</span><span class="font-label-lg text-label-lg">Dashboard</span></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="data-anggota" href="#"><span class="material-symbols-outlined text-headline-sm">group</span><span class="font-label-lg text-label-lg">Data Anggota</span></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="iuran-keuangan" href="#"><span class="material-symbols-outlined text-headline-sm">account_balance_wallet</span><span class="font-label-lg text-label-lg">Iuran &amp; Keuangan</span></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="artikel-berita" href="#"><span class="material-symbols-outlined text-headline-sm">newspaper</span><span class="font-label-lg text-label-lg">Artikel &amp; Berita</span></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg bg-primary-container text-white font-title-md shadow-sm transition-colors" data-path="role-management" href="#"><span class="material-symbols-outlined text-headline-sm text-white">admin_panel_settings</span><span class="font-label-lg text-label-lg">Role Management</span></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="pengaturan" href="#"><span class="material-symbols-outlined text-headline-sm">settings</span><span class="font-label-lg text-label-lg">Pengaturan</span></a></nav></div><div class="p-space-md"><div class="bg-surface-container-low rounded-xl p-space-md flex flex-col gap-space-xs"><div class="flex items-center gap-space-xs"><span class="w-2 h-2 rounded-full bg-secondary"></span><span class="font-label-sm text-label-sm text-secondary font-bold uppercase tracking-wider">Punguan Aktif</span></div><span class="font-body-sm text-body-sm text-on-surface-variant">Sistem Tata Kelola Marga Terpusat &amp; Berkelanjutan</span></div></div></aside><div class="pl-64 flex flex-col min-h-screen"><header class="fixed top-0 left-64 right-0 h-16 bg-surface-container-lowest/90 backdrop-blur-xl z-40 shadow-[0_1px_8px_rgba(0,0,0,0.04)] px-gutter-lg flex items-center justify-between gap-gutter"><div class="flex items-center gap-space-md flex-1 max-w-lg"><div class="relative w-full flex items-center"><span class="material-symbols-outlined absolute left-space-md text-on-surface-variant text-headline-sm pointer-events-none">search</span><input class="w-full bg-surface-container-low text-on-surface placeholder:text-on-surface-variant font-body-md text-body-md pl-10 pr-16 py-space-sm rounded-lg outline-none focus:bg-surface-container-lowest transition-all" placeholder="Cari anggota, nomor tarombo, atau kuitansi..." type="text"><div class="absolute right-space-sm flex items-center bg-surface-container-high px-space-xs py-0.5 rounded text-on-surface-variant font-label-sm text-label-sm">Ctrl+K</div></div><div class="relative hidden xl:flex items-center"><select class="bg-surface-container-low text-on-surface font-label-lg text-label-lg py-space-sm pl-space-md pr-8 rounded-lg appearance-none outline-none cursor-pointer"><option value="semua">Semua Wilayah</option><option value="jabodetabek">Sektor Jabodetabek</option><option value="sumut">Sektor Sumatera Utara</option><option value="riau">Sektor Riau &amp; Kepri</option><option value="jabar">Sektor Jawa Barat</option></select><span class="material-symbols-outlined absolute right-space-xs text-on-surface-variant pointer-events-none text-body-md">arrow_drop_down</span></div></div><div class="flex items-center gap-space-lg"><button class="relative p-space-sm rounded-full text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors"><span class="material-symbols-outlined text-headline-sm">notifications</span><span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-secondary ring-2 ring-surface-container-lowest"></span></button><div class="flex items-center gap-space-sm"><div class="text-right hidden sm:flex flex-col"><span class="font-title-md text-body-md text-on-surface leading-tight">St. Ricardo Manurung</span><span class="font-label-sm text-label-sm text-on-surface-variant leading-tight">Admin Pengurus</span></div><img alt="Profile" class="w-8 h-8 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida/AEtjO1U3E3SIMmemvY_JheZDBnzcgfrJWASsvHzmGMaBHnjWj9SFhxt6H6asqxBCOdjNOIBzEhN9_mZBGNNIDkxlGo5nUV1P4VJ9mUDNDr9i0u1rnxoKBpja1pzpWh0dQHOsP0fzliGCtY9nXUj6M6GpqAqfi56ut6kaJw8u0VqGFpObWR5vaNy4J_0bqLJw5JPr_YepG1fmp8urn1PL57zBYH7tsSJmTYumKC2pegCuUfZCraXxCpsNNCAJifY"></div></div></header><main class="w-full pt-16 bg-surface flex-1 px-gutter-lg py-space-lg"><div class="flex flex-col w-full gap-space-lg pb-space-xl">
+<!-- Breadcrumbs & Header Section -->
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-space-md">
+<div class="flex flex-col gap-space-xs">
+<nav class="flex items-center gap-space-xs font-body-sm text-body-sm text-on-surface-variant">
+<a class="hover:text-primary transition-colors" href="#">Beranda</a>
+<span class="material-symbols-outlined text-body-sm">chevron_right</span>
+<a class="hover:text-primary transition-colors" href="#">Pengaturan Sistem</a>
+<span class="material-symbols-outlined text-body-sm">chevron_right</span>
+<span class="text-primary font-semibold">Role &amp; Hak Akses</span>
+</nav>
+<div class="flex items-center gap-space-sm mt-1">
+<h1 class="font-headline-lg text-headline-lg text-primary tracking-tight">Manajemen Role &amp; Hak Akses Kepengurusan</h1>
+<span class="bg-primary/10 text-primary px-2.5 py-0.5 rounded-full font-label-sm text-label-sm uppercase font-bold tracking-wider">RBAC Level 3</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-3xl">
+        Kelola hierarki wewenang, matriks permission berbasis modul (RBAC), serta penugasan akun pengurus pusat dan pengurus sektor wilayah marga Manurung.
+      </p>
+</div>
+<!-- Header Actions -->
+<div class="flex items-center gap-space-sm self-start md:self-auto shrink-0">
+<button class="flex items-center gap-space-xs px-4 py-2.5 rounded-lg bg-surface-container-lowest text-on-surface hover:bg-surface-container-high transition-all shadow-sm font-label-lg text-label-lg">
+<span class="material-symbols-outlined text-body-lg text-on-surface-variant">history</span>
+<span>Audit Log Akses</span>
+</button>
+<button class="flex items-center gap-space-xs px-4 py-2.5 rounded-lg bg-secondary hover:bg-secondary/90 text-on-secondary shadow-sm transition-all font-label-lg text-label-lg">
+<span class="material-symbols-outlined text-body-lg">add_circle</span>
+<span>Tambah Role Baru</span>
+</button>
+</div>
+</div>
+<!-- KPI Overview Cards -->
+<div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-space-md">
+<!-- Card 1 -->
+<div class="bg-surface-container-lowest p-space-md rounded-xl shadow-sm flex flex-col justify-between gap-space-sm relative overflow-hidden">
+<div class="flex items-start justify-between">
+<div class="flex flex-col gap-1">
+<span class="font-label-md text-label-md text-on-surface-variant font-medium">Total Role Terdaftar</span>
+<span class="font-headline-md text-headline-md text-primary font-bold">6 Role Aktif</span>
+</div>
+<div class="w-10 h-10 rounded-lg bg-primary-container/10 flex items-center justify-center text-primary-container shrink-0">
+<span class="material-symbols-outlined text-headline-sm">security</span>
+</div>
+</div>
+<div class="flex items-center gap-1.5 font-body-sm text-body-sm text-on-surface-variant pt-2 border-t-0">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary-fixed-dim"></span>
+<span>1 System Default, 5 Custom Kepengurusan</span>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="bg-surface-container-lowest p-space-md rounded-xl shadow-sm flex flex-col justify-between gap-space-sm relative overflow-hidden">
+<div class="flex items-start justify-between">
+<div class="flex flex-col gap-1">
+<span class="font-label-md text-label-md text-on-surface-variant font-medium">Pengurus &amp; Operator</span>
+<span class="font-headline-md text-headline-md text-primary font-bold">48 Akun</span>
+</div>
+<div class="w-10 h-10 rounded-lg bg-primary-fixed/40 flex items-center justify-center text-on-primary-fixed shrink-0">
+<span class="material-symbols-outlined text-headline-sm">manage_accounts</span>
+</div>
+</div>
+<div class="flex items-center gap-1.5 font-body-sm text-body-sm text-on-surface-variant pt-2">
+<span class="w-1.5 h-1.5 rounded-full bg-primary"></span>
+<span class="text-on-surface font-medium">42 Aktif</span>
+<span class="text-on-surface-variant">· 6 Menunggu Aktivasi</span>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="bg-surface-container-lowest p-space-md rounded-xl shadow-sm flex flex-col justify-between gap-space-sm relative overflow-hidden">
+<div class="flex items-start justify-between">
+<div class="flex flex-col gap-1">
+<span class="font-label-md text-label-md text-on-surface-variant font-medium">Modul Sistem Terproteksi</span>
+<span class="font-headline-md text-headline-md text-primary font-bold">7 Modul Inti</span>
+</div>
+<div class="w-10 h-10 rounded-lg bg-tertiary-fixed/40 flex items-center justify-center text-on-tertiary-fixed shrink-0">
+<span class="material-symbols-outlined text-headline-sm">lock</span>
+</div>
+</div>
+<div class="flex items-center gap-1.5 font-body-sm text-body-sm text-on-surface-variant pt-2">
+<span class="material-symbols-outlined text-body-sm text-tertiary-fixed-dim">tune</span>
+<span>32 Titik Permission Spesifik</span>
+</div>
+</div>
+<!-- Card 4 -->
+<div class="bg-surface-container-lowest p-space-md rounded-xl shadow-sm flex flex-col justify-between gap-space-sm relative overflow-hidden">
+<div class="flex items-start justify-between">
+<div class="flex flex-col gap-1">
+<span class="font-label-md text-label-md text-on-surface-variant font-medium">Status Keamanan RBAC</span>
+<span class="font-headline-md text-headline-md text-on-surface font-bold">Tinggi (2FA Aktif)</span>
+</div>
+<div class="w-10 h-10 rounded-lg bg-secondary-fixed/50 flex items-center justify-center text-secondary shrink-0">
+<span class="material-symbols-outlined text-headline-sm">verified_user</span>
+</div>
+</div>
+<div class="flex items-center gap-1.5 font-body-sm text-body-sm text-secondary font-medium pt-2">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+<span>Enforce 2FA untuk Level Admin &amp; Bendahara</span>
+</div>
+</div>
+</div>
+<!-- Main Workspace Tabs -->
+<div class="flex flex-col gap-space-md">
+<div class="flex items-center justify-between border-b-0 bg-surface-container-low p-1.5 rounded-xl">
+<div class="flex items-center gap-1">
+<button class="flex items-center gap-2 px-4 py-2 rounded-lg bg-surface-container-lowest text-primary font-title-md text-body-md shadow-sm transition-all">
+<span class="material-symbols-outlined text-body-md text-secondary">table_chart</span>
+<span>Matriks Hak Akses (RBAC Matrix)</span>
+<span class="bg-surface-container-high px-2 py-0.5 rounded-full font-label-sm text-label-sm text-primary font-bold">7 Modul</span>
+</button>
+<button class="flex items-center gap-2 px-4 py-2 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container font-title-md text-body-md transition-all">
+<span class="material-symbols-outlined text-body-md">badge</span>
+<span>Daftar Pengguna &amp; Penugasan Role</span>
+<span class="bg-surface-container-high px-2 py-0.5 rounded-full font-label-sm text-label-sm text-on-surface-variant">48 Akun</span>
+</button>
+<button class="flex items-center gap-2 px-4 py-2 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container font-title-md text-body-md transition-all">
+<span class="material-symbols-outlined text-body-md">timeline</span>
+<span>Riwayat Perubahan &amp; Audit Log</span>
+</button>
+</div>
+<div class="hidden lg:flex items-center gap-2 text-on-surface-variant font-body-sm text-body-sm pr-2">
+<span class="material-symbols-outlined text-body-md text-on-primary-container">info</span>
+<span>Perubahan matriks langsung aktif seketika setelah disimpan</span>
+</div>
+</div>
+<!-- Role Filter Pill Bar -->
+<div class="bg-surface-container-lowest p-space-sm rounded-xl shadow-sm flex items-center gap-space-xs overflow-x-auto">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider px-3 shrink-0">Pilih Role:</span>
+<button class="flex items-center gap-2 px-3.5 py-2 rounded-lg bg-surface-container text-on-surface-variant hover:text-on-surface transition-all shrink-0 font-label-md text-label-md">
+<span class="material-symbols-outlined text-body-md">shield</span>
+<span>Superadmin Pusat</span>
+<span class="text-body-sm opacity-60">(32/32)</span>
+<span class="bg-surface-container-highest text-on-surface-variant px-1.5 py-0.5 rounded font-label-sm text-label-sm">3 Pengguna</span>
+</button>
+<button class="flex items-center gap-2 px-3.5 py-2 rounded-lg bg-primary-container text-white font-title-md shrink-0 shadow-sm transition-all font-label-md text-label-md">
+<span class="material-symbols-outlined text-body-md text-secondary-fixed">workspace_premium</span>
+<span>Ketua Umum &amp; Sekretaris</span>
+<span class="text-body-sm text-primary-fixed-dim">(28/32)</span>
+<span class="bg-primary/40 text-primary-fixed px-1.5 py-0.5 rounded font-label-sm text-label-sm font-semibold">5 Pengguna</span>
+</button>
+<button class="flex items-center gap-2 px-3.5 py-2 rounded-lg bg-surface-container text-on-surface-variant hover:text-on-surface transition-all shrink-0 font-label-md text-label-md">
+<span class="material-symbols-outlined text-body-md">account_balance_wallet</span>
+<span>Bendahara Umum &amp; Kas</span>
+<span class="text-body-sm opacity-60">(19/32)</span>
+<span class="bg-surface-container-highest text-on-surface-variant px-1.5 py-0.5 rounded font-label-sm text-label-sm">4 Pengguna</span>
+</button>
+<button class="flex items-center gap-2 px-3.5 py-2 rounded-lg bg-surface-container text-on-surface-variant hover:text-on-surface transition-all shrink-0 font-label-md text-label-md">
+<span class="material-symbols-outlined text-body-md">corporate_fare</span>
+<span>Pengurus Sektor Wilayah</span>
+<span class="text-body-sm opacity-60">(14/32)</span>
+<span class="bg-surface-container-highest text-on-surface-variant px-1.5 py-0.5 rounded font-label-sm text-label-sm">26 Pengguna</span>
+</button>
+<button class="flex items-center gap-2 px-3.5 py-2 rounded-lg bg-surface-container text-on-surface-variant hover:text-on-surface transition-all shrink-0 font-label-md text-label-md">
+<span class="material-symbols-outlined text-body-md">edit_note</span>
+<span>Editor Warta &amp; Berita</span>
+<span class="text-body-sm opacity-60">(8/32)</span>
+<span class="bg-surface-container-highest text-on-surface-variant px-1.5 py-0.5 rounded font-label-sm text-label-sm">6 Pengguna</span>
+</button>
+<button class="flex items-center gap-2 px-3.5 py-2 rounded-lg bg-surface-container text-on-surface-variant hover:text-on-surface transition-all shrink-0 font-label-md text-label-md">
+<span class="material-symbols-outlined text-body-md">person</span>
+<span>Anggota Terverifikasi (Member)</span>
+<span class="text-body-sm opacity-60">(5/32)</span>
+<span class="bg-surface-container-highest text-on-surface-variant px-1.5 py-0.5 rounded font-label-sm text-label-sm">4.820 Anggota</span>
+</button>
+</div>
+<!-- Main Grid: Matrix Content (Left) + Role Profile Panel (Right) -->
+<div class="grid grid-cols-1 xl:grid-cols-12 gap-space-lg items-start">
+<!-- Left RBAC Matrix Table (8 Cols) -->
+<div class="xl:col-span-8 flex flex-col gap-space-md">
+<div class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden">
+<!-- Table Toolbar -->
+<div class="p-space-md bg-surface-container-lowest flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm border-b-0">
+<div class="flex items-center gap-space-sm">
+<div class="w-3 h-3 rounded-full bg-secondary"></div>
+<div>
+<h3 class="font-title-md text-title-md text-primary leading-tight">Konfigurasi Hak Akses: Ketua Umum &amp; Sekretaris</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Klik pada toggle atau centang untuk menyesuaikan izin wewenang modul</p>
+</div>
+</div>
+<div class="flex items-center gap-space-xs self-end sm:self-auto">
+<button class="px-3 py-1.5 rounded-lg bg-surface-container hover:bg-surface-container-high text-primary font-label-sm text-label-sm transition-colors">
+                Pilih Semua
+              </button>
+<button class="px-3 py-1.5 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm transition-colors">
+                Reset Default
+              </button>
+</div>
+</div>
+<!-- RBAC Matrix Table -->
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low text-on-surface-variant font-label-sm text-label-sm tracking-wider uppercase">
+<th class="py-3.5 px-4 font-semibold">Modul &amp; Fitur Sistem</th>
+<th class="py-3.5 px-3 text-center font-semibold">Lihat / Akses</th>
+<th class="py-3.5 px-3 text-center font-semibold">Tambah</th>
+<th class="py-3.5 px-3 text-center font-semibold">Ubah</th>
+<th class="py-3.5 px-3 text-center font-semibold">Hapus</th>
+<th class="py-3.5 px-3 text-center font-semibold text-tertiary-container">Approval Khusus</th>
+<th class="py-3.5 px-3 text-center font-semibold">Ekspor</th>
+</tr>
+</thead>
+<tbody class="divide-y-0 font-body-md text-body-md text-on-surface">
+<!-- Row 1: Dashboard -->
+<tr class="hover:bg-surface-container-low/60 transition-colors">
+<td class="py-4 px-4">
+<div class="flex items-start gap-3">
+<div class="w-9 h-9 rounded-lg bg-surface-container flex items-center justify-center text-primary shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-title-lg">dashboard</span>
+</div>
+<div class="flex flex-col">
+<span class="font-title-md text-body-md text-primary font-semibold">Dashboard &amp; Statistik Eksekutif</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Metrik populasi anggota se-Indonesia, agregat kas, &amp; agenda marga</span>
+</div>
+</div>
+</td>
+<!-- Lihat (ON) -->
+<td class="py-4 px-3 text-center">
+<input checked="" class="w-4 h-4 accent-primary cursor-pointer rounded" type="checkbox">
+</td>
+<!-- Tambah (N/A) -->
+<td class="py-4 px-3 text-center text-outline-variant font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-title-md opacity-30">block</span>
+</td>
+<!-- Ubah (N/A) -->
+<td class="py-4 px-3 text-center text-outline-variant font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-title-md opacity-30">block</span>
+</td>
+<!-- Hapus (N/A) -->
+<td class="py-4 px-3 text-center text-outline-variant font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-title-md opacity-30">block</span>
+</td>
+<!-- Approval (N/A) -->
+<td class="py-4 px-3 text-center text-outline-variant font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-title-md opacity-30">block</span>
+</td>
+<!-- Ekspor (ON) -->
+<td class="py-4 px-3 text-center">
+<input checked="" class="w-4 h-4 accent-primary cursor-pointer rounded" type="checkbox">
+</td>
+</tr>
+<!-- Row 2: Master Data Anggota & Tarombo -->
+<tr class="hover:bg-surface-container-low/60 transition-colors bg-surface-container-lowest">
+<td class="py-4 px-4">
+<div class="flex items-start gap-3">
+<div class="w-9 h-9 rounded-lg bg-primary-fixed/40 flex items-center justify-center text-on-primary-fixed shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-title-lg">account_tree</span>
+</div>
+<div class="flex flex-col">
+<span class="font-title-md text-body-md text-primary font-semibold">Master Data Anggota &amp; Tarombo</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Database silsilah, relasi nomor sundut, berkas KK, dan status duka/sukacita</span>
+</div>
+</div>
+</td>
+<!-- Lihat (ON) -->
+<td class="py-4 px-3 text-center">
+<input checked="" class="w-4 h-4 accent-primary cursor-pointer rounded" type="checkbox">
+</td>
+<!-- Tambah (ON) -->
+<td class="py-4 px-3 text-center">
+<input checked="" class="w-4 h-4 accent-primary cursor-pointer rounded" type="checkbox">
+</td>
+<!-- Ubah (ON) -->
+<td class="py-4 px-3 text-center">
+<input checked="" class="w-4 h-4 accent-primary cursor-pointer rounded" type="checkbox">
+</td>
+<!-- Hapus (OFF - Restricted) -->
+<td class="py-4 px-3 text-center">
+<div class="inline-flex items-center justify-center group relative">
+<input class="w-4 h-4 accent-primary cursor-not-allowed opacity-40 rounded" disabled="" type="checkbox">
+<span class="hidden group-hover:block absolute bottom-full mb-1 text-on-secondary bg-primary px-2 py-0.5 rounded font-label-sm text-label-sm whitespace-nowrap shadow-md">Superadmin Only</span>
+</div>
+</td>
+<!-- Approval (ON - Verifikasi silsilah) -->
+<td class="py-4 px-3 text-center bg-tertiary-fixed/10">
+<div class="flex flex-col items-center gap-1">
+<input checked="" class="w-4 h-4 accent-secondary cursor-pointer rounded" type="checkbox">
+<span class="font-label-sm text-label-sm text-on-tertiary-container font-semibold">Validasi Silsilah</span>
+</div>
+</td>
+<!-- Ekspor (ON) -->
+<td class="py-4 px-3 text-center">
+<input checked="" class="w-4 h-4 accent-primary cursor-pointer rounded" type="checkbox">
+</td>
+</tr>
+<!-- Row 3: Iuran & Rekonsiliasi Kas -->
+<tr class="hover:bg-surface-container-low/60 transition-colors">
+<td class="py-4 px-4">
+<div class="flex items-start gap-3">
+<div class="w-9 h-9 rounded-lg bg-surface-container flex items-center justify-center text-primary shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-title-lg">payments</span>
+</div>
+<div class="flex flex-col">
+<span class="font-title-md text-body-md text-primary font-semibold">Iuran &amp; Rekonsiliasi Kas</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Laporan iuran bulanan marga, uang duka, kas sektor, dan sumbangan sukarela</span>
+</div>
+</div>
+</td>
+<!-- Lihat (ON) -->
+<td class="py-4 px-3 text-center">
+<input checked="" class="w-4 h-4 accent-primary cursor-pointer rounded" type="checkbox">
+</td>
+<!-- Tambah (ON) -->
+<td class="py-4 px-3 text-center">
+<input checked="" class="w-4 h-4 accent-primary cursor-pointer rounded" type="checkbox">
+</td>
+<!-- Ubah (ON) -->
+<td class="py-4 px-3 text-center">
+<input checked="" class="w-4 h-4 accent-primary cursor-pointer rounded" type="checkbox">
+</td>
+<!-- Hapus (OFF) -->
+<td class="py-4 px-3 text-center">
+<input class="w-4 h-4 accent-primary cursor-pointer rounded" type="checkbox">
+</td>
+<!-- Approval (ON - Otorisasi pencairan) -->
+<td class="py-4 px-3 text-center bg-tertiary-fixed/10">
+<div class="flex flex-col items-center gap-1">
+<input checked="" class="w-4 h-4 accent-secondary cursor-pointer rounded" type="checkbox">
+<span class="font-label-sm text-label-sm text-on-tertiary-container font-semibold">&gt; Rp 10 Jt</span>
+</div>
+</td>
+<!-- Ekspor (ON) -->
+<td class="py-4 px-3 text-center">
+<input checked="" class="w-4 h-4 accent-primary cursor-pointer rounded" type="checkbox">
+</td>
+</tr>
+<!-- Row 4: Warta, Berita & Artikel Adat -->
+<tr class="hover:bg-surface-container-low/60 transition-colors">
+<td class="py-4 px-4">
+<div class="flex items-start gap-3">
+<div class="w-9 h-9 rounded-lg bg-surface-container flex items-center justify-center text-primary shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-title-lg">menu_book</span>
+</div>
+<div class="flex flex-col">
+<span class="font-title-md text-body-md text-primary font-semibold">Warta, Berita &amp; Artikel Adat</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Publikasi warta partangiangan, edukasi adat Dalihan Na Tolu, ucapan belasungkawa</span>
+</div>
+</div>
+</td>
+<!-- Lihat (ON) -->
+<td class="py-4 px-3 text-center">
+<input checked="" class="w-4 h-4 accent-primary cursor-pointer rounded" type="checkbox">
+</td>
+<!-- Tambah (ON) -->
+<td class="py-4 px-3 text-center">
+<input checked="" class="w-4 h-4 accent-primary cursor-pointer rounded" type="checkbox">
+</td>
+<!-- Ubah (ON) -->
+<td class="py-4 px-3 text-center">
+<input checked="" class="w-4 h-4 accent-primary cursor-pointer rounded" type="checkbox">
+</td>
+<!-- Hapus (ON) -->
+<td class="py-4 px-3 text-center">
+<input checked="" class="w-4 h-4 accent-primary cursor-pointer rounded" type="checkbox">
+</td>
+<!-- Approval (ON - Publish Langsung) -->
+<td class="py-4 px-3 text-center bg-tertiary-fixed/10">
+<div class="flex flex-col items-center gap-1">
+<input checked="" class="w-4 h-4 accent-secondary cursor-pointer rounded" type="checkbox">
+<span class="font-label-sm text-label-sm text-on-tertiary-container font-semibold">Bypass Review</span>
+</div>
+</td>
+<!-- Ekspor (N/A) -->
+<td class="py-4 px-3 text-center text-outline-variant font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-title-md opacity-30">block</span>
+</td>
+</tr>
+<!-- Row 5: Role & Permission Management -->
+<tr class="hover:bg-surface-container-low/60 transition-colors">
+<td class="py-4 px-4">
+<div class="flex items-start gap-3">
+<div class="w-9 h-9 rounded-lg bg-surface-container flex items-center justify-center text-primary shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-title-lg">admin_panel_settings</span>
+</div>
+<div class="flex flex-col">
+<span class="font-title-md text-body-md text-primary font-semibold">Role &amp; Permission Management</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Konfigurasi hierarki akses, penugasan hak pengurus sektor, log aktivitas admin</span>
+</div>
+</div>
+</td>
+<!-- Lihat (ON) -->
+<td class="py-4 px-3 text-center">
+<input checked="" class="w-4 h-4 accent-primary cursor-pointer rounded" type="checkbox">
+</td>
+<!-- Tambah (OFF) -->
+<td class="py-4 px-3 text-center">
+<input class="w-4 h-4 accent-primary cursor-pointer rounded" type="checkbox">
+</td>
+<!-- Ubah (OFF) -->
+<td class="py-4 px-3 text-center">
+<input class="w-4 h-4 accent-primary cursor-pointer rounded" type="checkbox">
+</td>
+<!-- Hapus (OFF) -->
+<td class="py-4 px-3 text-center">
+<input class="w-4 h-4 accent-primary cursor-pointer rounded" type="checkbox">
+</td>
+<!-- Approval (OFF) -->
+<td class="py-4 px-3 text-center bg-tertiary-fixed/10">
+<input class="w-4 h-4 accent-secondary cursor-pointer rounded" type="checkbox">
+</td>
+<!-- Ekspor (ON) -->
+<td class="py-4 px-3 text-center">
+<input checked="" class="w-4 h-4 accent-primary cursor-pointer rounded" type="checkbox">
+</td>
+</tr>
+<!-- Row 6: Broadcast WhatsApp & SMS Gateway -->
+<tr class="hover:bg-surface-container-low/60 transition-colors">
+<td class="py-4 px-4">
+<div class="flex items-start gap-3">
+<div class="w-9 h-9 rounded-lg bg-surface-container flex items-center justify-center text-primary shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-title-lg">campaign</span>
+</div>
+<div class="flex flex-col">
+<span class="font-title-md text-body-md text-primary font-semibold">Broadcast WhatsApp &amp; SMS Gateway</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Pesan siaran massal peringatan ulang tahun punguan, undangan bona taon, &amp; duka</span>
+</div>
+</div>
+</td>
+<!-- Lihat (ON) -->
+<td class="py-4 px-3 text-center">
+<input checked="" class="w-4 h-4 accent-primary cursor-pointer rounded" type="checkbox">
+</td>
+<!-- Tambah (ON) -->
+<td class="py-4 px-3 text-center">
+<input checked="" class="w-4 h-4 accent-primary cursor-pointer rounded" type="checkbox">
+</td>
+<!-- Ubah (ON) -->
+<td class="py-4 px-3 text-center">
+<input checked="" class="w-4 h-4 accent-primary cursor-pointer rounded" type="checkbox">
+</td>
+<!-- Hapus (OFF) -->
+<td class="py-4 px-3 text-center">
+<input class="w-4 h-4 accent-primary cursor-pointer rounded" type="checkbox">
+</td>
+<!-- Approval (ON - Blast Nasional) -->
+<td class="py-4 px-3 text-center bg-tertiary-fixed/10">
+<div class="flex flex-col items-center gap-1">
+<input checked="" class="w-4 h-4 accent-secondary cursor-pointer rounded" type="checkbox">
+<span class="font-label-sm text-label-sm text-on-tertiary-container font-semibold">Blast Nasional</span>
+</div>
+</td>
+<!-- Ekspor (ON) -->
+<td class="py-4 px-3 text-center">
+<input checked="" class="w-4 h-4 accent-primary cursor-pointer rounded" type="checkbox">
+</td>
+</tr>
+<!-- Row 7: Pengaturan Sektor & Wilayah Adat -->
+<tr class="hover:bg-surface-container-low/60 transition-colors">
+<td class="py-4 px-4">
+<div class="flex items-start gap-3">
+<div class="w-9 h-9 rounded-lg bg-surface-container flex items-center justify-center text-primary shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-title-lg">map</span>
+</div>
+<div class="flex flex-col">
+<span class="font-title-md text-body-md text-primary font-semibold">Struktur Sektor &amp; Teritori Wilayah</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Penetapan batas kepengurusan cabang kota, koordinator rayon, &amp; perwakilan luar negeri</span>
+</div>
+</div>
+</td>
+<!-- Lihat (ON) -->
+<td class="py-4 px-3 text-center">
+<input checked="" class="w-4 h-4 accent-primary cursor-pointer rounded" type="checkbox">
+</td>
+<!-- Tambah (ON) -->
+<td class="py-4 px-3 text-center">
+<input checked="" class="w-4 h-4 accent-primary cursor-pointer rounded" type="checkbox">
+</td>
+<!-- Ubah (ON) -->
+<td class="py-4 px-3 text-center">
+<input checked="" class="w-4 h-4 accent-primary cursor-pointer rounded" type="checkbox">
+</td>
+<!-- Hapus (OFF) -->
+<td class="py-4 px-3 text-center">
+<input class="w-4 h-4 accent-primary cursor-pointer rounded" type="checkbox">
+</td>
+<!-- Approval (ON - Penetapan Sektor) -->
+<td class="py-4 px-3 text-center bg-tertiary-fixed/10">
+<div class="flex flex-col items-center gap-1">
+<input checked="" class="w-4 h-4 accent-secondary cursor-pointer rounded" type="checkbox">
+<span class="font-label-sm text-label-sm text-on-tertiary-container font-semibold">SK Pengurus</span>
+</div>
+</td>
+<!-- Ekspor (ON) -->
+<td class="py-4 px-3 text-center">
+<input checked="" class="w-4 h-4 accent-primary cursor-pointer rounded" type="checkbox">
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Table Footer Info Banner -->
+<div class="p-space-md bg-surface-container-low flex flex-col sm:flex-row items-center justify-between gap-space-sm text-on-surface-variant font-body-sm text-body-sm">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-body-md text-secondary">verified</span>
+<span>Hak akses <strong>Ketua Umum &amp; Sekretaris</strong> memiliki wewenang lintas seluruh sektor marga nasional.</span>
+</div>
+<div class="flex items-center gap-space-xs shrink-0">
+<span class="font-label-sm text-label-sm">Terakhir diperbarui: 24 Okt 2024 oleh Superadmin</span>
+</div>
+</div>
+</div>
+<!-- Role Security & Delegation Callout -->
+<div class="bg-surface-container-lowest p-space-md rounded-xl shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-space-md">
+<div class="flex items-start gap-space-sm">
+<div class="w-10 h-10 rounded-full bg-secondary-fixed/50 text-secondary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-headline-sm">policy</span>
+</div>
+<div class="flex flex-col">
+<h4 class="font-title-md text-title-md text-primary">Kebijakan Delegasi Sementara (Plt / Ad-Interim)</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Bila Ketua Umum berhalangan hadir pada musyawarah adat tahunan, hak approval warta dan iuran dapat dialihkan secara berbatas waktu maksimal 30 hari.</p>
+</div>
+</div>
+<button class="shrink-0 px-4 py-2 rounded-lg bg-surface-container text-primary font-label-md text-label-md hover:bg-surface-container-high transition-colors">
+            Konfigurasi Delegasi
+          </button>
+</div>
+</div>
+<!-- Right Side Info Drawer & Profile Panel (4 Cols) -->
+<div class="xl:col-span-4 flex flex-col gap-space-md">
+<!-- Panel Card -->
+<div class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden sticky top-20">
+<!-- Top Cultural Ulos Accent Bar -->
+<div class="h-1.5 w-full bg-secondary"></div>
+<div class="p-space-md flex flex-col gap-space-md">
+<!-- Header Role Info -->
+<div class="flex items-start justify-between">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-secondary font-bold uppercase tracking-wider">Tingkat Eksekutif Pusat</span>
+<h3 class="font-title-lg text-title-lg text-primary font-bold">Ketua Umum &amp; Sekretaris</h3>
+<span class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">Kode Identitas: <code class="font-mono text-xs bg-surface-container px-1 py-0.5 rounded">ROLE-EXEC-02</code></span>
+</div>
+<span class="bg-surface-container-high text-primary px-2.5 py-1 rounded-full font-label-sm text-label-sm font-bold">Aktif</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+              Role eksekutif dengan wewenang pengawasan operasional, approval validasi anggota baru tingkat wilayah, dan otorisasi warta resmi komunitas marga Manurung se-Indonesia.
+            </p>
+<!-- Scope Wilayah Pill Box -->
+<div class="bg-surface-container-low p-space-sm rounded-lg flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-body-lg text-primary">public</span>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Scope Wilayah / Teritori</span>
+<span class="font-title-md text-body-md text-primary font-semibold">Nasional (Seluruh Sektor Terbuka)</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant text-body-md">lock_open</span>
+</div>
+<!-- Security Policy Section -->
+<div class="flex flex-col gap-space-xs">
+<span class="font-label-md text-label-md text-primary uppercase font-bold tracking-wider">Kebijakan Keamanan &amp; Sesi</span>
+<!-- 2FA Enforce -->
+<div class="flex items-center justify-between py-2">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-body-md text-secondary">phonelink_lock</span>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface">Wajib 2-Factor Auth (2FA)</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Wajib bagi pemegang approval</span>
+</div>
+</div>
+<div class="w-9 h-5 bg-secondary rounded-full flex items-center justify-end px-0.5 cursor-pointer">
+<div class="w-4 h-4 rounded-full bg-white shadow-sm"></div>
+</div>
+</div>
+<!-- Session Limit -->
+<div class="flex items-center justify-between py-2">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-body-md text-on-surface-variant">timer</span>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface">Batas Sesi Login</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Otomatis logout saat idle</span>
+</div>
+</div>
+<span class="bg-surface-container px-2 py-0.5 rounded font-label-md text-label-md text-primary font-semibold">8 Jam</span>
+</div>
+<!-- IP Whitelist -->
+<div class="flex items-center justify-between py-2">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-body-md text-on-surface-variant">dns</span>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface">Pembatasan IP / VPN</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Akses dari jaringan luar</span>
+</div>
+</div>
+<div class="w-9 h-5 bg-surface-container-highest rounded-full flex items-center justify-start px-0.5 cursor-pointer">
+<div class="w-4 h-4 rounded-full bg-white shadow-sm"></div>
+</div>
+</div>
+</div>
+<!-- Assigned Officials List -->
+<div class="flex flex-col gap-space-xs pt-2">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-primary uppercase font-bold tracking-wider">Pejabat Aktif Role Ini (4)</span>
+<a class="font-label-sm text-label-sm text-secondary hover:underline font-semibold" href="#">Lihat Semua</a>
+</div>
+<div class="flex flex-col gap-2 mt-1">
+<!-- Person 1 -->
+<div class="flex items-center justify-between p-2 rounded-lg bg-surface-container-low hover:bg-surface-container transition-colors">
+<div class="flex items-center gap-2.5 min-w-0">
+<img class="w-9 h-9 rounded-full object-cover shrink-0" data-alt="Portrait photo of a distinguished Batak elder wearing a modern dark suit with a subtle traditional ulos scarf accent in an executive office setting, soft natural lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCT1Mc_xcAVGKhXlEYZQq_ve9uHRZpWKiNbJs5uwMe1R5We7krCKdZUYMsgPZIMvbvzPnjpp6hbdSCLRD7ylVT1IcN_lsu8umyuavNWd4NTdVRnwSEoQH0_enpQJSWKWntMsezqQH8ZS9IBHeBrSv9TVFt9U6ZaQwaQVAYqL2bJ4Ggm8B9FBCGfe4k_1XlHrs1Y6UObwsRh_TDQ0lgZWgJ5cZE44b0wEgXvYODhCIl4IPtBgWs-54A3nA">
+<div class="flex flex-col min-w-0">
+<span class="font-title-md text-body-md text-primary font-semibold truncate">Dr. H. Darwin Manurung, SE</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant truncate">Ketua Umum · DPP Jakarta</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-body-md text-on-surface-variant hover:text-primary cursor-pointer shrink-0">more_vert</span>
+</div>
+<!-- Person 2 -->
+<div class="flex items-center justify-between p-2 rounded-lg bg-surface-container-low hover:bg-surface-container transition-colors">
+<div class="flex items-center gap-2.5 min-w-0">
+<img class="w-9 h-9 rounded-full object-cover shrink-0" data-alt="Close up professional portrait of an adult Indonesian Batak man with glasses and navy blazer in an enterprise governance board room." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCdF_W6Xg6jNvysjWB7YkRMfc2kmV5baomqOJbzX2lV9PHriufrokgbmj3mUQpJPG1kVgR9lqsw7pGFDmWcbxu8SVaD8Vc23mvrbYib_HkRXr24je6sKNJPYb20UWBxwCpwxMWiKP5paOfs5CI7zmtFRBs8rYgUKWuSAVmBSs_KWrq2oS3Iw73r6BP5plmpSgQO6gvhtgNWFGXR_6iCCvbOQyqcqzyQdngNBXrweSy-Qg5W5eKfAnB49A">
+<div class="flex flex-col min-w-0">
+<span class="font-title-md text-body-md text-primary font-semibold truncate">St. Ricardo Manurung, M.Si</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant truncate">Sekjen · Jabodetabek Barat</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-body-md text-on-surface-variant hover:text-primary cursor-pointer shrink-0">more_vert</span>
+</div>
+<!-- Person 3 -->
+<div class="flex items-center justify-between p-2 rounded-lg bg-surface-container-low hover:bg-surface-container transition-colors">
+<div class="flex items-center gap-2.5 min-w-0">
+<img class="w-9 h-9 rounded-full object-cover shrink-0" data-alt="Distinguished mature Batak man with formal white shirt and navy tie smiling confidently in a conference setting, high resolution warm lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBjwUWlLW74JvjZ28XzCuLnMYJc0q2F8P5_R1N2dMD881lSl8z1LbhSOslaNKuZT9UOf8o-3Gz7JWr-BJyzt5NhclLj1F4v3o_E1JIkvyqW_RE2m49bjfkIxagpIQuo54tvf1RaXPUgcBRZqflacrQstQvcNu7-LLT_0MXBl6FMzPg8Zcnt3EEeLDNmMY7V4b3ArkPLWfeqcrx_QEti2M3hXM9RqAPbupP2ObTR9h4_CREigOgA3_nxdA">
+<div class="flex flex-col min-w-0">
+<span class="font-title-md text-body-md text-primary font-semibold truncate">Kol. (Purn) T. Manurung</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant truncate">Wakil Ketua I · Sumut &amp; Toba</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-body-md text-on-surface-variant hover:text-primary cursor-pointer shrink-0">more_vert</span>
+</div>
+<!-- Person 4 -->
+<div class="flex items-center justify-between p-2 rounded-lg bg-surface-container-low hover:bg-surface-container transition-colors">
+<div class="flex items-center gap-2.5 min-w-0">
+<img class="w-9 h-9 rounded-full object-cover shrink-0" data-alt="Professional portrait of a mature Indonesian Batak woman with glasses wearing elegant formal kebaya and navy blazer, corporate office background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC2DoDIyLUQbvbC4XgVq-K2AGsJ5EnBXZpaqrqaQo4vofoZV4_zEet0mcy6z980bNMq1qbBsiCVBGNNU-YQilQGjp6Tdz2j4A6LGHHGQR5Cal9maI8tdY5jk50tdas94YZdUCYR3xhrUUbUFiU3Ls7F8liKalpJIZWKbZ9NwwaM1ifAUP2_NN_tVvLIZbHRHKnS1whuToARrBCbGndyiG_g4-blvN2Quk79aW8G1Sei4dsZztTIYc2Zhg">
+<div class="flex flex-col min-w-0">
+<span class="font-title-md text-body-md text-primary font-semibold truncate">Dra. Rosmaida br. Manurung</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant truncate">Sekretaris II · Sektor Bandung</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-body-md text-on-surface-variant hover:text-primary cursor-pointer shrink-0">more_vert</span>
+</div>
+</div>
+</div>
+<!-- Action Buttons Footer -->
+<div class="flex flex-col gap-space-xs pt-2">
+<button class="w-full py-2.5 px-4 rounded-lg bg-primary-container hover:bg-primary text-white font-title-md text-body-md shadow-sm transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-body-md">save</span>
+<span>Simpan Perubahan Matriks</span>
+</button>
+<button class="w-full py-2.5 px-4 rounded-lg bg-surface-container hover:bg-surface-container-high text-primary font-title-md text-body-md transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-body-md">person_add</span>
+<span>+ Tugaskan Pengguna ke Role</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<script>
+  // Simple interactive micro-interactions for toggling permissions
+  document.addEventListener('DOMContentLoaded', () => {
+    const checkboxes = document.querySelectorAll('tbody input[type="checkbox"]:not([disabled])');
+    checkboxes.forEach(cb => {
+      cb.addEventListener('change', (e) => {
+        const row = e.target.closest('tr');
+        if (row) {
+          row.classList.add('bg-primary-fixed/20');
+          setTimeout(() => {
+            row.classList.remove('bg-primary-fixed/20');
+          }, 350);
+        }
+      });
+    });
+  });
+</script></main></div></body></html>

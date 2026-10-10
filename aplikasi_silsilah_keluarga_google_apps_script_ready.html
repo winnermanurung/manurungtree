@@ -1,0 +1,1508 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Silsilah Keluarga - Apps Script Ready</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js for Dashboard Statistics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- D3.js for Interactive Tree Rendering -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #f8fafc;
+        }
+
+        /* Custom scrollbars */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        .tree-node {
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+        }
+        .tree-node:hover {
+            filter: drop-shadow(0px 8px 16px rgba(0,0,0,0.15));
+        }
+
+        .link {
+            fill: none;
+            stroke: #cbd5e1;
+            stroke-width: 2px;
+            transition: stroke 0.3s;
+        }
+
+        /* Glassmorphism styling */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+        }
+    </style>
+</head>
+<body class="text-slate-800 antialiased h-screen flex flex-col md:flex-row overflow-hidden">
+
+    <!-- Sidebar Navigation -->
+    <aside class="w-full md:w-64 bg-slate-900 text-white flex-shrink-0 flex flex-col justify-between z-20 shadow-xl">
+        <div>
+            <!-- App Brand Header -->
+            <div class="p-5 border-b border-slate-800 flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-emerald-500 flex items-center justify-center text-white text-xl shadow-lg shadow-emerald-500/30">
+                    <i class="fa-solid font-bold fa-sitemap"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg leading-tight tracking-wide">Traharjo</h1>
+                    <p class="text-xs text-slate-400">Silsilah Trah Keluarga</p>
+                </div>
+            </div>
+
+            <!-- Navigation Links -->
+            <nav class="p-4 space-y-1">
+                <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-sm transition-all duration-200 bg-emerald-600 text-white shadow-lg shadow-emerald-900/40">
+                    <i class="fa-solid fa-chart-pie w-5 text-center"></i> Dashboard
+                </button>
+                <button onclick="switchTab('tree')" id="nav-tree" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-all duration-200">
+                    <i class="fa-solid fa-diagram-project w-5 text-center"></i> Pohon Silsilah
+                </button>
+                <button onclick="switchTab('directory')" id="nav-directory" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-all duration-200">
+                    <i class="fa-solid fa-users w-5 text-center"></i> Direktori Anggota
+                </button>
+                <button onclick="switchTab('access')" id="nav-access" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-all duration-200">
+                    <i class="fa-solid fa-user-shield w-5 text-center"></i> Hak Akses
+                </button>
+                <button onclick="switchTab('gas-code')" id="nav-gas-code" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-sm text-amber-400 hover:bg-slate-800 transition-all duration-200">
+                    <i class="fa-solid fa-code w-5 text-center"></i> Kode backend GAS
+                </button>
+            </nav>
+        </div>
+
+        <!-- User Profile Quick View -->
+        <div class="p-4 border-t border-slate-800 bg-slate-950/50">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="relative">
+                        <img id="currentUserAvatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80" class="w-9 h-9 rounded-full object-cover ring-2 ring-emerald-500/50" alt="User Avatar">
+                        <span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 border-2 border-slate-900 rounded-full"></span>
+                    </div>
+                    <div class="overflow-hidden">
+                        <p id="currentUserName" class="text-xs font-semibold text-white truncate">Administrator</p>
+                        <p id="currentUserRole" class="text-[10px] text-emerald-400 uppercase tracking-wider font-semibold">Super Admin</p>
+                    </div>
+                </div>
+                <button onclick="openAccessModal()" class="text-slate-400 hover:text-white text-xs p-1.5 rounded-lg hover:bg-slate-800 transition">
+                    <i class="fa-solid fa-gear"></i>
+                </button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 flex flex-col h-full overflow-hidden bg-slate-50">
+        
+        <!-- Header Topbar -->
+        <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-6 z-10">
+            <div class="flex items-center gap-4 flex-1 max-w-xl">
+                <!-- Global Quick Search Box -->
+                <div class="relative w-full">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                    <input type="text" id="globalSearchInput" onkeyup="handleGlobalSearch(event)" placeholder="Cari anggota (nama, kota, generasi)..." class="w-full pl-10 pr-4 py-2 bg-slate-100 hover:bg-slate-100/80 focus:bg-white text-sm rounded-xl border border-transparent focus:border-emerald-500 focus:outline-none transition-all">
+                    <!-- Search Results Popup -->
+                    <div id="searchResultsDropdown" class="hidden absolute left-0 right-0 top-12 bg-white rounded-2xl shadow-2xl border border-slate-100 max-h-80 overflow-y-auto z-50 p-2 space-y-1"></div>
+                </div>
+            </div>
+
+            <!-- Top Actions -->
+            <div class="flex items-center gap-3">
+                <button onclick="openMemberModal()" class="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs md:text-sm font-semibold px-4 py-2 rounded-xl transition-all shadow-md shadow-emerald-600/20 active:scale-95">
+                    <i class="fa-solid fa-plus"></i> Tambah Anggota
+                </button>
+            </div>
+        </header>
+
+        <!-- Tab Content Viewport -->
+        <div class="flex-1 overflow-y-auto relative p-4 md:p-6" id="mainContentViewport">
+
+            <!-- TAB 1: DASHBOARD STATISTICS VIEW -->
+            <section id="tab-dashboard" class="tab-content space-y-6">
+                <!-- Banner Welcome -->
+                <div class="bg-gradient-to-r from-emerald-800 via-teal-800 to-slate-900 rounded-3xl p-6 md:p-8 text-white shadow-xl relative overflow-hidden">
+                    <div class="absolute -right-10 -bottom-10 opacity-10 text-9xl font-extrabold text-white pointer-events-none">
+                        <i class="fa-solid fa-sitemap"></i>
+                    </div>
+                    <div class="relative z-10 max-w-2xl">
+                        <span class="inline-block px-3 py-1 bg-emerald-500/30 text-emerald-300 text-xs font-semibold rounded-full mb-3 backdrop-blur-md">Sistem Silsilah Traharjo v2.0</span>
+                        <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight">Selamat Datang di Portal Keluarga</h2>
+                        <p class="mt-2 text-slate-300 text-sm leading-relaxed">Kelola data keturunan, pantau persebaran generasi, serta jaga ingatan sejarah keluarga besar Anda dalam satu platform terpusat.</p>
+                    </div>
+                </div>
+
+                <!-- Metric Summary Cards -->
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center justify-between">
+                        <div>
+                            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Anggota</p>
+                            <h3 id="statTotalMembers" class="text-2xl font-bold text-slate-800 mt-1">0</h3>
+                            <p class="text-[11px] text-emerald-600 font-medium mt-1"><i class="fa-solid fa-check-circle"></i> Terdata Lengkap</p>
+                        </div>
+                        <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-users"></i>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center justify-between">
+                        <div>
+                            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Anggota Masih Ada</p>
+                            <h3 id="statLivingMembers" class="text-2xl font-bold text-slate-800 mt-1">0</h3>
+                            <p id="statLivingPercentage" class="text-[11px] text-blue-600 font-medium mt-1">0% dari total</p>
+                        </div>
+                        <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-heart-pulse"></i>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center justify-between">
+                        <div>
+                            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Jumlah Generasi</p>
+                            <h3 id="statGenerations" class="text-2xl font-bold text-slate-800 mt-1">0</h3>
+                            <p class="text-[11px] text-purple-600 font-medium mt-1"><i class="fa-solid fa-layer-group"></i> Tingkatan Silsilah</p>
+                        </div>
+                        <div class="w-12 h-12 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-diagram-nested"></i>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center justify-between">
+                        <div>
+                            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Rata-Rata Usia</p>
+                            <h3 id="statAvgAge" class="text-2xl font-bold text-slate-800 mt-1">0 Thn</h3>
+                            <p class="text-[11px] text-amber-600 font-medium mt-1"><i class="fa-solid fa-cake-candles"></i> Anggota Hidup</p>
+                        </div>
+                        <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-hourglass-half"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Grid Section -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Chart: Gender Distribution -->
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
+                        <div class="flex items-center justify-between mb-4">
+                            <h4 class="font-bold text-slate-800 text-base">Komposisi Gender</h4>
+                            <span class="text-xs text-slate-400"><i class="fa-solid fa-mars-venus"></i> Pria vs Wanita</span>
+                        </div>
+                        <div class="relative flex justify-center items-center h-64">
+                            <canvas id="chartGender"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Chart: Generation Spread -->
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm lg:col-span-2 flex flex-col justify-between">
+                        <div class="flex items-center justify-between mb-4">
+                            <h4 class="font-bold text-slate-800 text-base">Sebaran Anggota per Generasi</h4>
+                            <span class="text-xs text-slate-400"><i class="fa-solid fa-chart-column"></i> Tingkat Silsilah</span>
+                        </div>
+                        <div class="relative h-64">
+                            <canvas id="chartGenerations"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Upcoming Birthdays & Quick Widgets -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Widget: Upcoming Birthdays -->
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
+                        <div class="flex items-center justify-between mb-4">
+                            <h4 class="font-bold text-slate-800 text-base flex items-center gap-2">
+                                <i class="fa-solid fa-cake-candles text-pink-500"></i> Ulang Tahun Terdekat
+                            </h4>
+                            <span class="text-xs text-slate-400">30 Hari Kedepan</span>
+                        </div>
+                        <div id="upcomingBirthdaysList" class="space-y-3">
+                            <!-- Injected by JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- Widget: Recent Updates -->
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
+                        <div class="flex items-center justify-between mb-4">
+                            <h4 class="font-bold text-slate-800 text-base flex items-center gap-2">
+                                <i class="fa-solid fa-clock-rotate-left text-emerald-600"></i> Aktivitas Data Terakhir
+                            </h4>
+                            <span class="text-xs text-slate-400">Log Pembaruan</span>
+                        </div>
+                        <div id="recentActivityList" class="space-y-3">
+                            <!-- Injected by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 2: VISUAL FAMILY TREE INTERACTIVE VIEW -->
+            <section id="tab-tree" class="tab-content hidden h-full flex flex-col">
+                <!-- Controls Bar -->
+                <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm mb-4 flex flex-wrap items-center justify-between gap-4">
+                    <div class="flex items-center gap-2">
+                        <label class="text-xs font-semibold text-slate-500">Pilih Leluhur Utama (Root):</label>
+                        <select id="treeRootSelect" onchange="renderTree()" class="bg-slate-100 border border-slate-200 text-xs rounded-xl px-3 py-2 font-semibold focus:outline-none focus:border-emerald-500">
+                            <!-- Injected dynamically -->
+                        </select>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <button onclick="zoomInTree()" class="p-2 bg-slate-100 hover:bg-slate-200 rounded-lg text-xs text-slate-700 font-semibold transition" title="Zoom In">
+                            <i class="fa-solid fa-plus"></i>
+                        </button>
+                        <button onclick="zoomOutTree()" class="p-2 bg-slate-100 hover:bg-slate-200 rounded-lg text-xs text-slate-700 font-semibold transition" title="Zoom Out">
+                            <i class="fa-solid fa-minus"></i>
+                        </button>
+                        <button onclick="resetTreeZoom()" class="p-2 bg-slate-100 hover:bg-slate-200 rounded-lg text-xs text-slate-700 font-semibold transition" title="Reset View">
+                            <i class="fa-solid fa-rotate"></i> Reset
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tree SVG Render Container -->
+                <div class="flex-1 bg-white rounded-2xl border border-slate-200/80 shadow-inner relative overflow-hidden min-h-[500px]" id="treeContainer">
+                    <svg id="treeSvg" class="w-full h-full"></svg>
+                    
+                    <!-- Floating Legend -->
+                    <div class="absolute bottom-4 left-4 bg-white/90 backdrop-blur border border-slate-200 p-3 rounded-xl shadow-md text-xs space-y-1.5 pointer-events-none">
+                        <div class="flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full bg-blue-500"></span> <span>Pria</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full bg-pink-500"></span> <span>Wanita</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full bg-slate-400"></span> <span>Almarhum / Almarhumah</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 3: MEMBER DIRECTORY VIEW -->
+            <section id="tab-directory" class="tab-content hidden space-y-4">
+                <!-- Directory Filters -->
+                <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm flex flex-wrap items-center justify-between gap-4">
+                    <div class="flex flex-wrap items-center gap-3 flex-1">
+                        <input type="text" id="dirSearchInput" onkeyup="filterDirectory()" placeholder="Filter nama atau panggilan..." class="bg-slate-100 border border-slate-200 text-xs rounded-xl px-3 py-2 w-full sm:w-64 focus:outline-none focus:border-emerald-500">
+                        
+                        <select id="dirGenFilter" onchange="filterDirectory()" class="bg-slate-100 border border-slate-200 text-xs rounded-xl px-3 py-2 focus:outline-none focus:border-emerald-500">
+                            <option value="">Semua Generasi</option>
+                        </select>
+
+                        <select id="dirGenderFilter" onchange="filterDirectory()" class="bg-slate-100 border border-slate-200 text-xs rounded-xl px-3 py-2 focus:outline-none focus:border-emerald-500">
+                            <option value="">Semua Gender</option>
+                            <option value="L">Pria</option>
+                            <option value="P">Wanita</option>
+                        </select>
+                    </div>
+
+                    <p class="text-xs text-slate-500 font-semibold" id="directoryCountText">Menampilkan 0 Anggota</p>
+                </div>
+
+                <!-- Directory Grid / Table -->
+                <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs border-collapse">
+                            <thead>
+                                <tr class="bg-slate-50 text-slate-500 uppercase tracking-wider font-semibold border-b border-slate-200">
+                                    <th class="p-4">Anggota</th>
+                                    <th class="p-4">Generasi</th>
+                                    <th class="p-4">Tanggal Lahir</th>
+                                    <th class="p-4">Status</th>
+                                    <th class="p-4">Kontak / Kota</th>
+                                    <th class="p-4 text-center">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="directoryTableBody" class="divide-y divide-slate-100">
+                                <!-- Injected dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 4: ACCESS CONTROL MANAGEMENT VIEW -->
+            <section id="tab-access" class="tab-content hidden space-y-6">
+                <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
+                    <div class="flex items-center justify-between mb-6">
+                        <div>
+                            <h3 class="font-bold text-slate-800 text-lg">Manajemen Hak Akses Pengguna</h3>
+                            <p class="text-xs text-slate-500">Atur siapa saja anggota keluarga yang dapat membaca, mengedit, atau mengelola data silsilah.</p>
+                        </div>
+                        <button onclick="openAccessModal()" class="bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold px-4 py-2 rounded-xl transition">
+                            <i class="fa-solid fa-user-plus"></i> Tambah Pengguna Akses
+                        </button>
+                    </div>
+
+                    <!-- Roles Explainer -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                        <div class="p-4 bg-emerald-50 rounded-xl border border-emerald-100 text-xs">
+                            <span class="font-bold text-emerald-800 block mb-1"><i class="fa-solid fa-shield-halved"></i> Administrator</span>
+                            <p class="text-emerald-700">Akses Penuh: Mengelola data, mengedit silsilah, serta mengatur izin pengguna lain.</p>
+                        </div>
+                        <div class="p-4 bg-blue-50 rounded-xl border border-blue-100 text-xs">
+                            <span class="font-bold text-blue-800 block mb-1"><i class="fa-solid fa-pen-to-square"></i> Kontributor</span>
+                            <p class="text-blue-700">Akses Edit: Dapat menambah dan memperbarui informasi profil anggota keluarga.</p>
+                        </div>
+                        <div class="p-4 bg-slate-100 rounded-xl border border-slate-200 text-xs">
+                            <span class="font-bold text-slate-800 block mb-1"><i class="fa-solid fa-eye"></i> Viewer / Anggota</span>
+                            <p class="text-slate-600">Akses Baca: Hanya dapat melihat pohon keluarga, statistik, dan profil anggota.</p>
+                        </div>
+                    </div>
+
+                    <!-- Access Table -->
+                    <div class="overflow-x-auto border border-slate-200 rounded-xl">
+                        <table class="w-full text-left text-xs">
+                            <thead>
+                                <tr class="bg-slate-50 text-slate-500 font-semibold border-b border-slate-200">
+                                    <th class="p-3">Nama / Email</th>
+                                    <th class="p-3">Tautan Anggota</th>
+                                    <th class="p-3">Peran (Role)</th>
+                                    <th class="p-3">Status</th>
+                                    <th class="p-3 text-center">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="accessUsersList" class="divide-y divide-slate-100">
+                                <!-- Injected dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 5: GOOGLE APPS SCRIPT CODE & DEPLOY GUIDE -->
+            <section id="tab-gas-code" class="tab-content hidden space-y-6">
+                <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
+                    <div>
+                        <h3 class="font-bold text-slate-800 text-lg flex items-center gap-2">
+                            <i class="fa-brands fa-google text-emerald-600"></i> Panduan Deploy ke Google Apps Script
+                        </h3>
+                        <p class="text-xs text-slate-500 mt-1">Ikuti langkah mudah di bawah untuk menyambungkan aplikasi ini dengan Google Sheets sebagai Database permanen gratis.</p>
+                    </div>
+
+                    <div class="p-4 bg-amber-50 rounded-xl border border-amber-200 text-xs text-amber-800 space-y-2">
+                        <p class="font-bold"><i class="fa-solid fa-circle-info"></i> Langkah Pemasangan di Google Drive:</p>
+                        <ol class="list-decimal pl-4 space-y-1">
+                            <li>Buat Google Sheet baru di Google Drive (misal beri nama: <b>DB_Silsilah_Keluarga</b>).</li>
+                            <li>Buka menu <b>Ekstensi &gt; Apps Script</b>.</li>
+                            <li>Salin kode <code>Code.gs</code> di bawah ke file <b>Code.gs</b> di Apps Script editor.</li>
+                            <li>Buat file HTML baru bernama <b>Index.html</b> di Apps Script editor dan salin seluruh isi file HTML ini.</li>
+                            <li>Klik tombol <b>Terapkan (Deploy) &gt; Web app baru (New deployment)</b>. Setel akses ke "Anyone" (Siapa Saja).</li>
+                        </ol>
+                    </div>
+
+                    <!-- Code GS Copy Container -->
+                    <div class="relative">
+                        <button onclick="copyGasCode()" class="absolute top-3 right-3 bg-slate-800 hover:bg-slate-700 text-white text-xs px-3 py-1.5 rounded-lg transition">
+                            <i class="fa-solid fa-copy"></i> Salin Code.gs
+                        </button>
+                        <pre id="gasCodeBlock" class="bg-slate-900 text-emerald-400 p-4 rounded-xl text-xs overflow-x-auto font-mono max-h-96">
+// ==========================================
+// CODE.GS - GOOGLE APPS SCRIPT BACKEND
+// ==========================================
+
+function doGet() {
+  return HtmlService.createHtmlOutputFromFile('Index')
+      .setTitle('Traharjo - Pohon Silsilah Keluarga')
+      .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL)
+      .addMetaTag('viewport', 'width=device-width, initial-scale=1');
+}
+
+// Mengambil seluruh data dari Google Spreadsheet
+function getFamilyData() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('Members');
+  if (!sheet) return [];
+  
+  var data = sheet.getDataRange().getValues();
+  var headers = data.shift();
+  
+  return data.map(function(row) {
+    var obj = {};
+    headers.forEach(function(header, i) {
+      obj[header] = row[i];
+    });
+    return obj;
+  });
+}
+
+// Menyimpan atau memperbarui data anggota
+function saveMemberData(memberObj) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('Members');
+  if (!sheet) {
+    sheet = ss.insertSheet('Members');
+    sheet.appendRow(['id', 'fullName', 'nickname', 'gender', 'birthDate', 'deathDate', 'isLiving', 'generation', 'fatherId', 'motherId', 'spouseId', 'photoUrl', 'phone', 'address', 'notes']);
+  }
+  
+  var data = sheet.getDataRange().getValues();
+  var rowIndex = -1;
+  
+  for (var i = 1; i < data.length; i++) {
+    if (data[i][0] == memberObj.id) {
+      rowIndex = i + 1;
+      break;
+    }
+  }
+  
+  var row = [
+    memberObj.id,
+    memberObj.fullName,
+    memberObj.nickname,
+    memberObj.gender,
+    memberObj.birthDate,
+    memberObj.deathDate || '',
+    memberObj.isLiving ? 'TRUE' : 'FALSE',
+    memberObj.generation,
+    memberObj.fatherId || '',
+    memberObj.motherId || '',
+    memberObj.spouseId || '',
+    memberObj.photoUrl || '',
+    memberObj.phone || '',
+    memberObj.address || '',
+    memberObj.notes || ''
+  ];
+  
+  if (rowIndex > -1) {
+    sheet.getRange(rowIndex, 1, 1, row.length).setValues([row]);
+  } else {
+    sheet.appendRow(row);
+  }
+  
+  return { success: true };
+}
+                        </pre>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- MODAL: ADD / EDIT MEMBER -->
+    <div id="memberModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-slate-100 flex flex-col">
+            <!-- Modal Header -->
+            <div class="p-6 border-b border-slate-100 flex items-center justify-between sticky top-0 bg-white z-10">
+                <h3 id="modalTitle" class="font-bold text-slate-800 text-lg">Tambah Anggota Keluarga</h3>
+                <button onclick="closeMemberModal()" class="text-slate-400 hover:text-slate-600 p-2 rounded-full hover:bg-slate-100 transition">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Form Content -->
+            <form id="memberForm" onsubmit="saveMember(event)" class="p-6 space-y-4 text-xs flex-1">
+                <input type="hidden" id="memberId">
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="font-semibold text-slate-700 block mb-1">Nama Lengkap *</label>
+                        <input type="text" id="inputFullName" required placeholder="Contoh: Raden Mas Soeharto" class="w-full bg-slate-100 border border-slate-200 rounded-xl p-2.5 focus:bg-white focus:border-emerald-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="font-semibold text-slate-700 block mb-1">Nama Panggilan</label>
+                        <input type="text" id="inputNickname" placeholder="Contoh: Pak Harto" class="w-full bg-slate-100 border border-slate-200 rounded-xl p-2.5 focus:bg-white focus:border-emerald-500 focus:outline-none">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="font-semibold text-slate-700 block mb-1">Jenis Kelamin *</label>
+                        <select id="inputGender" required class="w-full bg-slate-100 border border-slate-200 rounded-xl p-2.5 focus:bg-white focus:border-emerald-500 focus:outline-none">
+                            <option value="L">Pria</option>
+                            <option value="P">Wanita</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="font-semibold text-slate-700 block mb-1">Generasi Ke- *</label>
+                        <input type="number" id="inputGeneration" min="1" max="20" value="1" required class="w-full bg-slate-100 border border-slate-200 rounded-xl p-2.5 focus:bg-white focus:border-emerald-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="font-semibold text-slate-700 block mb-1">Status Kehidupan</label>
+                        <select id="inputIsLiving" onchange="toggleDeathDate()" class="w-full bg-slate-100 border border-slate-200 rounded-xl p-2.5 focus:bg-white focus:border-emerald-500 focus:outline-none">
+                            <option value="true">Masih Hidup</option>
+                            <option value="false">Wafat (Almarhum)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="font-semibold text-slate-700 block mb-1">Tanggal Lahir</label>
+                        <input type="date" id="inputBirthDate" class="w-full bg-slate-100 border border-slate-200 rounded-xl p-2.5 focus:bg-white focus:border-emerald-500 focus:outline-none">
+                    </div>
+                    <div id="deathDateContainer" class="hidden">
+                        <label class="font-semibold text-slate-700 block mb-1">Tanggal Wafat</label>
+                        <input type="date" id="inputDeathDate" class="w-full bg-slate-100 border border-slate-200 rounded-xl p-2.5 focus:bg-white focus:border-emerald-500 focus:outline-none">
+                    </div>
+                </div>
+
+                <div class="border-t border-slate-100 pt-3 font-bold text-slate-800 text-sm">Hubungan Silsilah</div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="font-semibold text-slate-700 block mb-1">Ayah Kandung</label>
+                        <select id="inputFatherId" class="w-full bg-slate-100 border border-slate-200 rounded-xl p-2.5 focus:bg-white focus:border-emerald-500 focus:outline-none">
+                            <option value="">-- Tanpa / Tidak Diketahui --</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="font-semibold text-slate-700 block mb-1">Ibu Kandung</label>
+                        <select id="inputMotherId" class="w-full bg-slate-100 border border-slate-200 rounded-xl p-2.5 focus:bg-white focus:border-emerald-500 focus:outline-none">
+                            <option value="">-- Tanpa / Tidak Diketahui --</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="font-semibold text-slate-700 block mb-1">Pasangan (Suami/Istri)</label>
+                        <select id="inputSpouseId" class="w-full bg-slate-100 border border-slate-200 rounded-xl p-2.5 focus:bg-white focus:border-emerald-500 focus:outline-none">
+                            <option value="">-- Tidak Ada --</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                    <div>
+                        <label class="font-semibold text-slate-700 block mb-1">URL Foto Profil</label>
+                        <input type="url" id="inputPhotoUrl" placeholder="https://example.com/foto.jpg" class="w-full bg-slate-100 border border-slate-200 rounded-xl p-2.5 focus:bg-white focus:border-emerald-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="font-semibold text-slate-700 block mb-1">No. WhatsApp / Telepon</label>
+                        <input type="text" id="inputPhone" placeholder="08123456789" class="w-full bg-slate-100 border border-slate-200 rounded-xl p-2.5 focus:bg-white focus:border-emerald-500 focus:outline-none">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="font-semibold text-slate-700 block mb-1">Alamat Domisili / Kota</label>
+                    <input type="text" id="inputAddress" placeholder="Yogyakarta, Indonesia" class="w-full bg-slate-100 border border-slate-200 rounded-xl p-2.5 focus:bg-white focus:border-emerald-500 focus:outline-none">
+                </div>
+
+                <div>
+                    <label class="font-semibold text-slate-700 block mb-1">Catatan Profil / Riwayat Singkat</label>
+                    <textarea id="inputNotes" rows="2" placeholder="Catatan pekerjaan, kisah hidup, atau gelar kehormatan..." class="w-full bg-slate-100 border border-slate-200 rounded-xl p-2.5 focus:bg-white focus:border-emerald-500 focus:outline-none"></textarea>
+                </div>
+
+                <!-- Modal Footer -->
+                <div class="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
+                    <button type="button" onclick="closeMemberModal()" class="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-semibold hover:bg-slate-100 transition">Batal</button>
+                    <button type="submit" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold transition shadow-md shadow-emerald-600/20">Simpan Data</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: VIEW MEMBER DETAIL CARD -->
+    <div id="detailModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl shadow-2xl max-w-lg w-full border border-slate-100 overflow-hidden">
+            <div id="detailCardHeader" class="p-6 bg-gradient-to-r from-emerald-700 to-teal-800 text-white relative">
+                <button onclick="closeDetailModal()" class="absolute top-4 right-4 text-white/80 hover:text-white p-2 rounded-full hover:bg-white/10 transition">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+                <div class="flex items-center gap-4">
+                    <img id="detailPhoto" src="" class="w-20 h-20 rounded-2xl object-cover border-2 border-white/30 shadow-lg" alt="Avatar">
+                    <div>
+                        <span id="detailBadgeLiving" class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-400/20 text-emerald-200 border border-emerald-300/30">Hidup</span>
+                        <h3 id="detailFullName" class="font-extrabold text-xl mt-1 leading-snug">--</h3>
+                        <p id="detailNickname" class="text-xs text-emerald-200">--</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-6 space-y-4 text-xs">
+                <div class="grid grid-cols-2 gap-4 p-3 bg-slate-50 rounded-xl">
+                    <div>
+                        <span class="text-slate-400 block font-medium">Generasi</span>
+                        <span id="detailGeneration" class="font-bold text-slate-800 text-sm">--</span>
+                    </div>
+                    <div>
+                        <span class="text-slate-400 block font-medium">Usia / Tanggal Lahir</span>
+                        <span id="detailBirthInfo" class="font-bold text-slate-800 text-sm">--</span>
+                    </div>
+                </div>
+
+                <div class="space-y-2">
+                    <div class="flex items-center gap-2 text-slate-600">
+                        <i class="fa-solid fa-person text-slate-400 w-4"></i>
+                        <span>Ayah: <strong id="detailFatherName" class="text-slate-800">--</strong></span>
+                    </div>
+                    <div class="flex items-center gap-2 text-slate-600">
+                        <i class="fa-solid fa-person-dress text-slate-400 w-4"></i>
+                        <span>Ibu: <strong id="detailMotherName" class="text-slate-800">--</strong></span>
+                    </div>
+                    <div class="flex items-center gap-2 text-slate-600">
+                        <i class="fa-solid fa-rings-wedding text-slate-400 w-4"></i>
+                        <span>Pasangan: <strong id="detailSpouseName" class="text-slate-800">--</strong></span>
+                    </div>
+                    <div class="flex items-center gap-2 text-slate-600">
+                        <i class="fa-solid fa-location-dot text-slate-400 w-4"></i>
+                        <span>Domisili: <strong id="detailAddress" class="text-slate-800">--</strong></span>
+                    </div>
+                    <div class="flex items-center gap-2 text-slate-600">
+                        <i class="fa-solid fa-phone text-slate-400 w-4"></i>
+                        <span>Telepon: <strong id="detailPhone" class="text-slate-800">--</strong></span>
+                    </div>
+                </div>
+
+                <div class="border-t border-slate-100 pt-3">
+                    <span class="text-slate-400 block font-medium mb-1">Catatan Riwayat</span>
+                    <p id="detailNotes" class="text-slate-600 bg-slate-50 p-3 rounded-xl leading-relaxed italic">Tidak ada catatan.</p>
+                </div>
+
+                <div class="pt-2 flex items-center justify-end gap-2">
+                    <button id="btnEditFromDetail" onclick="" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl transition">
+                        <i class="fa-solid fa-pen-to-square"></i> Edit Profil
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: ADD / EDIT USER ACCESS -->
+    <div id="accessModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full border border-slate-100 p-6 space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h3 class="font-bold text-slate-800 text-base">Tambah Izin Akses Pengguna</h3>
+                <button onclick="closeAccessModal()" class="text-slate-400 hover:text-slate-600 p-1.5 rounded-full hover:bg-slate-100">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <form onsubmit="saveUserAccess(event)" class="space-y-3 text-xs">
+                <div>
+                    <label class="font-semibold text-slate-700 block mb-1">Email Google / Akun</label>
+                    <input type="email" id="accessEmail" required placeholder="keluarga@gmail.com" class="w-full bg-slate-100 border border-slate-200 rounded-xl p-2.5 focus:bg-white focus:outline-none focus:border-emerald-500">
+                </div>
+
+                <div>
+                    <label class="font-semibold text-slate-700 block mb-1">Pilih Anggota Terkait</label>
+                    <select id="accessMemberSelect" class="w-full bg-slate-100 border border-slate-200 rounded-xl p-2.5 focus:bg-white focus:outline-none focus:border-emerald-500">
+                        <!-- Dynamic -->
+                    </select>
+                </div>
+
+                <div>
+                    <label class="font-semibold text-slate-700 block mb-1">Peran Akses (Role)</label>
+                    <select id="accessRole" class="w-full bg-slate-100 border border-slate-200 rounded-xl p-2.5 focus:bg-white focus:outline-none focus:border-emerald-500">
+                        <option value="Admin">Administrator (Akses Penuh)</option>
+                        <option value="Contributor">Kontributor (Bisa Edit Data)</option>
+                        <option value="Viewer">Viewer (Hanya Melihat)</option>
+                    </select>
+                </div>
+
+                <div class="pt-3 flex justify-end gap-2 border-t border-slate-100">
+                    <button type="button" onclick="closeAccessModal()" class="px-4 py-2 text-slate-600 font-semibold rounded-xl hover:bg-slate-100">Batal</button>
+                    <button type="submit" class="px-4 py-2 bg-slate-900 text-white font-semibold rounded-xl hover:bg-slate-800">Simpan Akses</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        /* Sample Initial Family Data Setup */
+        const DEFAULT_MEMBERS = [
+            {
+                id: 'M001',
+                fullName: 'Raden Mas Kartosoewirjo',
+                nickname: 'Mbah Karto',
+                gender: 'L',
+                birthDate: '1935-04-12',
+                deathDate: '2010-08-15',
+                isLiving: false,
+                generation: 1,
+                fatherId: '',
+                motherId: '',
+                spouseId: 'M002',
+                photoUrl: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&auto=format&fit=crop&q=80',
+                phone: '',
+                address: 'Surakarta, Jawa Tengah',
+                notes: 'Pendiri Utama Trah Kartosoewirjo.'
+            },
+            {
+                id: 'M002',
+                fullName: 'Siti Aminah Kartosoewirjo',
+                nickname: 'Mbah Aminah',
+                gender: 'P',
+                birthDate: '1940-02-18',
+                deathDate: '2015-11-20',
+                isLiving: false,
+                generation: 1,
+                fatherId: '',
+                motherId: '',
+                spouseId: 'M001',
+                photoUrl: 'https://images.unsplash.com/photo-1554151228-14d9def656e4?w=150&auto=format&fit=crop&q=80',
+                phone: '',
+                address: 'Surakarta, Jawa Tengah',
+                notes: 'Istri Pendiri Trah.'
+            },
+            {
+                id: 'M003',
+                fullName: 'Bambang Trihatmodjo',
+                nickname: 'Pak Bambang',
+                gender: 'L',
+                birthDate: '1962-06-25',
+                deathDate: '',
+                isLiving: true,
+                generation: 2,
+                fatherId: 'M001',
+                motherId: 'M002',
+                spouseId: 'M004',
+                photoUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
+                phone: '081298765432',
+                address: 'Sleman, DI Yogyakarta',
+                notes: 'Anak Pertama dari Mbah Karto.'
+            },
+            {
+                id: 'M004',
+                fullName: 'Sri Rahayu',
+                nickname: 'Bu Yayuk',
+                gender: 'P',
+                birthDate: '1966-09-10',
+                deathDate: '',
+                isLiving: true,
+                generation: 2,
+                fatherId: '',
+                motherId: '',
+                spouseId: 'M003',
+                photoUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80',
+                phone: '081345678901',
+                address: 'Sleman, DI Yogyakarta',
+                notes: 'Menantu Trah.'
+            },
+            {
+                id: 'M005',
+                fullName: 'Dimas Anggara',
+                nickname: 'Dimas',
+                gender: 'L',
+                birthDate: '1992-03-14',
+                deathDate: '',
+                isLiving: true,
+                generation: 3,
+                fatherId: 'M003',
+                motherId: 'M004',
+                spouseId: '',
+                photoUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80',
+                phone: '081987654321',
+                address: 'Jakarta Selatan',
+                notes: 'Cucu Mbah Karto, Insinyur Software.'
+            },
+            {
+                id: 'M006',
+                fullName: 'Anisa Rahmawati',
+                nickname: 'Nisa',
+                gender: 'P',
+                birthDate: '1996-12-05',
+                deathDate: '',
+                isLiving: true,
+                generation: 3,
+                fatherId: 'M003',
+                motherId: 'M004',
+                spouseId: '',
+                photoUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80',
+                phone: '081876543210',
+                address: 'Bandung, Jawa Barat',
+                notes: 'Cucu Mbah Karto, Dokter Umum.'
+            }
+        ];
+
+        /* Initial Mock User Access List */
+        const DEFAULT_USERS = [
+            { id: 'U1', email: 'admin@keluarga.org', memberId: 'M005', role: 'Admin', status: 'Aktif' },
+            { id: 'U2', email: 'bambang@gmail.com', memberId: 'M003', role: 'Contributor', status: 'Aktif' },
+            { id: 'U3', email: 'nisa@yahoo.com', memberId: 'M006', role: 'Viewer', status: 'Aktif' }
+        ];
+
+        // State Management
+        let membersData = [];
+        let usersData = [];
+        let chartGenderInstance = null;
+        let chartGenInstance = null;
+        let svgZoom = null;
+
+        window.onload = function() {
+            loadInitialData();
+            renderDashboard();
+            renderDirectoryTable();
+            renderAccessUsers();
+            populateDropdowns();
+            renderTree();
+        };
+
+        function loadInitialData() {
+            const stored = localStorage.getItem('traharjo_members');
+            if (stored) {
+                membersData = JSON.parse(stored);
+            } else {
+                membersData = DEFAULT_MEMBERS;
+                saveToLocalStorage();
+            }
+
+            const storedUsers = localStorage.getItem('traharjo_users');
+            if (storedUsers) {
+                usersData = JSON.parse(storedUsers);
+            } else {
+                usersData = DEFAULT_USERS;
+                localStorage.setItem('traharjo_users', JSON.stringify(usersData));
+            }
+        }
+
+        function saveToLocalStorage() {
+            localStorage.setItem('traharjo_members', JSON.stringify(membersData));
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('bg-emerald-600', 'text-white', 'shadow-lg');
+                btn.classList.add('text-slate-300');
+            });
+
+            const targetTab = document.getElementById(`tab-${tabId}`);
+            if (targetTab) targetTab.classList.remove('hidden');
+
+            const activeNav = document.getElementById(`nav-${tabId}`);
+            if (activeNav) {
+                activeNav.classList.add('bg-emerald-600', 'text-white', 'shadow-lg');
+                activeNav.classList.remove('text-slate-300');
+            }
+
+            if (tabId === 'tree') {
+                setTimeout(renderTree, 100);
+            }
+        }
+
+        function renderDashboard() {
+            const total = membersData.length;
+            const living = membersData.filter(m => m.isLiving).length;
+            const livingPct = total > 0 ? Math.round((living / total) * 100) : 0;
+            
+            // Calculate Max Generation
+            const generations = membersData.map(m => parseInt(m.generation) || 1);
+            const maxGen = generations.length > 0 ? Math.max(...generations) : 0;
+
+            // Calculate Average Age for living members
+            let totalAge = 0;
+            let livingCountWithAge = 0;
+            const today = new Date();
+
+            membersData.forEach(m => {
+                if (m.isLiving && m.birthDate) {
+                    const bdate = new Date(m.birthDate);
+                    const age = today.getFullYear() - bdate.getFullYear();
+                    totalAge += age;
+                    livingCountWithAge++;
+                }
+            });
+
+            const avgAge = livingCountWithAge > 0 ? Math.round(totalAge / livingCountWithAge) : 0;
+
+            document.getElementById('statTotalMembers').innerText = total;
+            document.getElementById('statLivingMembers').innerText = living;
+            document.getElementById('statLivingPercentage').innerText = `${livingPct}% dari total`;
+            document.getElementById('statGenerations').innerText = maxGen;
+            document.getElementById('statAvgAge').innerText = `${avgAge} Thn`;
+
+            renderCharts();
+            renderUpcomingBirthdays();
+            renderRecentActivities();
+        }
+
+        function renderCharts() {
+            // Gender Chart
+            const maleCount = membersData.filter(m => m.gender === 'L').length;
+            const femaleCount = membersData.filter(m => m.gender === 'P').length;
+
+            const ctxGender = document.getElementById('chartGender').getContext('2d');
+            if (chartGenderInstance) chartGenderInstance.destroy();
+
+            chartGenderInstance = new Chart(ctxGender, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Pria', 'Wanita'],
+                    datasets: [{
+                        data: [maleCount, femaleCount],
+                        backgroundColor: ['#3b82f6', '#ec4899'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    }
+                }
+            });
+
+            // Generations Spread Chart
+            const genCounts = {};
+            membersData.forEach(m => {
+                const g = `Gen ${m.generation}`;
+                genCounts[g] = (genCounts[g] || 0) + 1;
+            });
+
+            const ctxGen = document.getElementById('chartGenerations').getContext('2d');
+            if (chartGenInstance) chartGenInstance.destroy();
+
+            chartGenInstance = new Chart(ctxGen, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(genCounts),
+                    datasets: [{
+                        label: 'Jumlah Anggota',
+                        data: Object.values(genCounts),
+                        backgroundColor: '#10b981',
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { beginAtZero: true, ticks: { stepSize: 1 } }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        }
+
+        function renderUpcomingBirthdays() {
+            const container = document.getElementById('upcomingBirthdaysList');
+            container.innerHTML = '';
+
+            const today = new Date();
+            const upcoming = membersData.filter(m => m.isLiving && m.birthDate).map(m => {
+                const bdate = new Date(m.birthDate);
+                const nextBday = new Date(today.getFullYear(), bdate.getMonth(), bdate.getDate());
+                if (nextBday < today) {
+                    nextBday.setFullYear(today.getFullYear() + 1);
+                }
+                const diffTime = Math.abs(nextBday - today);
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                return { ...m, diffDays, nextBday };
+            }).sort((a, b) => a.diffDays - b.diffDays).slice(0, 4);
+
+            if (upcoming.length === 0) {
+                container.innerHTML = `<p class="text-xs text-slate-400 italic">Tidak ada ulang tahun dalam waktu dekat.</p>`;
+                return;
+            }
+
+            upcoming.forEach(item => {
+                const formattedDate = new Date(item.birthDate).toLocaleDateString('id-ID', { day: 'numeric', month: 'long' });
+                container.innerHTML += `
+                    <div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl hover:bg-slate-100/80 transition">
+                        <div class="flex items-center gap-3">
+                            <img src="${item.photoUrl || 'https://placehold.co/100x100?text=Profile'}" class="w-9 h-9 rounded-full object-cover border border-slate-200">
+                            <div>
+                                <h5 class="font-bold text-slate-800 text-xs">${item.fullName}</h5>
+                                <p class="text-[10px] text-slate-500">${formattedDate}</p>
+                            </div>
+                        </div>
+                        <span class="px-2.5 py-1 bg-pink-50 text-pink-600 rounded-full text-[10px] font-semibold border border-pink-100">
+                            ${item.diffDays === 0 ? 'Hari Ini!' : `${item.diffDays} hari lagi`}
+                        </span>
+                    </div>
+                `;
+            });
+        }
+
+        function renderRecentActivities() {
+            const container = document.getElementById('recentActivityList');
+            container.innerHTML = '';
+
+            const recent = membersData.slice(-4).reverse();
+            recent.forEach(m => {
+                container.innerHTML += `
+                    <div class="flex items-start gap-3 p-3 bg-slate-50 rounded-xl">
+                        <div class="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs mt-0.5">
+                            <i class="fa-solid fa-user-check"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs font-semibold text-slate-800">${m.fullName} terdata</p>
+                            <p class="text-[10px] text-slate-500">Generasi ke-${m.generation} • ${m.address || 'Domisili belum diisi'}</p>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function renderTree() {
+            const container = document.getElementById('treeContainer');
+            const svgEl = d3.select('#treeSvg');
+            svgEl.selectAll('*').remove();
+
+            if (membersData.length === 0) return;
+
+            // Build hierarchical tree object from root
+            const rootSelect = document.getElementById('treeRootSelect');
+            let rootId = rootSelect ? rootSelect.value : '';
+
+            if (!rootId) {
+                const rootMember = membersData.find(m => !m.fatherId && !m.motherId) || membersData[0];
+                rootId = rootMember ? rootMember.id : membersData[0].id;
+            }
+
+            // Convert flat data into hierarchy structure
+            function buildHierarchy(memberId) {
+                const member = membersData.find(m => m.id === memberId);
+                if (!member) return null;
+
+                const children = membersData.filter(m => m.fatherId === memberId || m.motherId === memberId);
+                return {
+                    ...member,
+                    children: children.map(c => buildHierarchy(c.id)).filter(Boolean)
+                };
+            }
+
+            const hierarchyData = buildHierarchy(rootId);
+            if (!hierarchyData) return;
+
+            const width = container.clientWidth || 800;
+            const height = container.clientHeight || 600;
+
+            const svg = svgEl
+                .attr('width', width)
+                .attr('height', height);
+
+            const g = svg.append('g').attr('id', 'treeGroup');
+
+            // Set up D3 Zoom
+            svgZoom = d3.zoom().scaleExtent([0.3, 2]).on('zoom', (event) => {
+                g.attr('transform', event.transform);
+            });
+            svg.call(svgZoom);
+
+            const treeLayout = d3.tree().nodeSize([180, 120]);
+            const rootNode = d3.hierarchy(hierarchyData);
+            treeLayout(rootNode);
+
+            // Center view
+            const initialTransform = d3.zoomIdentity.translate(width / 2, 80).scale(0.8);
+            svg.call(svgZoom.transform, initialTransform);
+
+            // Draw Links
+            g.selectAll('.link')
+                .data(rootNode.links())
+                .enter()
+                .append('path')
+                .attr('class', 'link')
+                .attr('d', d3.linkVertical()
+                    .x(d => d.x)
+                    .y(d => d.y)
+                );
+
+            // Draw Nodes
+            const node = g.selectAll('.tree-node')
+                .data(rootNode.descendants())
+                .enter()
+                .append('g')
+                .attr('class', 'tree-node')
+                .attr('transform', d => `translate(${d.x},${d.y})`)
+                .on('click', (event, d) => openDetailModal(d.data.id));
+
+            // ForeignObject Card for Node UI
+            node.append('foreignObject')
+                .attr('width', 150)
+                .attr('height', 70)
+                .attr('x', -75)
+                .attr('y', -35)
+                .html(d => {
+                    const isMale = d.data.gender === 'L';
+                    const isLiving = d.data.isLiving;
+                    const borderColor = !isLiving ? 'border-slate-400 bg-slate-100 opacity-80' : (isMale ? 'border-blue-400 bg-white' : 'border-pink-400 bg-white');
+                    const badgeBg = isMale ? 'bg-blue-500' : 'bg-pink-500';
+
+                    return `
+                        <div class="w-full h-full rounded-2xl border-2 ${borderColor} p-2 shadow-md flex items-center gap-2 hover:scale-105 transition-transform bg-white">
+                            <img src="${d.data.photoUrl || 'https://placehold.co/100x100?text=Profile'}" class="w-10 h-10 rounded-full object-cover border border-slate-200">
+                            <div class="overflow-hidden text-left flex-1">
+                                <span class="text-[9px] font-bold text-white ${badgeBg} px-1.5 py-0.2 rounded-full inline-block">Gen ${d.data.generation}</span>
+                                <h6 class="font-bold text-slate-800 text-[11px] truncate leading-tight">${d.data.fullName}</h6>
+                                <p class="text-[9px] text-slate-400 truncate">${d.data.nickname || ''}</p>
+                            </div>
+                        </div>
+                    `;
+                });
+        }
+
+        function zoomInTree() {
+            d3.select('#treeSvg').transition().call(svgZoom.scaleBy, 1.2);
+        }
+
+        function zoomOutTree() {
+            d3.select('#treeSvg').transition().call(svgZoom.scaleBy, 0.8);
+        }
+
+        function resetTreeZoom() {
+            const container = document.getElementById('treeContainer');
+            const width = container.clientWidth || 800;
+            const initialTransform = d3.zoomIdentity.translate(width / 2, 80).scale(0.8);
+            d3.select('#treeSvg').transition().call(svgZoom.transform, initialTransform);
+        }
+
+        function renderDirectoryTable() {
+            const tbody = document.getElementById('directoryTableBody');
+            tbody.innerHTML = '';
+
+            const searchKey = document.getElementById('dirSearchInput').value.toLowerCase();
+            const genKey = document.getElementById('dirGenFilter').value;
+            const genderKey = document.getElementById('dirGenderFilter').value;
+
+            const filtered = membersData.filter(m => {
+                const matchSearch = m.fullName.toLowerCase().includes(searchKey) || (m.nickname && m.nickname.toLowerCase().includes(searchKey));
+                const matchGen = genKey === '' || m.generation.toString() === genKey;
+                const matchGender = genderKey === '' || m.gender === genderKey;
+                return matchSearch && matchGen && matchGender;
+            });
+
+            document.getElementById('directoryCountText').innerText = `Menampilkan ${filtered.length} dari ${membersData.length} Anggota`;
+
+            filtered.forEach(m => {
+                const father = membersData.find(f => f.id === m.fatherId);
+                const mother = membersData.find(mo => mo.id === m.motherId);
+                const statusBadge = m.isLiving 
+                    ? `<span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-600 border border-emerald-200">Masih Hidup</span>`
+                    : `<span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 text-slate-500 border border-slate-200">Almarhum</span>`;
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50/80 transition">
+                        <td class="p-4">
+                            <div class="flex items-center gap-3">
+                                <img src="${m.photoUrl || 'https://placehold.co/100x100?text=Profile'}" class="w-9 h-9 rounded-full object-cover border border-slate-200">
+                                <div>
+                                    <div class="font-bold text-slate-800">${m.fullName}</div>
+                                    <div class="text-[11px] text-slate-400">Panggilan: ${m.nickname || '-'} (${m.gender === 'L' ? 'Pria' : 'Wanita'})</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="p-4 font-semibold text-slate-700">Generasi ${m.generation}</td>
+                        <td class="p-4 text-slate-600">${m.birthDate || '-'}</td>
+                        <td class="p-4">${statusBadge}</td>
+                        <td class="p-4 text-slate-600">${m.address || '-'}</td>
+                        <td class="p-4 text-center space-x-1">
+                            <button onclick="openDetailModal('${m.id}')" class="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition" title="Lihat Detail"><i class="fa-solid fa-eye"></i></button>
+                            <button onclick="openMemberModal('${m.id}')" class="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded-lg transition" title="Edit Profil"><i class="fa-solid fa-pen"></i></button>
+                            <button onclick="deleteMember('${m.id}')" class="p-1.5 text-pink-600 hover:bg-pink-50 rounded-lg transition" title="Hapus"><i class="fa-solid fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function filterDirectory() {
+            renderDirectoryTable();
+        }
+
+        function populateDropdowns() {
+            // Root Tree Select
+            const rootSelect = document.getElementById('treeRootSelect');
+            rootSelect.innerHTML = '';
+            membersData.forEach(m => {
+                rootSelect.innerHTML += `<option value="${m.id}">${m.fullName} (Gen ${m.generation})</option>`;
+            });
+
+            // Generation Filter Dropdown
+            const genSelect = document.getElementById('dirGenFilter');
+            genSelect.innerHTML = `<option value="">Semua Generasi</option>`;
+            const maxGen = Math.max(...membersData.map(m => parseInt(m.generation) || 1), 1);
+            for (let i = 1; i <= maxGen; i++) {
+                genSelect.innerHTML += `<option value="${i}">Generasi ${i}</option>`;
+            }
+
+            // Modal Parent Selects
+            const fatherSelect = document.getElementById('inputFatherId');
+            const motherSelect = document.getElementById('inputMotherId');
+            const spouseSelect = document.getElementById('inputSpouseId');
+            const accessMemberSelect = document.getElementById('accessMemberSelect');
+
+            fatherSelect.innerHTML = `<option value="">-- Tanpa / Tidak Diketahui --</option>`;
+            motherSelect.innerHTML = `<option value="">-- Tanpa / Tidak Diketahui --</option>`;
+            spouseSelect.innerHTML = `<option value="">-- Tidak Ada --</option>`;
+            accessMemberSelect.innerHTML = `<option value="">-- Pilih Anggota Keluarga --</option>`;
+
+            membersData.forEach(m => {
+                if (m.gender === 'L') fatherSelect.innerHTML += `<option value="${m.id}">${m.fullName}</option>`;
+                if (m.gender === 'P') motherSelect.innerHTML += `<option value="${m.id}">${m.fullName}</option>`;
+                spouseSelect.innerHTML += `<option value="${m.id}">${m.fullName}</option>`;
+                accessMemberSelect.innerHTML += `<option value="${m.id}">${m.fullName}</option>`;
+            });
+        }
+
+        function openMemberModal(memberId = null) {
+            populateDropdowns();
+            const modal = document.getElementById('memberModal');
+            const form = document.getElementById('memberForm');
+            form.reset();
+
+            if (memberId) {
+                document.getElementById('modalTitle').innerText = 'Edit Profil Anggota';
+                const m = membersData.find(item => item.id === memberId);
+                if (m) {
+                    document.getElementById('memberId').value = m.id;
+                    document.getElementById('inputFullName').value = m.fullName;
+                    document.getElementById('inputNickname').value = m.nickname || '';
+                    document.getElementById('inputGender').value = m.gender;
+                    document.getElementById('inputGeneration').value = m.generation;
+                    document.getElementById('inputIsLiving').value = m.isLiving.toString();
+                    document.getElementById('inputBirthDate').value = m.birthDate || '';
+                    document.getElementById('inputDeathDate').value = m.deathDate || '';
+                    document.getElementById('inputFatherId').value = m.fatherId || '';
+                    document.getElementById('inputMotherId').value = m.motherId || '';
+                    document.getElementById('inputSpouseId').value = m.spouseId || '';
+                    document.getElementById('inputPhotoUrl').value = m.photoUrl || '';
+                    document.getElementById('inputPhone').value = m.phone || '';
+                    document.getElementById('inputAddress').value = m.address || '';
+                    document.getElementById('inputNotes').value = m.notes || '';
+                    toggleDeathDate();
+                }
+            } else {
+                document.getElementById('modalTitle').innerText = 'Tambah Anggota Keluarga';
+                document.getElementById('memberId').value = '';
+            }
+
+            modal.classList.remove('hidden');
+        }
+
+        function closeMemberModal() {
+            document.getElementById('memberModal').classList.add('hidden');
+        }
+
+        function toggleDeathDate() {
+            const isLiving = document.getElementById('inputIsLiving').value === 'true';
+            const container = document.getElementById('deathDateContainer');
+            if (isLiving) {
+                container.classList.add('hidden');
+            } else {
+                container.classList.remove('hidden');
+            }
+        }
+
+        function saveMember(e) {
+            e.preventDefault();
+            const id = document.getElementById('memberId').value || 'M' + String(Date.now()).slice(-4);
+            const isLiving = document.getElementById('inputIsLiving').value === 'true';
+
+            const memberObj = {
+                id,
+                fullName: document.getElementById('inputFullName').value,
+                nickname: document.getElementById('inputNickname').value,
+                gender: document.getElementById('inputGender').value,
+                generation: parseInt(document.getElementById('inputGeneration').value) || 1,
+                isLiving,
+                birthDate: document.getElementById('inputBirthDate').value,
+                deathDate: isLiving ? '' : document.getElementById('inputDeathDate').value,
+                fatherId: document.getElementById('inputFatherId').value,
+                motherId: document.getElementById('inputMotherId').value,
+                spouseId: document.getElementById('inputSpouseId').value,
+                photoUrl: document.getElementById('inputPhotoUrl').value,
+                phone: document.getElementById('inputPhone').value,
+                address: document.getElementById('inputAddress').value,
+                notes: document.getElementById('inputNotes').value
+            };
+
+            const index = membersData.findIndex(m => m.id === id);
+            if (index > -1) {
+                membersData[index] = memberObj;
+            } else {
+                membersData.push(memberObj);
+            }
+
+            saveToLocalStorage();
+            closeMemberModal();
+            renderDashboard();
+            renderDirectoryTable();
+            populateDropdowns();
+            renderTree();
+        }
+
+        function deleteMember(id) {
+            if (confirm('Apakah Anda yakin ingin menghapus data anggota keluarga ini?')) {
+                membersData = membersData.filter(m => m.id !== id);
+                saveToLocalStorage();
+                renderDashboard();
+                renderDirectoryTable();
+                populateDropdowns();
+                renderTree();
+            }
+        }
+
+        function openDetailModal(id) {
+            const m = membersData.find(item => item.id === id);
+            if (!m) return;
+
+            document.getElementById('detailPhoto').src = m.photoUrl || 'https://placehold.co/100x100?text=Profile';
+            document.getElementById('detailFullName').innerText = m.fullName;
+            document.getElementById('detailNickname').innerText = m.nickname ? `Panggilan: ${m.nickname}` : '';
+            document.getElementById('detailGeneration').innerText = `Ke-${m.generation}`;
+
+            const badgeLiving = document.getElementById('detailBadgeLiving');
+            if (m.isLiving) {
+                badgeLiving.innerText = 'Masih Hidup';
+                badgeLiving.className = 'px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-400/20 text-emerald-200 border border-emerald-300/30';
+            } else {
+                badgeLiving.innerText = 'Almarhum/ah';
+                badgeLiving.className = 'px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-slate-400/20 text-slate-300 border border-slate-300/30';
+            }
+
+            document.getElementById('detailBirthInfo').innerText = m.birthDate || 'Tidak diisi';
+
+            const father = membersData.find(f => f.id === m.fatherId);
+            const mother = membersData.find(mo => mo.id === m.motherId);
+            const spouse = membersData.find(s => s.id === m.spouseId);
+
+            document.getElementById('detailFatherName').innerText = father ? father.fullName : '-';
+            document.getElementById('detailMotherName').innerText = mother ? mother.fullName : '-';
+            document.getElementById('detailSpouseName').innerText = spouse ? spouse.fullName : '-';
+            document.getElementById('detailAddress').innerText = m.address || '-';
+            document.getElementById('detailPhone').innerText = m.phone || '-';
+            document.getElementById('detailNotes').innerText = m.notes || 'Tidak ada catatan tambahan.';
+
+            document.getElementById('btnEditFromDetail').onclick = function() {
+                closeDetailModal();
+                openMemberModal(m.id);
+            };
+
+            document.getElementById('detailModal').classList.remove('hidden');
+        }
+
+        function closeDetailModal() {
+            document.getElementById('detailModal').classList.add('hidden');
+        }
+
+        function handleGlobalSearch(e) {
+            const query = e.target.value.toLowerCase().trim();
+            const dropdown = document.getElementById('searchResultsDropdown');
+
+            if (query.length === 0) {
+                dropdown.classList.add('hidden');
+                return;
+            }
+
+            const results = membersData.filter(m => 
+                m.fullName.toLowerCase().includes(query) ||
+                (m.nickname && m.nickname.toLowerCase().includes(query)) ||
+                (m.address && m.address.toLowerCase().includes(query))
+            );
+
+            dropdown.innerHTML = '';
+            if (results.length === 0) {
+                dropdown.innerHTML = `<div class="p-3 text-xs text-slate-400 italic">Anggota tidak ditemukan.</div>`;
+            } else {
+                results.forEach(m => {
+                    dropdown.innerHTML += `
+                        <div onclick="selectSearchResult('${m.id}')" class="p-2.5 hover:bg-slate-50 rounded-xl cursor-pointer flex items-center justify-between transition">
+                            <div class="flex items-center gap-3">
+                                <img src="${m.photoUrl || 'https://placehold.co/100x100?text=Profile'}" class="w-8 h-8 rounded-full object-cover">
+                                <div>
+                                    <div class="font-bold text-xs text-slate-800">${m.fullName}</div>
+                                    <div class="text-[10px] text-slate-400">Gen ${m.generation} • ${m.address || 'Domisili -'}</div>
+                                </div>
+                            </div>
+                            <span class="text-[10px] font-semibold text-emerald-600"><i class="fa-solid fa-chevron-right"></i></span>
+                        </div>
+                    `;
+                });
+            }
+
+            dropdown.classList.remove('hidden');
+        }
+
+        function selectSearchResult(id) {
+            document.getElementById('searchResultsDropdown').classList.add('hidden');
+            document.getElementById('globalSearchInput').value = '';
+            openDetailModal(id);
+        }
+
+        function renderAccessUsers() {
+            const tbody = document.getElementById('accessUsersList');
+            tbody.innerHTML = '';
+
+            usersData.forEach(u => {
+                const member = membersData.find(m => m.id === u.memberId);
+                const roleColor = u.role === 'Admin' ? 'bg-purple-50 text-purple-600 border-purple-200' : (u.role === 'Contributor' ? 'bg-blue-50 text-blue-600 border-blue-200' : 'bg-slate-100 text-slate-600 border-slate-200');
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50">
+                        <td class="p-3 font-semibold text-slate-800">${u.email}</td>
+                        <td class="p-3 text-slate-600">${member ? member.fullName : 'Tidak ditautkan'}</td>
+                        <td class="p-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold border ${roleColor}">${u.role}</span></td>
+                        <td class="p-3"><span class="text-emerald-600 font-semibold text-[10px]"><i class="fa-solid fa-circle text-[8px]"></i> ${u.status}</span></td>
+                        <td class="p-3 text-center">
+                            <button onclick="deleteAccessUser('${u.id}')" class="text-pink-600 hover:bg-pink-50 p-1 rounded transition"><i class="fa-solid fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function openAccessModal() {
+            populateDropdowns();
+            document.getElementById('accessModal').classList.remove('hidden');
+        }
+
+        function closeAccessModal() {
+            document.getElementById('accessModal').classList.add('hidden');
+        }
+
+        function saveUserAccess(e) {
+            e.preventDefault();
+            const newUser = {
+                id: 'U' + Date.now(),
+                email: document.getElementById('accessEmail').value,
+                memberId: document.getElementById('accessMemberSelect').value,
+                role: document.getElementById('accessRole').value,
+                status: 'Aktif'
+            };
+
+            usersData.push(newUser);
+            localStorage.setItem('traharjo_users', JSON.stringify(usersData));
+            closeAccessModal();
+            renderAccessUsers();
+        }
+
+        function deleteAccessUser(id) {
+            if (confirm('Hapus akun hak akses ini?')) {
+                usersData = usersData.filter(u => u.id !== id);
+                localStorage.setItem('traharjo_users', JSON.stringify(usersData));
+                renderAccessUsers();
+            }
+        }
+
+        function copyGasCode() {
+            const codeText = document.getElementById('gasCodeBlock').innerText;
+            const tempInput = document.createElement('textarea');
+            tempInput.value = codeText;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+
+            alert('Kode Code.gs berhasil disalin ke clipboard!');
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_standard" name="shell-type"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{"colors":{"primary-container":"#0e243a","surface-tint":"#4c6079","background":"#f7f9fb","on-tertiary-fixed":"#2f1500","on-tertiary-fixed-variant":"#6e3900","on-surface":"#191c1e","error-container":"#ffdad6","primary":"#000e1e","on-error-container":"#93000a","secondary":"#b6191a","tertiary-container":"#391b00","secondary-container":"#d9352f","tertiary":"#190900","on-primary":"#ffffff","on-secondary-fixed-variant":"#93000b","secondary-fixed-dim":"#ffb4ab","outline":"#74777d","surface-container-high":"#e6e8ea","surface":"#f7f9fb","surface-container-lowest":"#ffffff","surface-container":"#eceef0","on-primary-container":"#778ca6","primary-fixed-dim":"#b3c8e5","primary-fixed":"#d1e4ff","inverse-on-surface":"#eff1f3","error":"#ba1a1a","surface-container-highest":"#e0e3e5","on-secondary-fixed":"#410002","on-secondary-container":"#fffbff","surface-bright":"#f7f9fb","tertiary-fixed":"#ffdcc3","outline-variant":"#c4c6cd","on-primary-fixed":"#051d32","surface-container-low":"#f2f4f6","on-secondary":"#ffffff","surface-dim":"#d8dadc","on-tertiary":"#ffffff","inverse-primary":"#b3c8e5","secondary-fixed":"#ffdad6","inverse-surface":"#2d3133","on-error":"#ffffff","on-background":"#191c1e","tertiary-fixed-dim":"#ffb77d","on-tertiary-container":"#d07100","on-primary-fixed-variant":"#344860","on-surface-variant":"#43474d","surface-variant":"#e0e3e5"},"borderRadius":{"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},"spacing":{"space-lg":"1.5rem","gutter-sm":"1rem","margin-mobile":"1rem","gutter":"1.5rem","gutter-lg":"2rem","margin-tablet":"1.5rem","space-md":"1rem","space-xl":"2.5rem","margin":"2rem","space-sm":"0.5rem","space-xs":"0.25rem"},"fontFamily":{"body-md":["Plus Jakarta Sans"],"body-sm":["Plus Jakarta Sans"],"label-md":["Plus Jakarta Sans"],"body-lg":["Plus Jakarta Sans"],"label-lg":["Plus Jakarta Sans"],"label-sm":["Plus Jakarta Sans"],"headline-lg":["Plus Jakarta Sans"],"title-lg":["Plus Jakarta Sans"],"title-md":["Plus Jakarta Sans"],"headline-lg-mobile":["Plus Jakarta Sans"],"headline-md":["Plus Jakarta Sans"],"headline-sm":["Plus Jakarta Sans"],"display-lg-mobile":["Plus Jakarta Sans"],"display-lg":["Plus Jakarta Sans"]},"fontSize":{"body-md":["14px",{"lineHeight":"20px","fontWeight":"400"}],"body-sm":["12px",{"lineHeight":"18px","fontWeight":"400"}],"label-md":["12px",{"lineHeight":"16px","letterSpacing":"0.02em","fontWeight":"600"}],"body-lg":["16px",{"lineHeight":"24px","fontWeight":"400"}],"label-lg":["14px",{"lineHeight":"20px","letterSpacing":"0.01em","fontWeight":"600"}],"label-sm":["11px",{"lineHeight":"14px","letterSpacing":"0.04em","fontWeight":"700"}],"headline-lg":["32px",{"lineHeight":"40px","letterSpacing":"-0.015em","fontWeight":"700"}],"title-lg":["18px",{"lineHeight":"26px","fontWeight":"600"}],"title-md":["16px",{"lineHeight":"24px","fontWeight":"600"}],"headline-lg-mobile":["24px",{"lineHeight":"32px","letterSpacing":"-0.01em","fontWeight":"700"}],"headline-md":["24px",{"lineHeight":"32px","letterSpacing":"-0.01em","fontWeight":"600"}],"headline-sm":["20px",{"lineHeight":"28px","letterSpacing":"-0.005em","fontWeight":"600"}],"display-lg-mobile":["30px",{"lineHeight":"38px","letterSpacing":"-0.02em","fontWeight":"700"}],"display-lg":["40px",{"lineHeight":"48px","letterSpacing":"-0.02em","fontWeight":"700"}]}}}}</script></head><body class="bg-surface font-body-md text-on-surface antialiased min-h-screen flex flex-col"><header class="fixed top-0 w-full z-50 bg-surface/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-16 max-w-7xl mx-auto px-gutter flex items-center justify-between"><div class="flex items-center gap-space-md"><img alt="Brand logo. - Primary color: #0e243a
+- Font: plusJakartaSans
+- Mode: light
+- Roundness: rounded-md
+" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1WUmZhSEbvhF4355BLhvwRiFqzI1zmB7EdUzaGpClqYrS3t97jeEaV_3D6JUOdyI4wMmObNweYwChpOoE94Aq7aGqncR3499fI2bjOPxoUDdIAduI-OA1JBYTezETv4Jhsz541WElDKbrqsOTcz2VDMnMUwNej4Wbm80HQWH7Jcjjrlpx1ovVto5OZWchEfeaZr8UvbI7szVkEq0KlSex-czKIjOZpczqiW3xU6WymRQUQjrYol2D-mxkBs"/><div class="flex flex-col"><span class="font-title-md text-title-md text-primary tracking-tight leading-none">iManurung</span><span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Portal Marga</span></div></div><nav class="hidden md:flex items-center gap-space-lg" data-active-classes="bg-primary-container text-on-primary-container font-label-lg rounded-lg"><a class="font-label-lg text-label-lg text-on-surface-variant hover:text-on-surface transition-colors" data-path="portal-login" href="#">Masuk</a><a class="font-label-lg text-label-lg text-on-surface-variant hover:text-on-surface transition-colors" data-path="portal-registration" href="#">Daftar Anggota</a><a class="font-label-lg text-label-lg text-on-surface-variant hover:text-on-surface transition-colors" data-path="portal-sso-onboarding" href="#">Aktivasi SSO</a><a class="font-label-lg text-label-lg text-on-surface-variant hover:text-on-surface transition-colors" data-path="auth-support" href="#">Bantuan &amp; Panduan</a></nav><div class="flex items-center gap-space-md"><div class="hidden sm:flex items-center gap-space-xs bg-surface-container-low px-space-sm py-space-xs rounded-full"><button class="font-label-sm text-label-sm px-space-sm py-0.5 rounded-full bg-surface-container-lowest text-primary shadow-[0_1px_4px_rgba(0,0,0,0.04)]" type="button">ID</button><button class="font-label-sm text-label-sm px-space-sm py-0.5 rounded-full text-on-surface-variant hover:text-on-surface transition-colors" type="button">EN</button></div><a class="flex items-center gap-space-xs font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors" href="#"><span class="material-symbols-outlined text-[18px]">help</span><span class="hidden lg:inline">Bantuan</span></a><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="w-full flex-1 pt-16 bg-surface"><div class="flex flex-col w-full">
+<!-- Subtle ambient top motif glow -->
+<div class="w-full bg-surface-container-low py-space-xl relative overflow-hidden">
+<div class="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-secondary/5 blur-3xl pointer-events-none"></div>
+<div class="absolute top-1/2 left-0 w-80 h-80 rounded-full bg-primary-container/5 blur-2xl pointer-events-none"></div>
+<div class="max-w-7xl mx-auto px-gutter relative z-10">
+<!-- Top Badging & Editorial Breadcrumb -->
+<div class="flex flex-wrap items-center justify-between gap-space-sm mb-space-md">
+<div class="flex items-center gap-space-xs">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-secondary-fixed text-on-secondary-fixed font-label-sm text-label-sm tracking-wide uppercase">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+            Registrasi Digital Anggota
+          </span>
+<span class="text-on-surface-variant/40 font-label-sm">•</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Patambor Se-Indonesia</span>
+</div>
+<div class="flex items-center gap-space-sm text-on-surface-variant font-body-sm text-body-sm">
+<span class="material-symbols-outlined text-[16px] text-tertiary-fixed-dim">verified_user</span>
+<span>Sistem Validasi Resmi DPP Patambor</span>
+</div>
+</div>
+<!-- Headline -->
+<div class="max-w-3xl mb-space-xl">
+<h1 class="font-headline-lg text-headline-lg text-primary tracking-tight">
+          Registrasi Warga Marga Manurung &amp; Penelusuran Tarombo
+        </h1>
+<p class="mt-space-xs font-body-lg text-body-lg text-on-surface-variant">
+          Lengkapi data identitas sipil dan silsilah garis keturunan marga Manurung (Boru / Bere) untuk validasi KTA resmi dan pencatatan silsilah Patambor.
+        </p>
+</div>
+<!-- Stepper Wizard Progress -->
+<div class="w-full bg-surface-container-lowest rounded-xl p-space-lg shadow-sm">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-space-md relative">
+<!-- Step 1 (Completed) -->
+<div class="flex items-start gap-space-sm group">
+<div class="w-10 h-10 rounded-lg bg-surface-container-high text-primary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[20px] text-secondary">check_circle</span>
+</div>
+<div class="min-w-0">
+<span class="font-label-sm text-label-sm text-secondary uppercase tracking-wider block">Langkah 01</span>
+<span class="font-title-md text-title-md text-on-surface block truncate">Identitas Dasar</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Selesai diverifikasi</span>
+</div>
+</div>
+<!-- Step 2 (Active) -->
+<div class="flex items-start gap-space-sm group relative">
+<div class="w-10 h-10 rounded-lg bg-primary-container text-on-primary flex items-center justify-center shrink-0 shadow-md">
+<span class="material-symbols-outlined text-[20px]">account_tree</span>
+</div>
+<div class="min-w-0">
+<span class="font-label-sm text-label-sm text-secondary uppercase tracking-wider block">Langkah 02 • Aktif</span>
+<span class="font-title-md text-title-md text-primary font-bold block truncate">Tarombo &amp; Rumpun</span>
+<span class="font-body-sm text-body-sm text-primary-container font-semibold">Sedang diisi</span>
+</div>
+</div>
+<!-- Step 3 (Upcoming) -->
+<div class="flex items-start gap-space-sm opacity-60">
+<div class="w-10 h-10 rounded-lg bg-surface-container text-on-surface-variant flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[20px]">badge</span>
+</div>
+<div class="min-w-0">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider block">Langkah 03</span>
+<span class="font-title-md text-title-md text-on-surface block truncate">Dokumen &amp; KK</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Berikutnya</span>
+</div>
+</div>
+<!-- Step 4 (Upcoming) -->
+<div class="flex items-start gap-space-sm opacity-60">
+<div class="w-10 h-10 rounded-lg bg-surface-container text-on-surface-variant flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[20px]">how_to_reg</span>
+</div>
+<div class="min-w-0">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider block">Langkah 04</span>
+<span class="font-title-md text-title-md text-on-surface block truncate">Verifikasi Adat</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">KTA Terbit</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Form & Sidebar Work Area -->
+<div class="max-w-7xl mx-auto px-gutter py-space-xl w-full">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-xl">
+<!-- LEFT COLUMN: Main Multi-Step Form Area (approx 68% = 8 cols on lg) -->
+<div class="lg:col-span-8 flex flex-col gap-space-xl">
+<!-- Section Header Card -->
+<div class="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm flex items-center justify-between">
+<div class="flex items-center gap-space-md">
+<div class="w-12 h-12 rounded-lg bg-primary-container/10 flex items-center justify-center text-primary-container">
+<span class="material-symbols-outlined text-[26px]">family_history</span>
+</div>
+<div>
+<span class="font-label-sm text-label-sm text-secondary uppercase tracking-widest block">Bagian II</span>
+<h2 class="font-headline-sm text-headline-sm text-primary">Penelusuran Silsilah Tarombo</h2>
+</div>
+</div>
+<span class="inline-flex items-center px-3 py-1 rounded-full bg-surface-container text-on-surface-variant font-label-sm text-label-sm">
+            Tahap 2 dari 4
+          </span>
+</div>
+<form class="flex flex-col gap-space-xl" id="taromboForm" onsubmit="event.preventDefault();">
+<!-- 1. Kategori Keanggotaan -->
+<div class="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm">
+<div class="mb-space-md">
+<div class="flex items-center gap-space-xs mb-1">
+<span class="font-label-sm text-label-sm px-2 py-0.5 rounded bg-primary-container text-on-primary">Wajib</span>
+<label class="font-title-md text-title-md text-primary">Pilih Kategori Kekerabatan</label>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Tentukan kedudukan adat Anda dalam tatanan Dalihan Na Tolu marga Manurung.</p>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-space-md" id="kategoriSelector">
+<!-- Option 1 -->
+<label class="relative flex flex-col p-space-md rounded-xl bg-surface cursor-pointer shadow-sm hover:shadow-md transition-all group has-[:checked]:bg-primary-container has-[:checked]:text-on-primary">
+<input checked="" class="sr-only" name="kategori_anggota" onchange="updateLivePreview();" type="radio" value="manurung"/>
+<div class="flex items-center justify-between w-full mb-space-sm">
+<span class="material-symbols-outlined text-[24px] text-secondary group-has-[:checked]:text-secondary-fixed">shield_person</span>
+<div class="w-4 h-4 rounded-full bg-surface-container-high group-has-[:checked]:bg-secondary flex items-center justify-center">
+<span class="material-symbols-outlined text-[12px] text-on-secondary hidden group-has-[:checked]:block">check</span>
+</div>
+</div>
+<span class="font-title-md text-title-md mb-1 group-has-[:checked]:text-on-primary">Manurung</span>
+<span class="font-body-sm text-body-sm opacity-80 group-has-[:checked]:text-on-primary-container">Bawa Marga / Anak Laki-laki dari garis patrilineal</span>
+</label>
+<!-- Option 2 -->
+<label class="relative flex flex-col p-space-md rounded-xl bg-surface cursor-pointer shadow-sm hover:shadow-md transition-all group has-[:checked]:bg-primary-container has-[:checked]:text-on-primary">
+<input class="sr-only" name="kategori_anggota" onchange="updateLivePreview();" type="radio" value="boru"/>
+<div class="flex items-center justify-between w-full mb-space-sm">
+<span class="material-symbols-outlined text-[24px] text-secondary group-has-[:checked]:text-secondary-fixed">diversity_1</span>
+<div class="w-4 h-4 rounded-full bg-surface-container-high group-has-[:checked]:bg-secondary flex items-center justify-center">
+<span class="material-symbols-outlined text-[12px] text-on-secondary hidden group-has-[:checked]:block">check</span>
+</div>
+</div>
+<span class="font-title-md text-title-md mb-1 group-has-[:checked]:text-on-primary">Boru Manurung</span>
+<span class="font-body-sm text-body-sm opacity-80 group-has-[:checked]:text-on-primary-container">Putri Manurung yang menikah dengan marga lain</span>
+</label>
+<!-- Option 3 -->
+<label class="relative flex flex-col p-space-md rounded-xl bg-surface cursor-pointer shadow-sm hover:shadow-md transition-all group has-[:checked]:bg-primary-container has-[:checked]:text-on-primary">
+<input class="sr-only" name="kategori_anggota" onchange="updateLivePreview();" type="radio" value="bere"/>
+<div class="flex items-center justify-between w-full mb-space-sm">
+<span class="material-symbols-outlined text-[24px] text-secondary group-has-[:checked]:text-secondary-fixed">partner_exchange</span>
+<div class="w-4 h-4 rounded-full bg-surface-container-high group-has-[:checked]:bg-secondary flex items-center justify-center">
+<span class="material-symbols-outlined text-[12px] text-on-secondary hidden group-has-[:checked]:block">check</span>
+</div>
+</div>
+<span class="font-title-md text-title-md mb-1 group-has-[:checked]:text-on-primary">Bere / Ibebere</span>
+<span class="font-body-sm text-body-sm opacity-80 group-has-[:checked]:text-on-primary-container">Keturunan dari Boru Manurung (Pihak Tulang)</span>
+</label>
+</div>
+</div>
+<!-- 2. Pemilihan Rumpun Utama (Ompu Silau Raja) -->
+<div class="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm">
+<div class="mb-space-md">
+<div class="flex items-center justify-between">
+<div>
+<div class="flex items-center gap-space-xs mb-1">
+<span class="font-label-sm text-label-sm px-2 py-0.5 rounded bg-primary-container text-on-primary">Wajib</span>
+<label class="font-title-md text-title-md text-primary">Rumpun Utama (Anak ni Raja Silau Raja)</label>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Pilih salah satu dari tiga rumpun utama leluhur Manurung.</p>
+</div>
+<span class="material-symbols-outlined text-secondary text-[24px]">workspace_premium</span>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-space-md" id="rumpunSelector">
+<!-- Rumpun 1 -->
+<label class="relative flex flex-col justify-between p-space-md rounded-xl bg-surface hover:bg-surface-container-low transition-all cursor-pointer has-[:checked]:bg-surface-container-lowest has-[:checked]:shadow-md">
+<input checked="" class="sr-only" name="rumpun_utama" onchange="updateLivePreview();" type="radio" value="Hutagurgur"/>
+<div class="flex flex-col">
+<div class="flex items-center justify-between mb-space-sm">
+<span class="font-label-sm text-label-sm uppercase tracking-wider px-2 py-0.5 rounded bg-surface-container-high text-primary">Anak Sasada</span>
+<span class="material-symbols-outlined text-secondary text-[20px]">filter_1</span>
+</div>
+<span class="font-title-md text-title-md text-primary font-bold">Hutagurgur</span>
+<span class="font-label-sm text-label-sm text-secondary font-semibold mt-0.5">Raja Manurung 1</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-space-xs">
+                    Mencakup keturunan Tuan Sogar, Raja Oloan, Ompu Tahan, dll.
+                  </p>
+</div>
+<div class="mt-space-md pt-space-xs flex items-center justify-between text-on-surface-variant font-label-sm text-label-sm">
+<span>Asal: Sibisa</span>
+<span class="material-symbols-outlined text-[16px] text-primary">arrow_forward</span>
+</div>
+</label>
+<!-- Rumpun 2 -->
+<label class="relative flex flex-col justify-between p-space-md rounded-xl bg-surface hover:bg-surface-container-low transition-all cursor-pointer has-[:checked]:bg-surface-container-lowest has-[:checked]:shadow-md">
+<input class="sr-only" name="rumpun_utama" onchange="updateLivePreview();" type="radio" value="Hutagaol"/>
+<div class="flex flex-col">
+<div class="flex items-center justify-between mb-space-sm">
+<span class="font-label-sm text-label-sm uppercase tracking-wider px-2 py-0.5 rounded bg-surface-container-high text-primary">Anak Paidua</span>
+<span class="material-symbols-outlined text-secondary text-[20px]">filter_2</span>
+</div>
+<span class="font-title-md text-title-md text-primary font-bold">Hutagaol</span>
+<span class="font-label-sm text-label-sm text-secondary font-semibold mt-0.5">Raja Manurung 2</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-space-xs">
+                    Mencakup keturunan Ompu Palti, Guru Somalaing, Ompu Tuan, dll.
+                  </p>
+</div>
+<div class="mt-space-md pt-space-xs flex items-center justify-between text-on-surface-variant font-label-sm text-label-sm">
+<span>Asal: Porsea / Narumonda</span>
+<span class="material-symbols-outlined text-[16px] text-primary">arrow_forward</span>
+</div>
+</label>
+<!-- Rumpun 3 -->
+<label class="relative flex flex-col justify-between p-space-md rounded-xl bg-surface hover:bg-surface-container-low transition-all cursor-pointer has-[:checked]:bg-surface-container-lowest has-[:checked]:shadow-md">
+<input class="sr-only" name="rumpun_utama" onchange="updateLivePreview();" type="radio" value="Simanoroni"/>
+<div class="flex flex-col">
+<div class="flex items-center justify-between mb-space-sm">
+<span class="font-label-sm text-label-sm uppercase tracking-wider px-2 py-0.5 rounded bg-surface-container-high text-primary">Anak Paitolu</span>
+<span class="material-symbols-outlined text-secondary text-[20px]">filter_3</span>
+</div>
+<span class="font-title-md text-title-md text-primary font-bold">Simanoroni</span>
+<span class="font-label-sm text-label-sm text-secondary font-semibold mt-0.5">Raja Manurung 3</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-space-xs">
+                    Mencakup keturunan Raja Sisinga, Ompu Jonggi, Raja Parhoda, dll.
+                  </p>
+</div>
+<div class="mt-space-md pt-space-xs flex items-center justify-between text-on-surface-variant font-label-sm text-label-sm">
+<span>Asal: Ajibata / Samosir</span>
+<span class="material-symbols-outlined text-[16px] text-primary">arrow_forward</span>
+</div>
+</label>
+</div>
+</div>
+<!-- 3. Tingkatan Sundut & Asal Usul Leluhur -->
+<div class="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm">
+<div class="mb-space-md">
+<h3 class="font-title-lg text-title-lg text-primary">Tingkat Generasi (Sundut) &amp; Asal Bona Pasogit</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Penomoran generasi dihitung berdasar garis Ompu Silau Raja (Generasi ke-1).</p>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-space-md">
+<div>
+<label class="font-label-md text-label-md text-on-surface mb-1 block" for="inputSundut">Tingkat Sundut Anda</label>
+<div class="relative">
+<select class="w-full bg-surface-container-low text-on-surface rounded-lg p-3 pr-10 font-body-md text-body-md focus:outline-none focus:bg-surface-container-lowest" id="inputSundut" onchange="updateLivePreview();">
+<option value="14">Sundut ke-14 (Rata-rata Usia Senior)</option>
+<option value="15">Sundut ke-15 (Generasi Ayah Senior)</option>
+<option selected="" value="16">Sundut ke-16 (Generasi Produktif)</option>
+<option value="17">Sundut ke-17 (Generasi Muda)</option>
+<option value="18">Sundut ke-18 (Generasi Remaja)</option>
+<option value="19">Sundut ke-19 (Generasi Anak)</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-3 text-on-surface-variant pointer-events-none text-[20px]">expand_more</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant/80 mt-1 block">
+                  Catatan: Bila ayah Anda Sundut 15, maka Anda tercatat Sundut 16.
+                </span>
+</div>
+<div>
+<label class="font-label-md text-label-md text-on-surface mb-1 block" for="inputBonaPasogit">Bona Pasogit (Kampung Asal Leluhur)</label>
+<div class="relative">
+<input class="w-full bg-surface-container-low text-on-surface rounded-lg p-3 pl-10 font-body-md text-body-md focus:outline-none focus:bg-surface-container-lowest" id="inputBonaPasogit" oninput="updateLivePreview();" placeholder="Misal: Sibisa, Narumonda, Porsea, Lumban Julu..." type="text" value="Sibisa, Kec. Ajibata"/>
+<span class="material-symbols-outlined absolute left-3 top-3 text-on-surface-variant text-[20px]">pin_drop</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant/80 mt-1 block">
+                  Wilayah asal garis kakek di tanah Toba.
+                </span>
+</div>
+</div>
+</div>
+<!-- 4. Garis Keturunan Ayah & Kakek (Hierarki Tarombo) -->
+<div class="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm">
+<div class="flex items-center justify-between mb-space-md">
+<div>
+<h3 class="font-title-lg text-title-lg text-primary">Garis Ayah &amp; Kakek (Hierarki Suhut)</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Penting untuk mencocokkan ke database Tarombo Nasional Patambor.</p>
+</div>
+<button class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-container-high hover:bg-surface-container text-primary font-label-sm text-label-sm transition-colors" onclick="openDatabaseSearchModal();" type="button">
+<span class="material-symbols-outlined text-[16px]">search</span>
+                Cari Tarombo Ayah
+              </button>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-space-md">
+<!-- Ayah Kandung -->
+<div class="flex flex-col gap-space-xs">
+<label class="font-label-md text-label-md text-on-surface" for="inputNamaAyah">Nama Lengkap Ayah Kandung</label>
+<div class="relative">
+<input class="w-full bg-surface-container-low text-on-surface rounded-lg p-3 pl-10 font-body-md text-body-md focus:outline-none focus:bg-surface-container-lowest" id="inputNamaAyah" oninput="updateLivePreview();" placeholder="Nama ayah tanpa gelar adat atau dengan gelar" type="text" value="St. Marulam Manurung"/>
+<span class="material-symbols-outlined absolute left-3 top-3 text-on-surface-variant text-[20px]">person</span>
+</div>
+</div>
+<!-- Status Ayah -->
+<div class="flex flex-col gap-space-xs">
+<label class="font-label-md text-label-md text-on-surface">Status Ayah Kandung</label>
+<div class="grid grid-cols-2 gap-space-sm">
+<label class="flex items-center justify-center gap-2 p-2.5 rounded-lg bg-surface-container-low cursor-pointer font-body-sm text-body-sm has-[:checked]:bg-primary-container has-[:checked]:text-on-primary transition-all">
+<input checked="" class="sr-only" name="status_ayah" type="radio" value="hidup"/>
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+<span>Masih Hidup</span>
+</label>
+<label class="flex items-center justify-center gap-2 p-2.5 rounded-lg bg-surface-container-low cursor-pointer font-body-sm text-body-sm has-[:checked]:bg-primary-container has-[:checked]:text-on-primary transition-all">
+<input class="sr-only" name="status_ayah" type="radio" value="almarhum"/>
+<span class="w-2 h-2 rounded-full bg-outline"></span>
+<span>Almarhum</span>
+</label>
+</div>
+</div>
+<!-- Kakek / Ompung Suhut -->
+<div class="flex flex-col gap-space-xs">
+<label class="font-label-md text-label-md text-on-surface" for="inputNamaOmpung">Nama Kakek Kandung (Ompung Suhut)</label>
+<div class="relative">
+<input class="w-full bg-surface-container-low text-on-surface rounded-lg p-3 pl-10 font-body-md text-body-md focus:outline-none focus:bg-surface-container-lowest" id="inputNamaOmpung" oninput="updateLivePreview();" placeholder="Contoh: Ompu Tahan Manurung / Raja Jonggi" type="text" value="Ompu Tahan Manurung"/>
+<span class="material-symbols-outlined absolute left-3 top-3 text-on-surface-variant text-[20px]">elderly</span>
+</div>
+</div>
+<!-- Marga Ibu (Boru Ni Tulang) -->
+<div class="flex flex-col gap-space-xs">
+<label class="font-label-md text-label-md text-on-surface" for="inputMargaIbu">Marga Ibu Kandung (Boru Niba)</label>
+<div class="relative">
+<input class="w-full bg-surface-container-low text-on-surface rounded-lg p-3 pl-10 font-body-md text-body-md focus:outline-none focus:bg-surface-container-lowest" id="inputMargaIbu" placeholder="Contoh: br. Sitorus, br. Simanjuntak, br. Sirait" type="text" value="br. Sitorus Pane"/>
+<span class="material-symbols-outlined absolute left-3 top-3 text-on-surface-variant text-[20px]">female</span>
+</div>
+</div>
+</div>
+</div>
+<!-- 5. Data Keluarga Inti & Istri/Suami -->
+<div class="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm">
+<div class="mb-space-md">
+<h3 class="font-title-lg text-title-lg text-primary">Data Pasangan &amp; Keluarga Inti</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Bila belum menikah, kolom nama pasangan dapat dikosongkan.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-space-md">
+<div class="md:col-span-1">
+<label class="font-label-md text-label-md text-on-surface mb-1 block" for="inputStatusNikah">Status Pernikahan</label>
+<select class="w-full bg-surface-container-low text-on-surface rounded-lg p-3 font-body-md text-body-md focus:outline-none focus:bg-surface-container-lowest" id="inputStatusNikah">
+<option selected="" value="kawin">Menikah (Marhasohotan)</option>
+<option value="belum">Lajang (Doli-doli / Namarbaju)</option>
+<option value="duda_janda">Duda / Janda</option>
+</select>
+</div>
+<div class="md:col-span-2">
+<label class="font-label-md text-label-md text-on-surface mb-1 block" for="inputNamaPasangan">Nama Pasangan &amp; Marga Istri</label>
+<div class="relative">
+<input class="w-full bg-surface-container-low text-on-surface rounded-lg p-3 pl-10 font-body-md text-body-md focus:outline-none focus:bg-surface-container-lowest" id="inputNamaPasangan" oninput="updateLivePreview();" placeholder="Contoh: Rosdiana br. Hutapea" type="text" value="Tiurma br. Simanjuntak"/>
+<span class="material-symbols-outlined absolute left-3 top-3 text-on-surface-variant text-[20px]">favorite</span>
+</div>
+</div>
+<div class="md:col-span-3 grid grid-cols-1 sm:grid-cols-2 gap-space-md pt-space-xs">
+<div>
+<label class="font-label-md text-label-md text-on-surface mb-1 block" for="inputAnakLaki">Jumlah Anak Laki-Laki</label>
+<input class="w-full bg-surface-container-low text-on-surface rounded-lg p-3 font-body-md text-body-md focus:outline-none focus:bg-surface-container-lowest" id="inputAnakLaki" min="0" oninput="updateLivePreview();" type="number" value="2"/>
+</div>
+<div>
+<label class="font-label-md text-label-md text-on-surface mb-1 block" for="inputAnakPerempuan">Jumlah Anak Perempuan (Boru)</label>
+<input class="w-full bg-surface-container-low text-on-surface rounded-lg p-3 font-body-md text-body-md focus:outline-none focus:bg-surface-container-lowest" id="inputAnakPerempuan" min="0" oninput="updateLivePreview();" type="number" value="1"/>
+</div>
+</div>
+</div>
+</div>
+<!-- 6. Penempatan Sektor Kepengurusan (Domisili Komunitas) -->
+<div class="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm">
+<div class="flex items-center gap-space-md mb-space-md">
+<div class="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[20px]">location_city</span>
+</div>
+<div>
+<h3 class="font-title-lg text-title-lg text-primary">Penempatan Sektor / DPC Patambor</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Sistem menghubungkan Anda ke pengurus sektor terdekat untuk validasi arisan dan kegiatan.</p>
+</div>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-space-md">
+<div>
+<label class="font-label-md text-label-md text-on-surface mb-1 block" for="inputSektor">Pilih Wilayah / Sektor DPC</label>
+<select class="w-full bg-surface-container-low text-on-surface rounded-lg p-3 font-body-md text-body-md focus:outline-none focus:bg-surface-container-lowest" id="inputSektor">
+<option selected="" value="jabodetabek_barat">DPC Patambor Jakarta Barat &amp; Tangerang</option>
+<option value="jabodetabek_selatan">DPC Patambor Jakarta Selatan &amp; Depok</option>
+<option value="jabodetabek_timur">DPC Patambor Jakarta Timur &amp; Bekasi</option>
+<option value="bandung">DPC Patambor Bandung Raya</option>
+<option value="medan">DPD Patambor Kota Medan</option>
+<option value="toba">DPD Patambor Kabupaten Toba Samosir</option>
+<option value="surabaya">DPC Patambor Surabaya &amp; Jatim</option>
+<option value="lainnya">Wilayah Lain / Luar Negeri</option>
+</select>
+</div>
+<div>
+<label class="font-label-md text-label-md text-on-surface mb-1 block" for="inputAlamatTinggal">Kota / Alamat Domisili Sekarang</label>
+<input class="w-full bg-surface-container-low text-on-surface rounded-lg p-3 font-body-md text-body-md focus:outline-none focus:bg-surface-container-lowest" id="inputAlamatTinggal" placeholder="Kelurahan, Kota / Kabupaten" type="text" value="Kec. Kebon Jeruk, Jakarta Barat"/>
+</div>
+</div>
+</div>
+<!-- Bottom Navigation Action Buttons -->
+<div class="flex flex-col sm:flex-row items-center justify-between gap-space-md pt-space-sm">
+<button class="w-full sm:w-auto inline-flex items-center justify-center gap-space-xs px-space-lg py-3 rounded-lg bg-surface-container-high hover:bg-surface-container text-on-surface font-label-lg text-label-lg transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">arrow_back</span>
+<span>Kembali ke Data Diri</span>
+</button>
+<div class="flex flex-col sm:flex-row items-center gap-space-md w-full sm:w-auto">
+<button class="text-on-surface-variant hover:text-primary font-label-md text-label-md underline underline-offset-4 transition-colors" onclick="showDraftNotice();" type="button">
+                Simpan Draf Formulir
+              </button>
+<button class="w-full sm:w-auto inline-flex items-center justify-center gap-space-xs px-6 py-3 rounded-lg bg-primary-container hover:bg-primary text-on-primary font-label-lg text-label-lg shadow-md transition-all" onclick="proceedNextStep();" type="button">
+<span>Lanjut: Upload KK &amp; KTP</span>
+<span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+</div>
+</div>
+</form>
+</div>
+<!-- RIGHT COLUMN: Interactive Live Tarombo Diagram & Adat Helpers (approx 32% = 4 cols on lg) -->
+<div class="lg:col-span-4 flex flex-col gap-space-lg">
+<!-- STICKY CARD: Live Tarombo Preview -->
+<div class="bg-surface-container-lowest rounded-xl p-space-lg shadow-md sticky top-20">
+<!-- Header Card preview -->
+<div class="flex items-center justify-between pb-space-sm mb-space-md border-b-0">
+<div class="flex items-center gap-space-xs">
+<span class="w-2.5 h-2.5 rounded-full bg-secondary animate-pulse"></span>
+<h3 class="font-title-md text-title-md text-primary">Pratinjau Silsilah Anda</h3>
+</div>
+<span class="font-label-sm text-label-sm px-2 py-0.5 rounded bg-surface-container text-on-surface-variant">Live Sync</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-space-lg">
+            Diagram vertikal terbentuk secara dinamis dari data isian formulir.
+          </p>
+<!-- VERTICAL HIERARCHICAL TREE GRAPH -->
+<div class="relative pl-6 flex flex-col gap-space-md before:absolute before:left-3 before:top-4 before:bottom-4 before:w-[2px] before:bg-surface-container-highest">
+<!-- Node 1: Ompung -->
+<div class="relative group">
+<div class="absolute -left-[27px] top-3 w-3.5 h-3.5 rounded-full bg-surface-container-high border-2 border-surface-container-lowest"></div>
+<div class="p-space-sm rounded-lg bg-surface-container-low group-hover:bg-surface-container transition-colors">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-secondary uppercase tracking-wider">Generasi Ompung</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant" id="previewOmpungSundut">Sundut 14</span>
+</div>
+<div class="font-title-md text-title-md text-primary font-bold mt-0.5" id="previewOmpungNama">Ompu Tahan Manurung</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-1 mt-1" id="previewOmpungAsal">
+<span class="material-symbols-outlined text-[14px]">home_pin</span>
+<span>Sibisa, Kec. Ajibata</span>
+</div>
+</div>
+</div>
+<!-- Node 2: Ayah -->
+<div class="relative group">
+<div class="absolute -left-[27px] top-3 w-3.5 h-3.5 rounded-full bg-surface-container-high border-2 border-surface-container-lowest"></div>
+<div class="p-space-sm rounded-lg bg-surface-container-low group-hover:bg-surface-container transition-colors">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-secondary uppercase tracking-wider">Generasi Ayah</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant" id="previewAyahSundut">Sundut 15</span>
+</div>
+<div class="font-title-md text-title-md text-primary font-bold mt-0.5" id="previewAyahNama">St. Marulam Manurung</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-1 mt-1">
+<span class="material-symbols-outlined text-[14px]">badge</span>
+<span id="previewRumpunAyah">Hutagurgur</span>
+</div>
+</div>
+</div>
+<!-- Node 3: Anda (Pendaftar - HIGHLIGHTED) -->
+<div class="relative group">
+<div class="absolute -left-[29px] top-3 w-4.5 h-4.5 rounded-full bg-secondary ring-4 ring-secondary-fixed/50"></div>
+<div class="p-space-md rounded-xl bg-primary-container text-on-primary shadow-lg transition-transform hover:-translate-y-0.5">
+<div class="flex items-center justify-between">
+<span class="inline-flex items-center gap-1 font-label-sm text-label-sm px-2 py-0.5 rounded-full bg-secondary text-on-secondary uppercase tracking-wider">
+                    Anda Sendiri
+                  </span>
+<span class="font-label-sm text-label-sm text-primary-fixed" id="previewAndaSundut">Sundut 16</span>
+</div>
+<div class="font-title-lg text-title-lg font-bold mt-1 text-on-primary" id="previewAndaNama">Calon Pendaftar</div>
+<div class="mt-2 pt-2 border-t border-on-primary/10 flex flex-col gap-1 text-on-primary-container font-body-sm text-body-sm">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[15px]">diversity_3</span>
+<span id="previewRumpunLabel">Manurung Hutagurgur</span>
+</div>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[15px]">group</span>
+<span id="previewPasanganLabel">Istri: Tiurma br. Simanjuntak</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Node 4: Generasi Anak / Keturunan -->
+<div class="relative group">
+<div class="absolute -left-[27px] top-3 w-3.5 h-3.5 rounded-full bg-surface-container-high border-2 border-surface-container-lowest"></div>
+<div class="p-space-sm rounded-lg bg-surface-container-low group-hover:bg-surface-container transition-colors">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-secondary uppercase tracking-wider">Generasi Anak</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant" id="previewAnakSundut">Sundut 17</span>
+</div>
+<div class="font-title-md text-title-md text-primary font-medium mt-0.5" id="previewAnakStatus">3 Orang Terdaftar</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant mt-1" id="previewAnakRincian">2 Laki-laki, 1 Perempuan</div>
+</div>
+</div>
+</div>
+<!-- Helper Callout: Butuh Bantuan Sundut -->
+<div class="mt-space-lg p-space-md rounded-xl bg-surface-container-low flex flex-col gap-space-sm">
+<div class="flex items-start gap-space-xs">
+<span class="material-symbols-outlined text-secondary text-[22px] shrink-0 mt-0.5">psychology_alt</span>
+<div>
+<span class="font-title-sm text-title-md text-primary block leading-tight">Bingung Urutan Sundut?</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant mt-1 block">
+                  Bila Anda tidak yakin silsilah lengkap di atas kakek, Tetua Partondongon DPP siap membantu memverifikasi buku besar tarombo.
+                </span>
+</div>
+</div>
+<div class="flex items-center gap-space-xs pt-space-xs">
+<a class="w-full inline-flex items-center justify-center gap-2 py-2 px-3 rounded-lg bg-surface-container-highest hover:bg-surface-container text-primary font-label-md text-label-md transition-colors" href="https://wa.me/6281299998888?text=Halo%20Pengurus%20Patambor,%20saya%20ingin%20konsultasi%20Sundut%20Tarombo" target="_blank">
+<span class="material-symbols-outlined text-[18px] text-secondary">chat</span>
+<span>WhatsApp Tim Adat</span>
+</a>
+</div>
+</div>
+<!-- Trust & Privacy Emblem -->
+<div class="mt-space-md pt-space-md flex items-center gap-space-sm text-on-surface-variant/80 font-body-sm text-body-sm">
+<span class="material-symbols-outlined text-[20px] text-primary">verified</span>
+<span>Data Silsilah Dilindungi Piagam Adat Patambor &amp; Kebijakan Privasi Silsilah.</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- MODAL: Database Search Tarombo (Hidden by default, triggered via JS) -->
+<div class="fixed inset-0 z-50 bg-primary/60 backdrop-blur-sm flex items-center justify-center p-4 md:p-6 overflow-y-auto" id="databaseSearchModal"><div class="bg-surface-container-lowest rounded-2xl max-w-4xl w-full p-6 md:p-8 shadow-2xl relative border border-outline-variant/30 my-auto flex flex-col gap-5"><div class="flex items-start justify-between gap-4 border-b border-surface-container-high pb-4"><div class="flex items-start gap-3"><div class="w-12 h-12 rounded-xl bg-primary-container text-on-primary flex items-center justify-center shrink-0 shadow-md"><span class="material-symbols-outlined text-[26px]">family_history</span></div><div><div class="flex flex-wrap items-center gap-2 mb-1"><span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed font-label-sm uppercase tracking-wide"><span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>Basis Data Tarombo Nasional DPP Patambor</span><span class="font-label-sm text-on-surface-variant/50">•</span><span class="font-label-sm text-on-surface-variant font-medium">Arsip Buku Besar Silsilah</span></div><h3 class="font-headline-sm text-primary">Cari &amp; Hubungkan Tarombo Ayah / Kakek</h3><p class="font-body-sm text-on-surface-variant mt-1">Cari nama ayah atau ompung yang sudah terdaftar di database Patambor untuk menghubungkan garis silsilah keluarga Anda secara otomatis dan akurat.</p></div></div><button class="p-2 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors shrink-0" onclick="closeDatabaseSearchModal();" title="Tutup Modal" type="button"><span class="material-symbols-outlined text-[24px]">close</span></button></div><div class="bg-surface-container-low p-4 rounded-xl flex flex-col gap-3"><div class="flex flex-col sm:flex-row items-center gap-2"><div class="relative flex-1 w-full"><span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-on-surface-variant text-[22px]">search</span><input class="w-full bg-surface-container-lowest text-on-surface rounded-lg py-2.5 pl-11 pr-4 font-body-md focus:outline-none border border-outline-variant/50 shadow-sm" id="modalSearchInput" placeholder="Ketik nama ayah / ompung / nomor KTA..." type="text" value="St. Marulam Manurung"/></div><button class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-lg bg-primary-container hover:bg-primary text-on-primary font-label-lg shadow-sm transition-all" type="button"><span class="material-symbols-outlined text-[18px]">search</span><span>Cari Data</span></button></div><div class="flex flex-wrap items-center gap-2 pt-1"><span class="font-label-sm text-on-surface-variant uppercase tracking-wider mr-1">Filter Cepat:</span><div class="flex flex-wrap items-center gap-1.5"><button class="font-label-sm px-3 py-1 rounded-full bg-primary text-on-primary font-semibold" type="button">Semua Rumpun</button><button class="font-label-sm px-3 py-1 rounded-full bg-surface-container-lowest text-on-surface-variant hover:text-on-surface border border-outline-variant/40 transition-colors" type="button">Hutagurgur</button><button class="font-label-sm px-3 py-1 rounded-full bg-surface-container-lowest text-on-surface-variant hover:text-on-surface border border-outline-variant/40 transition-colors" type="button">Hutagaol</button><button class="font-label-sm px-3 py-1 rounded-full bg-surface-container-lowest text-on-surface-variant hover:text-on-surface border border-outline-variant/40 transition-colors" type="button">Simanoroni</button></div><div class="hidden md:block w-px h-4 bg-outline-variant/60 mx-1"></div><div class="flex items-center gap-1.5"><span class="font-label-sm text-on-surface-variant">Sundut:</span><select class="bg-surface-container-lowest text-on-surface font-label-sm px-2.5 py-1 rounded-lg border border-outline-variant/40 focus:outline-none"><option selected="">Sundut 15 (Ayah)</option><option>Sundut 14 (Ompung)</option><option>Sundut 16</option></select></div><div class="flex items-center gap-1.5 ml-auto"><span class="font-label-sm text-on-surface-variant">Wilayah:</span><span class="font-label-sm px-2.5 py-1 rounded-lg bg-surface-container text-on-surface">Sibisa &amp; Sekitarnya</span></div></div></div><div class="flex items-center justify-between px-1"><div class="flex items-center gap-2"><span class="font-label-md text-primary font-bold">Ditemukan 3 Data Cocok</span><span class="font-body-sm text-on-surface-variant">untuk kata kunci “Marulam Manurung”</span></div><span class="font-label-sm text-secondary flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">auto_awesome</span>Disarankan berdasarkan rumpun &amp; kampung</span></div><div class="flex flex-col gap-3 max-h-[340px] overflow-y-auto pr-1"><div class="p-4 rounded-xl bg-primary-container/5 border-2 border-primary-container relative flex flex-col gap-3 cursor-pointer shadow-sm"><div class="flex flex-wrap items-start justify-between gap-2"><div class="flex items-start gap-3"><div class="w-10 h-10 rounded-lg bg-primary-container text-on-primary flex items-center justify-center font-bold text-title-md shrink-0">15</div><div><div class="flex flex-wrap items-center gap-2"><h4 class="font-title-lg text-primary font-bold">St. Marulam Manurung</h4><span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-surface-container-high text-primary font-label-sm"><span class="material-symbols-outlined text-[14px] text-secondary">verified</span>KTA: MNR-1962-00412</span><span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed font-label-sm font-semibold"><span class="material-symbols-outlined text-[13px]">check_circle</span>Data Lengkap &amp; Terverifikasi</span></div><div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-on-surface-variant font-body-sm mt-1"><span><strong class="text-primary font-medium">Rumpun:</strong> Hutagurgur (Raja Manurung 1)</span><span>•</span><span><strong class="text-primary font-medium">Sundut ke-15</strong> (Generasi Ayah)</span><span>•</span><span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">favorite</span>Istri: Tiurmaida br. Sitorus Pane</span></div></div></div><button class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-primary-container text-on-primary font-label-md shadow hover:bg-primary transition-all shrink-0" onclick="selectFoundTarombo('Ompu Tahan Manurung', 'St. Marulam Manurung', 'Hutagurgur', '14', 'Sibisa, Kec. Ajibata');" type="button"><span class="material-symbols-outlined text-[18px]">check</span><span>Pilih &amp; Hubungkan Silsilah</span></button></div><div class="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-primary-container/10"><div class="flex items-center gap-1.5 font-label-sm text-primary flex-wrap"><span class="text-on-surface-variant">Silsilah:</span><span class="px-1.5 py-0.5 rounded bg-surface-container-high">Ompu Silau Raja</span><span class="text-on-surface-variant">&gt;</span><span class="px-1.5 py-0.5 rounded bg-surface-container-high">Hutagurgur</span><span class="text-on-surface-variant">&gt;</span><span class="px-1.5 py-0.5 rounded bg-surface-container-high">Ompu Tahan (Sundut 14)</span><span class="text-on-surface-variant">&gt;</span><span class="px-1.5 py-0.5 rounded bg-primary-container text-on-primary font-semibold">St. Marulam Manurung</span></div><div class="flex items-center gap-3 font-body-sm text-on-surface-variant"><span><span class="material-symbols-outlined text-[14px] align-middle text-secondary">pin_drop</span> Sibisa, Kec. Ajibata</span><span><span class="material-symbols-outlined text-[14px] align-middle text-primary">location_city</span> Sektor Jabodetabek Barat</span></div></div></div><div class="p-4 rounded-xl bg-surface hover:bg-surface-container-low border border-outline-variant/40 relative flex flex-col gap-2.5 transition-colors cursor-pointer"><div class="flex flex-wrap items-start justify-between gap-2"><div class="flex items-start gap-3"><div class="w-10 h-10 rounded-lg bg-surface-container text-primary flex items-center justify-center font-bold text-title-md shrink-0">16</div><div><div class="flex flex-wrap items-center gap-2"><h4 class="font-title-md text-primary font-bold">Marulam Pardamean Manurung</h4><span class="px-2 py-0.5 rounded bg-surface-container text-on-surface-variant font-label-sm">KTA: MNR-1970-08914</span></div><div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-on-surface-variant font-body-sm mt-0.5"><span><strong class="text-primary font-medium">Rumpun:</strong> Hutagaol (Raja Manurung 2)</span><span>•</span><span><strong class="text-primary font-medium">Sundut ke-16</strong></span><span>•</span><span>Anak dari: Gr. Somalaing Manurung</span></div></div></div><button class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-surface-container-high hover:bg-surface-container text-primary font-label-md transition-colors shrink-0" onclick="selectFoundTarombo('Guru Somalaing Manurung', 'Marulam Pardamean Manurung', 'Hutagaol', '15', 'Narumonda, Porsea');" type="button"><span class="material-symbols-outlined text-[16px]">add</span><span>Pilih Silsilah</span></button></div><div class="flex flex-wrap items-center justify-between gap-2 text-on-surface-variant font-body-sm pt-1"><span class="font-label-sm text-on-surface-variant">Asal: Porsea, Toba • Domisili: Sektor Medan</span><span class="font-label-sm text-secondary font-medium">Catatan: Sundut generasi berbeda (16)</span></div></div><div class="p-4 rounded-xl bg-surface hover:bg-surface-container-low border border-outline-variant/40 relative flex flex-col gap-2.5 transition-colors cursor-pointer"><div class="flex flex-wrap items-start justify-between gap-2"><div class="flex items-start gap-3"><div class="w-10 h-10 rounded-lg bg-surface-container text-primary flex items-center justify-center font-bold text-title-md shrink-0">15</div><div><div class="flex flex-wrap items-center gap-2"><h4 class="font-title-md text-primary font-bold">Marulam Tua Manurung, SE</h4><span class="px-2 py-0.5 rounded-full bg-surface-container-high text-outline font-label-sm">Almarhum</span><span class="px-2 py-0.5 rounded bg-surface-container text-on-surface-variant font-label-sm">KTA: MNR-1958-00109</span></div><div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-on-surface-variant font-body-sm mt-0.5"><span><strong class="text-primary font-medium">Rumpun:</strong> Simanoroni (Raja Manurung 3)</span><span>•</span><span><strong class="text-primary font-medium">Sundut ke-15</strong></span><span>•</span><span>Garis Leluhur: Keturunan Raja Palti</span></div></div></div><button class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-surface-container-high hover:bg-surface-container text-primary font-label-md transition-colors shrink-0" onclick="selectFoundTarombo('Raja Palti Manurung', 'Marulam Tua Manurung, SE', 'Simanoroni', '14', 'Ajibata');" type="button"><span class="material-symbols-outlined text-[16px]">add</span><span>Pilih Silsilah</span></button></div><div class="flex flex-wrap items-center justify-between gap-2 text-on-surface-variant font-body-sm pt-1"><span class="font-label-sm text-on-surface-variant">Asal: Ajibata • Domisili: Sektor Bandung</span><span class="font-label-sm text-on-surface-variant/80">Status: Terdaftar DPP Patambor Jabar</span></div></div></div><div class="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-surface-container-high"><div class="flex items-center gap-2 text-on-surface-variant font-body-sm"><span class="material-symbols-outlined text-[18px] text-secondary shrink-0">info</span><span>Tidak menemukan data ayah? Anda tetap dapat melanjutkan dengan mengisi data silsilah secara manual.</span></div><div class="flex items-center gap-3 w-full sm:w-auto justify-end"><button class="px-4 py-2.5 rounded-lg bg-surface-container text-on-surface font-label-md hover:bg-surface-container-high transition-colors" onclick="closeDatabaseSearchModal();" type="button">Input Manual Saja</button><button class="px-5 py-2.5 rounded-lg bg-primary-container hover:bg-primary text-on-primary font-label-md shadow-md transition-all inline-flex items-center gap-2" onclick="selectFoundTarombo('Ompu Tahan Manurung', 'St. Marulam Manurung', 'Hutagurgur', '14', 'Sibisa, Kec. Ajibata');" type="button"><span class="material-symbols-outlined text-[18px]">link</span><span>Gunakan Silsilah Terpilih</span></button></div></div></div></div>
+<!-- TOAST NOTIFICATION: Notification Floating -->
+<div class="fixed bottom-6 right-6 z-50 bg-primary text-on-primary px-4 py-3 rounded-xl shadow-xl flex items-center gap-3 transform translate-y-24 opacity-0 transition-all duration-300 pointer-events-none" id="toastNotification">
+<span class="material-symbols-outlined text-secondary-fixed text-[22px]">check_circle</span>
+<div class="flex flex-col">
+<span class="font-title-sm text-title-md leading-tight text-on-primary" id="toastTitle">Draf Tersimpan!</span>
+<span class="font-body-sm text-body-sm text-on-primary/70" id="toastMessage">Data Tarombo Anda telah disimpan sementara.</span>
+</div>
+</div>
+<!-- INTERACTIVE INLINE SCRIPT -->
+<script>
+    function updateLivePreview() {
+      // 1. Sundut calculation
+      const sundutSelect = document.getElementById('inputSundut');
+      const curSundut = parseInt(sundutSelect ? sundutSelect.value : "16", 10);
+      const ompungSundut = Math.max(1, curSundut - 2);
+      const ayahSundut = Math.max(1, curSundut - 1);
+      const anakSundut = curSundut + 1;
+
+      // 2. Names & places
+      const namaAyah = document.getElementById('inputNamaAyah')?.value || 'Ayah Kandung';
+      const namaOmpung = document.getElementById('inputNamaOmpung')?.value || 'Ompung Suhut';
+      const bonaPasogit = document.getElementById('inputBonaPasogit')?.value || 'Bona Pasogit';
+      const namaPasangan = document.getElementById('inputNamaPasangan')?.value || '';
+      
+      // 3. Rumpun selection
+      const checkedRumpun = document.querySelector('input[name="rumpun_utama"]:checked')?.value || 'Hutagurgur';
+      const checkedKategori = document.querySelector('input[name="kategori_anggota"]:checked')?.value || 'manurung';
+
+      // 4. Children counts
+      const anakL = parseInt(document.getElementById('inputAnakLaki')?.value || "0", 10);
+      const anakP = parseInt(document.getElementById('inputAnakPerempuan')?.value || "0", 10);
+      const totalAnak = anakL + anakP;
+
+      // 5. Update DOM Nodes in Live Preview
+      const ompungSundutEl = document.getElementById('previewOmpungSundut');
+      if (ompungSundutEl) ompungSundutEl.textContent = 'Sundut ' + ompungSundut;
+
+      const ompungNamaEl = document.getElementById('previewOmpungNama');
+      if (ompungNamaEl) ompungNamaEl.textContent = namaOmpung;
+
+      const ompungAsalEl = document.getElementById('previewOmpungAsal');
+      if (ompungAsalEl) {
+        ompungAsalEl.innerHTML = '<span class="material-symbols-outlined text-[14px]">home_pin</span><span>' + bonaPasogit + '</span>';
+      }
+
+      const ayahSundutEl = document.getElementById('previewAyahSundut');
+      if (ayahSundutEl) ayahSundutEl.textContent = 'Sundut ' + ayahSundut;
+
+      const ayahNamaEl = document.getElementById('previewAyahNama');
+      if (ayahNamaEl) ayahNamaEl.textContent = namaAyah;
+
+      const rumpunAyahEl = document.getElementById('previewRumpunAyah');
+      if (rumpunAyahEl) rumpunAyahEl.textContent = 'Rumpun ' + checkedRumpun;
+
+      const andaSundutEl = document.getElementById('previewAndaSundut');
+      if (andaSundutEl) andaSundutEl.textContent = 'Sundut ' + curSundut;
+
+      const rumpunLabelEl = document.getElementById('previewRumpunLabel');
+      if (rumpunLabelEl) {
+        let labelKat = 'Manurung ' + checkedRumpun;
+        if (checkedKategori === 'boru') labelKat = 'Boru Manurung (' + checkedRumpun + ')';
+        if (checkedKategori === 'bere') labelKat = 'Bere Manurung (' + checkedRumpun + ')';
+        rumpunLabelEl.textContent = labelKat;
+      }
+
+      const pasanganLabelEl = document.getElementById('previewPasanganLabel');
+      if (pasanganLabelEl) {
+        if (namaPasangan.trim() !== '') {
+          pasanganLabelEl.textContent = 'Pasangan: ' + namaPasangan;
+        } else {
+          pasanganLabelEl.textContent = 'Belum mencantumkan pasangan';
+        }
+      }
+
+      const anakSundutEl = document.getElementById('previewAnakSundut');
+      if (anakSundutEl) anakSundutEl.textContent = 'Sundut ' + anakSundut;
+
+      const anakStatusEl = document.getElementById('previewAnakStatus');
+      if (anakStatusEl) anakStatusEl.textContent = totalAnak > 0 ? (totalAnak + ' Orang Terdaftar') : 'Belum Ada Anak Terdata';
+
+      const anakRincianEl = document.getElementById('previewAnakRincian');
+      if (anakRincianEl) anakRincianEl.textContent = anakL + ' Laki-laki, ' + anakP + ' Perempuan';
+    }
+
+    function openDatabaseSearchModal() {
+      const modal = document.getElementById('databaseSearchModal');
+      if (modal) {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+      }
+    }
+
+    function closeDatabaseSearchModal() {
+      const modal = document.getElementById('databaseSearchModal');
+      if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      }
+    }
+
+    function selectFoundTarombo(ompung, ayah, rumpun, sundutOmpung, bona) {
+      if (document.getElementById('inputNamaOmpung')) document.getElementById('inputNamaOmpung').value = ompung;
+      if (document.getElementById('inputNamaAyah')) document.getElementById('inputNamaAyah').value = ayah;
+      if (document.getElementById('inputBonaPasogit')) document.getElementById('inputBonaPasogit').value = bona;
+      
+      const rumpunRadios = document.querySelectorAll('input[name="rumpun_utama"]');
+      rumpunRadios.forEach(radio => {
+        if (radio.value === rumpun) radio.checked = true;
+      });
+
+      const calcMySundut = parseInt(sundutOmpung, 10) + 2;
+      const sundutSelect = document.getElementById('inputSundut');
+      if (sundutSelect) {
+        for (let i = 0; i < sundutSelect.options.length; i++) {
+          if (parseInt(sundutSelect.options[i].value, 10) === calcMySundut) {
+            sundutSelect.selectedIndex = i;
+            break;
+          }
+        }
+      }
+
+      closeDatabaseSearchModal();
+      updateLivePreview();
+      triggerToast('Data Tarombo Terpilih', 'Tarombo berhasil dihubungkan dari buku database Patambor.');
+    }
+
+    function triggerToast(title, message) {
+      const toast = document.getElementById('toastNotification');
+      const titleEl = document.getElementById('toastTitle');
+      const msgEl = document.getElementById('toastMessage');
+      if (toast && titleEl && msgEl) {
+        titleEl.textContent = title;
+        msgEl.textContent = message;
+        toast.classList.remove('translate-y-24', 'opacity-0', 'pointer-events-none');
+        toast.classList.add('translate-y-0', 'opacity-100');
+        setTimeout(() => {
+          toast.classList.remove('translate-y-0', 'opacity-100');
+          toast.classList.add('translate-y-24', 'opacity-0', 'pointer-events-none');
+        }, 3200);
+      }
+    }
+
+    function showDraftNotice() {
+      triggerToast('Draf Registrasi Disimpan', 'Kemajuan pengisian silsilah tersimpan di peramban Anda.');
+    }
+
+    function proceedNextStep() {
+      triggerToast('Melanjutkan ke Langkah 3', 'Mengarahkan ke modul unggah dokumen KTP & Kartu Keluarga...');
+    }
+
+    // Initialize on load
+    document.addEventListener('DOMContentLoaded', () => {
+      updateLivePreview();
+    });
+  </script>
+</div></main><footer class="w-full bg-surface-container-low"><div class="max-w-7xl mx-auto px-gutter py-space-lg flex flex-col md:flex-row items-center justify-between gap-space-md font-body-sm text-body-sm text-on-surface-variant"><div class="flex items-center gap-space-sm"><span>© 2025 Perkumpulan Marga Manurung (Patambor). Hak Cipta Dilindungi.</span></div><div class="flex items-center gap-space-lg"><a class="hover:text-primary transition-colors" href="#">Ketentuan Layanan</a><a class="hover:text-primary transition-colors" href="#">Kebijakan Privasi Silsilah</a><a class="hover:text-primary transition-colors" href="#">Sekretariat Pusat</a></div></div></footer></body></html>
