@@ -27,6 +27,40 @@ function doGet(e) {
     .addMetaTag('viewport', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
 }
 
+var SYNC_KEY = 'c7affcad495fe48e45e7ae6d5478bce0a53b17bf2b9f6c82';
+
+/**
+ * Endpoint HTTP POST untuk sinkronisasi otomatis dari server Hermes.
+ * Body JSON: { key, action: 'syncArticles', articles: [...] }
+ */
+function doPost(e) {
+  try {
+    var body = JSON.parse((e && e.postData && e.postData.contents) || '{}');
+    if (body.key !== SYNC_KEY) {
+      return jsonOut_({ status: 'error', message: 'forbidden' });
+    }
+    if (body.action === 'syncArticles') {
+      var res = syncManurungArticles(body.articles || []);
+      return jsonOut_(res);
+    }
+    if (body.action === 'ensureAnalisisColumn') {
+      return jsonOut_({ status: 'success', result: ensureAnalisisColumn_() });
+    }
+    if (body.action === 'updateAnalisis') {
+      var n = updateAnalisisBatch_(body.items || []);
+      return jsonOut_({ status: 'success', updated: n });
+    }
+    return jsonOut_({ status: 'error', message: 'unknown action' });
+  } catch (err) {
+    return jsonOut_({ status: 'error', message: String(err) });
+  }
+}
+
+function jsonOut_(o) {
+  return ContentService.createTextOutput(JSON.stringify(o))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
 /**
  * Helper untuk meng-include file HTML parsial (Stylesheet.html & JavaScript.html)
  */
@@ -80,7 +114,7 @@ function setupSpreadsheet() {
   // 5. Sheet: Articles
   var sheetArticles = getOrCreateSheet_(ss, SHEETS.ARTICLES);
   if (sheetArticles.getLastRow() === 0) {
-    var headersArticles = ['ArticleID', 'Judul', 'Konten', 'Kategori', 'PenulisEmail', 'TanggalPublish', 'Status', 'Thumbnail'];
+    var headersArticles = ['ArticleID', 'Judul', 'Konten', 'Kategori', 'PenulisEmail', 'TanggalPublish', 'Status', 'Thumbnail', 'Analisis'];
     formatHeaderRow_(sheetArticles, headersArticles);
     seedInitialArticles_(sheetArticles);
   }
@@ -1041,4 +1075,142 @@ function seedInitialArticles_(sheet) {
     ]
   ];
   sheet.getRange(2, 1, sampleArticles.length, sampleArticles[0].length).setValues(sampleArticles);
+}
+
+/**
+ * Sinkronisasi otomatis berita Manurung ke sheet Articles
+ */
+function syncManurungArticles(articlesList) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName(SHEETS.ARTICLES);
+  if (!sheet) return { status: 'error', message: 'Sheet Articles tidak ditemukan' };
+
+  var rows = sheet.getDataRange().getValues();
+  var existingIds = {};
+  var existingTitles = {};
+  for (var i = 1; i < rows.length; i++) {
+    existingIds[String(rows[i][0]).trim()] = true;
+    existingTitles[String(rows[i][1] || '').trim().toLowerCase()] = true;
+  }
+
+  var countAdded = 0;
+  var countSkipped = 0;
+  var countUpdated = 0;
+  for (var j = 0; j < articlesList.length; j++) {
+    var a = articlesList[j];
+    var artId = String(a.ArticleID || ('ART-AUTO-' + j)).trim();
+    var titleKey = String(a.Judul || '').trim().toLowerCase();
+    var catVal = a.Kategori || 'Politik';
+    var correctThumb = thumbForKategori_(catVal);
+    var pubDate = new Date();
+    try {
+      if (a.TanggalPublish) {
+        var parsed = new Date(a.TanggalPublish);
+        if (!isNaN(parsed.getTime())) pubDate = parsed;
+      }
+    } catch (e) {}
+
+    if (existingIds[artId] || existingTitles[titleKey]) {
+      // Cek apakah thumbnail perlu di-update agar sesuai kategori
+      for (var r = 1; r < rows.length; r++) {
+        if (String(rows[r][0]).trim() === artId || String(rows[r][1] || '').trim().toLowerCase() === titleKey) {
+          var curThumb = String(rows[r][7] || '');
+          if (curThumb.indexOf('photo-1544717305') !== -1 || !curThumb) {
+            sheet.getRange(r + 1, 8).setValue(correctThumb);
+            countUpdated++;
+          }
+          break;
+        }
+      }
+      countSkipped++;
+      continue;
+    }
+
+    sheet.appendRow([
+      artId,
+      a.Judul || 'Tanpa Judul',
+      a.Konten || '',
+      catVal,
+      'redaksi@imanurung.or.id',
+      pubDate,
+      'Published',
+      a.Thumbnail || correctThumb,
+      a.Analisis || ''
+    ]);
+    countAdded++;
+    existingIds[artId] = true;
+    existingTitles[titleKey] = true;
+  }
+  return { status: 'success', added: countAdded, skipped: countSkipped, updated: countUpdated };
+}
+
+/**
+ * Update kolom Analisis untuk artikel yang sudah ada (cocokkan via ArticleID/judul).
+ * items: [{ ArticleID, Judul, Analisis }]
+ */
+function updateAnalisisBatch_(items) {
+  var colStatus = ensureAnalisisColumn_();
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName(SHEETS.ARTICLES);
+  if (!sheet || !items || !items.length) return 0;
+  var lastCol = sheet.getLastColumn();
+  var headers = sheet.getRange(1, 1, 1, lastCol).getValues()[0];
+  var analCol = -1;
+  for (var h = 0; h < headers.length; h++) {
+    if (String(headers[h]).toLowerCase() === 'analisis') { analCol = h + 1; break; }
+  }
+  if (analCol < 1) return 0;
+  var rows = sheet.getDataRange().getValues();
+  var updated = 0;
+  for (var j = 0; j < items.length; j++) {
+    var it = items[j];
+    if (!it.Analisis) continue;
+    var idKey = String(it.ArticleID || '').trim();
+    var titleKey = String(it.Judul || '').trim().toLowerCase();
+    for (var r = 1; r < rows.length; r++) {
+      var matchId = idKey && String(rows[r][0]).trim() === idKey;
+      var matchTitle = titleKey && String(rows[r][1] || '').trim().toLowerCase() === titleKey;
+      if (matchId || matchTitle) {
+        var cur = rows[r].length >= analCol ? String(rows[r][analCol - 1] || '') : '';
+        if (!cur) {
+          sheet.getRange(r + 1, analCol).setValue(String(it.Analisis));
+          updated++;
+        }
+        break;
+      }
+    }
+  }
+  return updated;
+}
+
+/**
+ * Tambah kolom Analisis ke sheet Articles bila belum ada (migrasi sekali jalan).
+ */
+function ensureAnalisisColumn_() {
+  try {
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sheet = ss.getSheetByName(SHEETS.ARTICLES);
+    if (!sheet) return 'no-sheet';
+    var lastCol = sheet.getLastColumn();
+    var headers = sheet.getRange(1, 1, 1, lastCol).getValues()[0];
+    for (var i = 0; i < headers.length; i++) {
+      if (String(headers[i]).toLowerCase() === 'analisis') return 'exists-col-' + (i + 1);
+    }
+    sheet.getRange(1, lastCol + 1).setValue('Analisis');
+    return 'added-col-' + (lastCol + 1);
+  } catch (err) {
+    return 'error: ' + String(err);
+  }
+}
+
+/**
+ * Peta thumbnail sesuai kategori berita.
+ */
+function thumbForKategori_(kat) {
+  if (kat === 'Pengumuman Resmi') return 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=600&auto=format&fit=crop&q=80';
+  if (kat === 'Sejarah & Tarombo') return 'https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?w=600&auto=format&fit=crop&q=80';
+  if (kat === 'Politik') return 'https://images.unsplash.com/photo-1541872703-74c5e44368f9?w=600&auto=format&fit=crop&q=80';
+  if (kat === 'Ekonomi') return 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=600&auto=format&fit=crop&q=80';
+  if (kat === 'Gaya Hidup') return 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=600&auto=format&fit=crop&q=80';
+  return 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=600&auto=format&fit=crop&q=80';
 }
