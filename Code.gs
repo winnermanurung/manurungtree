@@ -268,6 +268,7 @@ function loadAppData(email) {
   var roles = sheetRoles ? getSheetData_(sheetRoles) : [];
 
   var isAdmin = (currentUser.role === 'Admin' || currentUser.role === 'Super Admin');
+  var isStaff = isAdmin || (currentUser.role === 'Pengurus');
 
   var filteredDues = isAdmin ? dues : dues.filter(function(d) {
     return d.MemberID === currentUser.memberId;
@@ -275,6 +276,18 @@ function loadAppData(email) {
   var filteredArticles = isAdmin ? articles : articles.filter(function(a) {
     return a.Status === 'Published';
   });
+
+  // User biasa (Member): hanya lihat aktivitas miliknya sendiri.
+  // Pengurus/Admin/Super Admin: lihat 20 log terakhir global.
+  var visibleLogs;
+  if (isStaff) {
+    visibleLogs = logs.slice(-20).reverse();
+  } else {
+    var myLogs = logs.filter(function(l) {
+      return String(l.Email || '').toLowerCase() === String(foundUser.Email || '').toLowerCase();
+    });
+    visibleLogs = myLogs.slice(-20).reverse();
+  }
 
   var stats = calculateDashboardStats_(members, dues);
 
@@ -284,7 +297,7 @@ function loadAppData(email) {
     members: members,
     dues: filteredDues,
     articles: filteredArticles,
-    logs: logs.slice(-20).reverse(),
+    logs: visibleLogs,
     roles: roles,
     users: isAdmin ? usersData : []
   };

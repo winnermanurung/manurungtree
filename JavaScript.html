@@ -357,8 +357,18 @@ function updateCurrentUserUI() {
     }
   }
 
+  // Menu Data Anggota & Iuran hanya untuk Pengurus/Admin/Super Admin
+  var staffOnlyNavs = ['btnNav-data-anggota', 'btnNav-iuran-keuangan'];
+  staffOnlyNavs.forEach(function(navId) {
+    var btn = document.getElementById(navId);
+    if (btn) btn.classList.toggle('hidden', !isStaffUser());
+  });
+
   // Kunci tulis: user biasa (Member/Pengurus) hanya read — sembunyikan tombol tulis
   applyWriteLockUI_();
+
+  // Dashboard Member: ringkas (sembunyikan KPI statistik & chart), fokus warta + aktivitas sendiri
+  applyMemberDashboardUI_();
 }
 
 /**
@@ -369,6 +379,16 @@ function isWriteAllowed() {
   var user = AppState.currentUser;
   if (!user) return false;
   return (user.role === 'Admin' || user.role === 'Super Admin');
+}
+
+/**
+ * Helper: apakah user termasuk staf (Pengurus/Admin/Super Admin)?
+ * Staf boleh membuka menu Data Anggota & Iuran. Member tidak.
+ */
+function isStaffUser() {
+  var user = AppState.currentUser;
+  if (!user) return false;
+  return (user.role === 'Admin' || user.role === 'Super Admin' || user.role === 'Pengurus');
 }
 
 /**
@@ -413,6 +433,23 @@ function guardWriteAccess_() {
   return false;
 }
 
+/**
+ * Dashboard untuk Member: sembunyikan panel statistik & chart yang sensitif,
+ * tampilkan hanya Warta/Pengumuman + aktivitas milik user tersebut.
+ */
+function applyMemberDashboardUI_() {
+  var isMember = !isStaffUser();
+  try { document.body.classList.toggle('member-view', isMember); } catch (e) {}
+  var dash = document.getElementById('tab-dashboard');
+  if (!dash) return;
+  // Anak section dashboard: [0]=header, [1]=KPI cards, [2]=charts, [3]=aktivitas+warta
+  var blocks = dash.querySelectorAll(':scope > div');
+  if (blocks.length >= 4) {
+    blocks[1].style.display = isMember ? 'none' : '';
+    blocks[2].style.display = isMember ? 'none' : '';
+  }
+}
+
 function loginWithGoogleSSO() {
   // Redirect ke login form
   var emailInput = document.getElementById('login-email');
@@ -439,6 +476,18 @@ function toggleSidebar() {
 // ============================================================================
 function switchViewTab(tabId) {
   var tabs = ['dashboard', 'data-anggota', 'pohon-silsilah', 'iuran-keuangan', 'artikel-berita', 'role-management'];
+
+  // Guard navigasi: Data Anggota & Iuran hanya staf; Role Management hanya admin
+  var staffTabs = ['data-anggota', 'iuran-keuangan'];
+  if (staffTabs.indexOf(tabId) !== -1 && !isStaffUser()) {
+    showToast('Akses Ditolak', 'Menu ini hanya untuk Pengurus dan Admin.');
+    return;
+  }
+  if (tabId === 'role-management' && !isWriteAllowed()) {
+    showToast('Akses Ditolak', 'Menu ini hanya untuk Admin.');
+    return;
+  }
+
   tabs.forEach(function(t) {
     var el = document.getElementById('tab-' + t);
     var btn = document.getElementById('btnNav-' + t);
