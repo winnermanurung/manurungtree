@@ -36,6 +36,9 @@ document.addEventListener('DOMContentLoaded', function() {
 function initApp() {
   if (AppState.isGasEnvironment) {
     showLoadingScreen(true);
+    // Kirim token tersimpan (localStorage) agar session bertahan saat refresh
+    var savedToken = null;
+    try { savedToken = localStorage.getItem('imanurung_session'); } catch (e) {}
     // Cek session dulu — jika ada, langsung masuk tanpa login
     google.script.run
       .withSuccessHandler(function(sessionResult) {
@@ -66,7 +69,7 @@ function initApp() {
         console.error('checkSession error:', err);
         showLoginView();
       })
-      .checkSession();
+      .checkSession(savedToken);
   } else {
     // Mode Preview / Standalone (tanpa GAS)
     console.info('Running in Standalone Preview Mode');
@@ -251,7 +254,10 @@ function handleManualLogin(e) {
       .withSuccessHandler(function(result) {
         if (btn) { btn.disabled = false; btn.textContent = 'Masuk ke Portal'; }
         if (result.success) {
-          // Login berhasil — muat data app
+          // Login berhasil — simpan token agar tahan refresh, lalu muat data app
+          try {
+            if (result.sessionToken) localStorage.setItem('imanurung_session', result.sessionToken);
+          } catch (e) {}
           showLoadingScreen(true);
           google.script.run
             .withSuccessHandler(function(appData) {
@@ -306,6 +312,9 @@ function handleManualLogin(e) {
 // LOGOUT
 // ============
 function logout() {
+  var savedToken = null;
+  try { savedToken = localStorage.getItem('imanurung_session'); } catch (e) {}
+  try { localStorage.removeItem('imanurung_session'); } catch (e) {}
   if (AppState.isGasEnvironment) {
     google.script.run
       .withSuccessHandler(function() {
@@ -318,7 +327,7 @@ function logout() {
         AppState.currentUser = null;
         showLoginView();
       })
-      .logoutUser();
+      .logoutUser(savedToken);
   } else {
     AppState.currentUser = null;
     showLoginView();

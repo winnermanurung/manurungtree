@@ -103,7 +103,9 @@ function setupSpreadsheet() {
 /**
  * Login dengan email dan password.
  * Password disimpan plain-text di kolom Password sheet Users.
- * Return: { success, user, message }
+ * Return: { success, user, sessionToken, message }
+ * sessionToken = token acak yang disimpan di ScriptProperties + localStorage client,
+ * sehingga session bertahan saat refresh (tidak bergantung pada ActiveUserKey).
  */
 function loginUser(email, password) {
   if (!email || !password) {
@@ -146,12 +148,13 @@ function loginUser(email, password) {
     return { success: false, message: 'Password salah.' };
   }
 
-  // Simpan session
+  // Simpan session: token acak (bertahan saat refresh) + legacy key (kompatibilitas)
+  var sessionToken = null;
   try {
-    PropertiesService.getScriptProperties().setProperty(
-      'sess_' + Session.getTemporaryActiveUserKey(),
-      foundUser.Email
-    );
+    sessionToken = 'tok_' + Utilities.getUuid().replace(/-/g, '') + '_' + new Date().getTime();
+    var props = PropertiesService.getScriptProperties();
+    props.setProperty('sess_' + Session.getTemporaryActiveUserKey(), foundUser.Email);
+    props.setProperty('tok_' + sessionToken, foundUser.Email);
   } catch(e) {}
 
   // Update LastLogin
@@ -168,26 +171,31 @@ function loginUser(email, password) {
   logActivity_(foundUser.Email, 'LOGIN', 'Login berhasil');
 
   var userData = buildUserPayload_(foundUser);
-  return { success: true, user: userData };
+  return { success: true, user: userData, sessionToken: sessionToken };
 }
 
 /**
- * Logout: hapus session
+ * Logout: hapus session (legacy key + token).
+ * Terima token opsional dari client agar session token ikut terhapus.
  */
-function logoutUser() {
+function logoutUser(sessionToken) {
   try {
-    PropertiesService.getScriptProperties().deleteProperty(
-      'sess_' + Session.getTemporaryActiveUserKey()
-    );
+    var props = PropertiesService.getScriptProperties();
+    props.deleteProperty('sess_' + Session.getTemporaryActiveUserKey());
+    if (sessionToken) {
+      props.deleteProperty('tok_' + sessionToken);
+    }
   } catch(e) {}
   return { success: true };
 }
 
 /**
- * Cek apakah ada session aktif (dipanggil saat pertama buka halaman)
- * Return: { loggedIn, user } 
+ * Cek apakah ada session aktif (dipanggil saat pertama buka halaman / refresh).
+ * Terima token opsional dari client (localStorage) — prioritas:
+ * 1. token yang dikirim client, 2. legacy ActiveUserKey.
+ * Return: { loggedIn, user }
  */
-function checkSession() {
+function checkSession(sessionToken) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
 
   // Auto-init jika database belum ada
@@ -198,9 +206,13 @@ function checkSession() {
 
   var sessionEmail = null;
   try {
-    sessionEmail = PropertiesService.getScriptProperties().getProperty(
-      'sess_' + Session.getTemporaryActiveUserKey()
-    );
+    var props = PropertiesService.getScriptProperties();
+    if (sessionToken) {
+      sessionEmail = props.getProperty('tok_' + sessionToken);
+    }
+    if (!sessionEmail) {
+      sessionEmail = props.getProperty('sess_' + Session.getTemporaryActiveUserKey());
+    }
   } catch(e) {}
 
   if (!sessionEmail) {
