@@ -216,6 +216,8 @@ function showLoginView() {
   var passInput  = document.getElementById('login-password');
   if (emailInput) emailInput.value = '';
   if (passInput)  passInput.value  = '';
+  // Muat warta publik agar bisa dibaca tanpa login
+  try { loadPublicArticles(); } catch (e) {}
 }
 
 function showAppView() {
@@ -486,6 +488,9 @@ function switchViewTab(tabId) {
   if (tabId === 'role-management' && !isWriteAllowed()) {
     showToast('Akses Ditolak', 'Menu ini hanya untuk Admin.');
     return;
+  }
+  if (tabId === 'role-management' && isWriteAllowed()) {
+    try { loadPendingUsers(); } catch (e) {}
   }
 
   tabs.forEach(function(t) {
@@ -1346,7 +1351,195 @@ function selectFoundTarombo(parentMemberId, parentName) {
 }
 
 function openRegistrationModal() {
-  openAddMemberModal();
+  openModal('modalRegister');
+  loadCaptcha();
+}
+
+/**
+ * Muat soal captcha baru dari server.
+ */
+function loadCaptcha() {
+  var soalEl = document.getElementById('captchaSoal');
+  if (soalEl) soalEl.textContent = 'Memuat...';
+  if (AppState.isGasEnvironment) {
+    google.script.run
+      .withSuccessHandler(function(cap) {
+        document.getElementById('regCaptchaId').value = cap.captchaId;
+        document.getElementById('captchaSoal').textContent = cap.soal;
+      })
+      .withFailureHandler(function() {
+        document.getElementById('captchaSoal').textContent = 'Gagal — klik Baru';
+      })
+      .makeCaptcha();
+  } else {
+    document.getElementById('regCaptchaId').value = 'demo-cap';
+    document.getElementById('captchaSoal').textContent = '7 + 5 = ?';
+  }
+}
+
+/**
+ * Kirim pendaftaran akun baru (publik, tanpa login).
+ */
+function handleRegister(e) {
+  if (e) e.preventDefault();
+  var nama = document.getElementById('regNama').value.trim();
+  var email = document.getElementById('regEmail').value.trim();
+  var password = document.getElementById('regPassword').value;
+  var noHP = document.getElementById('regNoHP').value.trim();
+  var rumpun = document.getElementById('regRumpun').value;
+  var captchaId = document.getElementById('regCaptchaId').value;
+  var captchaJawaban = document.getElementById('regCaptchaJawaban').value.trim();
+
+  if (!nama || !email || !password || !noHP || !rumpun || !captchaJawaban) {
+    showToast('Data Belum Lengkap', 'Semua kolom wajib diisi.');
+    return false;
+  }
+  if (password.length < 6) {
+    showToast('Password Lemah', 'Password minimal 6 karakter.');
+    return false;
+  }
+
+  var btn = document.getElementById('btnRegisterSubmit');
+  if (btn) { btn.disabled = true; btn.textContent = 'Mendaftar...'; }
+
+  function done(ok, msg) {
+    if (btn) { btn.disabled = false; btn.innerHTML = 'Daftar Sekarang'; }
+    if (ok) {
+      closeModal('modalRegister');
+      document.getElementById('formRegister').reset();
+      showToast('Pendaftaran Diterima', msg);
+    } else {
+      showToast('Gagal Mendaftar', msg);
+      loadCaptcha();
+    }
+  }
+
+  if (AppState.isGasEnvironment) {
+    google.script.run
+      .withSuccessHandler(function(res) { done(res.success, res.message); })
+      .withFailureHandler(function(err) { done(false, (err && err.message) || 'Kesalahan server.'); })
+      .registerUser({ Nama: nama, Email: email, Password: password, NoHP: noHP, Rumpun: rumpun, captchaId: captchaId, captchaJawaban: captchaJawaban });
+  } else {
+    done(true, 'Mode demo — registrasi disimulasikan.');
+  }
+  return false;
+}
+
+// Cache artikel publik untuk modal baca
+var PublicArticlesCache = [];
+
+/**
+ * Muat warta/pengumuman publik di homepage (tanpa login).
+ */
+function loadPublicArticles() {
+  var box = document.getElementById('publicArticlesList');
+  if (!box) return;
+  if (AppState.isGasEnvironment) {
+    google.script.run
+      .withSuccessHandler(function(list) { renderPublicArticles(list || []); })
+      .withFailureHandler(function() {
+        box.innerHTML = '<p class="text-xs text-slate-300">Gagal memuat warta. Silakan login untuk melihat berita.</p>';
+      })
+      .getPublicArticles();
+  } else {
+    renderPublicArticles([]);
+  }
+}
+
+function renderPublicArticles(list) {
+  PublicArticlesCache = list || [];
+  var box = document.getElementById('publicArticlesList');
+  if (!box) return;
+  if (!PublicArticlesCache.length) {
+    box.innerHTML = '<p class="text-xs text-slate-300">Belum ada warta. Silakan login untuk melihat arsip berita.</p>';
+    return;
+  }
+  box.innerHTML = PublicArticlesCache.slice(0, 6).map(function(a, i) {
+    var judul = escapeHtml_(a.Judul || 'Tanpa Judul');
+    var tgl = escapeHtml_(a.Tanggal || '');
+    var ringkas = escapeHtml_(String(a.Konten || '').slice(0, 90)) + '...';
+    return '<button onclick="openPublicArticle(' + i + ')" class="w-full text-left p-3 rounded-xl bg-white/10 hover:bg-white/15 border border-white/10 transition">'
+      + '<p class="text-[13px] font-bold text-white leading-snug">' + judul + '</p>'
+      + '<p class="text-[11px] text-slate-300 mt-0.5 line-clamp-2">' + ringkas + '</p>'
+      + '<p class="text-[10px] text-amber-300/90 mt-1">' + tgl + ' &nbsp;•&nbsp; klik untuk baca</p>'
+      + '</button>';
+  }).join('');
+}
+
+function openPublicArticle(idx) {
+  var a = PublicArticlesCache[idx];
+  if (!a) return;
+  document.getElementById('publicArticleTitle').textContent = a.Judul || 'Warta';
+  document.getElementById('publicArticleMeta').textContent =
+    (a.Tanggal || '') + (a.Kategori ? '  •  ' + a.Kategori : '');
+  document.getElementById('publicArticleBody').textContent = a.Konten || '';
+  openModal('modalPublicArticle');
+}
+
+function escapeHtml_(s) {
+  return String(s).replace(/[&<>"']/g, function(c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+  });
+}
+
+/**
+ * Verifikasi pendaftar Pending: setujui / tolak (admin).
+ */
+function handleVerifyPending(email, approve) {
+  if (!confirm((approve ? 'Setujui' : 'Tolak') + ' pendaftaran ' + email + '?')) return;
+  if (AppState.isGasEnvironment) {
+    google.script.run
+      .withSuccessHandler(function() {
+        showToast('Berhasil', approve ? 'Pendaftar disetujui & akun aktif.' : 'Pendaftaran ditolak.');
+        loadPendingUsers();
+        initAppSilent_();
+      })
+      .withFailureHandler(function(err) {
+        showToast('Gagal', (err && err.message) || 'Verifikasi gagal.');
+      })
+      .verifyPendingUser(email, approve);
+  }
+}
+
+/**
+ * Muat daftar pendaftar Pending ke panel Role Management.
+ */
+function loadPendingUsers() {
+  var box = document.getElementById('pendingUsersList');
+  if (!box) return;
+  box.innerHTML = '<p class="text-xs text-on-surface-variant">Memuat pendaftar...</p>';
+  if (AppState.isGasEnvironment) {
+    google.script.run
+      .withSuccessHandler(function(list) { renderPendingUsers(list || []); })
+      .withFailureHandler(function() {
+        box.innerHTML = '<p class="text-xs text-red-500">Gagal memuat pendaftar.</p>';
+      })
+      .getPendingUsers();
+  } else {
+    box.innerHTML = '<p class="text-xs text-on-surface-variant">Mode demo.</p>';
+  }
+}
+
+function renderPendingUsers(list) {
+  var box = document.getElementById('pendingUsersList');
+  if (!box) return;
+  var badge = document.getElementById('pendingCountBadge');
+  if (badge) badge.textContent = list.length ? list.length + ' menunggu' : '';
+  if (!list.length) {
+    box.innerHTML = '<p class="text-xs text-on-surface-variant py-2">Tidak ada pendaftar menunggu verifikasi. 🎉</p>';
+    return;
+  }
+  box.innerHTML = list.map(function(u) {
+    var email = escapeHtml_(u.Email || '');
+    var nama = escapeHtml_(u.Nama || '');
+    return '<div class="flex items-center justify-between gap-2 p-2.5 rounded-xl bg-amber-50 border border-amber-200">'
+      + '<div class="min-w-0"><p class="text-xs font-bold text-on-surface truncate">' + nama + '</p>'
+      + '<p class="text-[11px] text-on-surface-variant truncate">' + email + '</p></div>'
+      + '<div class="flex gap-1.5 shrink-0">'
+      + '<button onclick="handleVerifyPending(\'' + email + '\', true)" class="text-[11px] font-bold px-2.5 py-1.5 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700">Setujui</button>'
+      + '<button onclick="handleVerifyPending(\'' + email + '\', false)" class="text-[11px] font-bold px-2.5 py-1.5 rounded-lg bg-red-100 text-red-700 hover:bg-red-200">Tolak</button>'
+      + '</div></div>';
+  }).join('');
 }
 
 function initDatabaseFromUI() {

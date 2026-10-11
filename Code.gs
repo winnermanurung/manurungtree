@@ -138,6 +138,10 @@ function loginUser(email, password) {
     return { success: false, message: 'Email tidak terdaftar sebagai anggota.' };
   }
 
+  if (foundUser.Status === 'Pending') {
+    return { success: false, message: 'Akun Anda masih menunggu verifikasi admin. Hubungi pengurus.' };
+  }
+
   if (foundUser.Status === 'NonAktif') {
     return { success: false, message: 'Akun Anda telah dinonaktifkan. Hubungi pengurus.' };
   }
@@ -231,7 +235,7 @@ function checkSession(sessionToken) {
     }
   }
 
-  if (!foundUser || foundUser.Status === 'NonAktif') {
+  if (!foundUser || foundUser.Status === 'NonAktif' || foundUser.Status === 'Pending') {
     return { loggedIn: false };
   }
 
@@ -750,6 +754,131 @@ function getLoginLogs() {
     }
   }
   return result;
+}
+
+// ============================================================================
+// BERITA PUBLIK, CAPTCHA & REGISTRASI MANDIRI (tidak perlu login)
+// ============================================================================
+
+/**
+ * Ambil artikel Published untuk homepage publik (tanpa login).
+ * Return: max 20 artikel terbaru.
+ */
+function getPublicArticles() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName(SHEETS.ARTICLES);
+  if (!sheet) return [];
+  var articles = getSheetData_(sheet);
+  var pub = articles.filter(function(a) {
+    return String(a.Status || '').toLowerCase() === 'published';
+  });
+  return pub.slice(-20).reverse();
+}
+
+/**
+ * Buat soal captcha sederhana (penjumlahan 1-20).
+ * Return: { captchaId, soal } — jawaban disimpan di ScriptProperties 10 menit.
+ */
+function makeCaptcha() {
+  var a = 1 + Math.floor(Math.random() * 20);
+  var b = 1 + Math.floor(Math.random() * 20);
+  var captchaId = 'cap_' + Utilities.getUuid().replace(/-/g, '').slice(0, 12);
+  try {
+    var props = PropertiesService.getScriptProperties();
+    props.setProperty(captchaId, String(a + b));
+  } catch (e) {}
+  return { captchaId: captchaId, soal: a + ' + ' + b + ' = ?' };
+}
+
+/**
+ * Verifikasi jawaban captcha. Sekali pakai (langsung dihapus).
+ */
+function verifyCaptcha_(captchaId, jawaban) {
+  if (!captchaId) return false;
+  try {
+    var props = PropertiesService.getScriptProperties();
+    var expected = props.getProperty(captchaId);
+    props.deleteProperty(captchaId);
+    if (expected === null) return false;
+    return String(expected).trim() === String(jawaban).trim();
+  } catch (e) {
+    return false;
+  }
+}
+
+/**
+ * Registrasi mandiri: buat akun Status Pending (tidak langsung aktif).
+ * Wajib: Nama, Email, Password (min 6), NoHP, Rumpun + captcha benar.
+ * Return: { success, message }
+ */
+function registerUser(regData) {
+  if (!regData) return { success: false, message: 'Data tidak lengkap.' };
+
+  if (!verifyCaptcha_(regData.captchaId, regData.captchaJawaban)) {
+    return { success: false, message: 'Captcha salah atau kedaluwarsa. Coba lagi.' };
+  }
+
+  var nama = String(regData.Nama || '').trim();
+  var email = String(regData.Email || '').toLowerCase().trim();
+  var password = String(regData.Password || '');
+  var noHP = String(regData.NoHP || '').trim();
+  var rumpun = String(regData.Rumpun || '').trim();
+
+  if (!nama) return { success: false, message: 'Nama lengkap wajib diisi.' };
+  if (!email || email.indexOf('@') < 0) return { success: false, message: 'Email tidak valid.' };
+  if (password.length < 6) return { success: false, message: 'Password minimal 6 karakter.' };
+  if (!noHP) return { success: false, message: 'Nomor HP/WA wajib diisi.' };
+  if (!rumpun) return { success: false, message: 'Rumpun wajib dipilih.' };
+
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName(SHEETS.USERS);
+  if (!sheet) return { success: false, message: 'Database belum diinisialisasi.' };
+
+  var rows = sheet.getDataRange().getValues();
+  for (var i = 1; i < rows.length; i++) {
+    if (String(rows[i][0]).toLowerCase() === email) {
+      return { success: false, message: 'Email sudah terdaftar. Silakan login.' };
+    }
+  }
+
+  sheet.appendRow([email, nama, 'Member', '', 'Pending', '', password]);
+  logActivity_(email, 'REGISTER', 'Registrasi mandiri: ' + nama + ' (' + rumpun + ', ' + noHP + ')');
+  return { success: true, message: 'Pendaftaran diterima. Akun menunggu verifikasi admin.' };
+}
+
+/**
+ * Verifikasi pendaftar: setujui (Aktif) atau tolak (NonAktif) — hanya Admin.
+ */
+function verifyPendingUser(targetEmail, approve) {
+  var admin = requireAdmin_();
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName(SHEETS.USERS);
+  if (!sheet) throw new Error('Sheet Users tidak ditemukan.');
+
+  var rows = sheet.getDataRange().getValues();
+  for (var i = 1; i < rows.length; i++) {
+    if (String(rows[i][0]).toLowerCase() === String(targetEmail).toLowerCase()) {
+      var newStatus = approve ? 'Aktif' : 'NonAktif';
+      sheet.getRange(i + 1, 5).setValue(newStatus);
+      logActivity_(admin.email, approve ? 'APPROVE_USER' : 'REJECT_USER',
+        (approve ? 'Menyetujui' : 'Menolak') + ' pendaftaran ' + targetEmail);
+      return { status: 'success' };
+    }
+  }
+  throw new Error('Pengguna tidak ditemukan.');
+}
+
+/**
+ * Ambil daftar pendaftar Pending — hanya Admin.
+ */
+function getPendingUsers() {
+  var admin = requireAdmin_();
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName(SHEETS.USERS);
+  if (!sheet) return [];
+  return getSheetData_(sheet).filter(function(u) {
+    return String(u.Status || '') === 'Pending';
+  });
 }
 
 // ============================================================================

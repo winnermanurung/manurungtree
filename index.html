@@ -115,7 +115,7 @@
         <div class="lg:col-span-6 flex flex-col justify-between rounded-2xl bg-primary-container text-white p-6 sm:p-10 shadow-2xl relative overflow-hidden">
           <div class="absolute -right-24 -top-24 w-80 h-80 rounded-full bg-secondary/20 blur-3xl pointer-events-none"></div>
           <div class="absolute -left-20 -bottom-20 w-80 h-80 rounded-full bg-blue-500/10 blur-3xl pointer-events-none"></div>
-          
+
           <div class="relative z-10 space-y-6">
             <div class="flex flex-wrap items-center justify-between gap-2">
               <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md">
@@ -136,54 +136,19 @@
                 Satu akses terpadu untuk Tarombo Silsilah (Ompu Silau Raja), Kas Iuran Gotong Royong, Warta Komunitas Adat, dan Tata Kelola Kepengurusan Patambor se-Indonesia.
               </p>
             </div>
-
-            <!-- Features -->
-            <div class="space-y-3 pt-2">
-              <div class="flex items-start gap-3 p-3 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10">
-                <div class="w-9 h-9 rounded-lg bg-secondary/20 flex items-center justify-center text-amber-300 shrink-0">
-                  <span class="material-symbols-outlined text-[20px]">lock_reset</span>
-                </div>
-                <div>
-                  <h4 class="text-sm font-semibold text-white">Google SSO Terenkripsi</h4>
-                  <p class="text-xs text-slate-300">Akses cepat dan aman menggunakan akun Google terverifikasi.</p>
-                </div>
-              </div>
-
-              <div class="flex items-start gap-3 p-3 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10">
-                <div class="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center text-amber-300 shrink-0">
-                  <span class="material-symbols-outlined text-[20px]">account_tree</span>
-                </div>
-                <div>
-                  <h4 class="text-sm font-semibold text-white">Tarombo Digital 3 Rumpun</h4>
-                  <p class="text-xs text-slate-300">Sinkronisasi silsilah Hutagurgur, Hutagaol, dan Simanoroni.</p>
-                </div>
-              </div>
-
-              <div class="flex items-start gap-3 p-3 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10">
-                <div class="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center text-emerald-400 shrink-0">
-                  <span class="material-symbols-outlined text-[20px]">shield</span>
-                </div>
-                <div>
-                  <h4 class="text-sm font-semibold text-white">Perlindungan Multi-Role RBAC</h4>
-                  <p class="text-xs text-slate-300">Akses bertingkat untuk Pengurus DPP, DPD, dan Anggota Warga.</p>
-                </div>
-              </div>
-            </div>
           </div>
 
-          <!-- Trust card -->
-          <div class="relative z-10 mt-8 pt-4 bg-white/10 rounded-xl p-4 backdrop-blur-md border border-white/10 flex items-center justify-between">
-            <div>
-              <div class="flex items-center gap-1 text-amber-400 text-xs">
-                <span class="material-symbols-outlined text-[16px]">star</span>
-                <span class="material-symbols-outlined text-[16px]">star</span>
-                <span class="material-symbols-outlined text-[16px]">star</span>
-                <span class="material-symbols-outlined text-[16px]">star</span>
-                <span class="material-symbols-outlined text-[16px]">star</span>
-              </div>
-              <p class="text-xs text-slate-200 mt-0.5">Telah digunakan <strong>4.820+</strong> warga & keturunan Manurung.</p>
+          <!-- Warta publik terbaru (bisa dibaca tanpa login) -->
+          <div class="relative z-10 mt-6 pt-4 border-t border-white/10">
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                <span class="material-symbols-outlined text-[18px] text-amber-300">campaign</span>
+                Warta & Pengumuman Terbaru
+              </h3>
             </div>
-            <span class="text-xs bg-emerald-500/20 text-emerald-300 px-2.5 py-1 rounded-full font-bold border border-emerald-400/30">Terverifikasi</span>
+            <div id="publicArticlesList" class="space-y-2 max-h-64 overflow-y-auto pr-1">
+              <p class="text-xs text-slate-300">Memuat warta terbaru...</p>
+            </div>
           </div>
         </div>
 
@@ -248,7 +213,7 @@
               <!-- Info Box -->
               <div class="p-3 bg-primary/5 rounded-xl border border-primary/10 text-[11px] text-on-surface-variant leading-relaxed">
                 <span class="material-symbols-outlined text-[13px] text-primary align-middle mr-1">info</span>
-                Password default: <strong class="text-primary">manurung2025</strong> &nbsp;|&nbsp; Admin: <strong class="text-secondary">admin2025</strong>
+                Akun baru? Daftar dulu, lalu tunggu verifikasi admin sebelum bisa masuk.
               </div>
 
               <!-- Submit Button -->
@@ -971,6 +936,22 @@
             </div>
           </div>
 
+          <!-- Verifikasi Pendaftar Baru -->
+          <div class="bg-surface-container-lowest rounded-2xl border border-amber-200 shadow-xs overflow-hidden">
+            <div class="p-4 border-b border-amber-200 bg-amber-50/60 flex items-center justify-between">
+              <h3 class="text-sm font-bold text-primary flex items-center gap-2">
+                <span class="material-symbols-outlined text-[18px] text-amber-600">how_to_reg</span>
+                Verifikasi Pendaftar Baru <span id="pendingCountBadge" class="text-[11px] font-bold text-amber-700"></span>
+              </h3>
+              <button onclick="loadPendingUsers()" class="text-xs font-bold text-secondary hover:underline flex items-center gap-1">
+                <span class="material-symbols-outlined text-[16px]">refresh</span> Muat Ulang
+              </button>
+            </div>
+            <div id="pendingUsersList" class="p-4 space-y-2 max-h-72 overflow-y-auto">
+              <p class="text-xs text-on-surface-variant">Buka tab ini untuk memuat pendaftar menunggu verifikasi.</p>
+            </div>
+          </div>
+
           <!-- Login History Panel -->
           <div class="bg-surface-container-lowest rounded-2xl border border-surface-container-high shadow-xs overflow-hidden">
             <div class="p-4 border-b border-surface-container-high bg-surface-container-low/50 flex items-center justify-between">
@@ -1282,5 +1263,91 @@
 
   <!-- JavaScript Include -->
   <?!= include('JavaScript'); ?>
+
+  <!-- Modal Registrasi Mandiri (publik, tanpa login) -->
+  <div id="modalRegister" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+    <div class="bg-white rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto shadow-2xl">
+      <div class="bg-primary-container text-white px-5 py-4 rounded-t-2xl flex items-center justify-between sticky top-0">
+        <h3 class="font-bold text-sm flex items-center gap-2">
+          <span class="material-symbols-outlined text-[20px]">person_add</span>
+          Pendaftaran Akun Baru
+        </h3>
+        <button onclick="closeModal('modalRegister')" class="text-white/70 hover:text-white">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <form id="formRegister" class="p-5 space-y-3" onsubmit="return false;">
+        <div>
+          <label class="text-xs font-bold text-on-surface">Nama Lengkap *</label>
+          <input id="regNama" type="text" required placeholder="cth: Winner Manurung"
+            class="mt-1 w-full px-3 py-2.5 rounded-xl border border-outline-variant text-sm text-on-surface focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none" />
+        </div>
+        <div>
+          <label class="text-xs font-bold text-on-surface">Email *</label>
+          <input id="regEmail" type="email" required placeholder="cth: nama@email.com"
+            class="mt-1 w-full px-3 py-2.5 rounded-xl border border-outline-variant text-sm text-on-surface focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none" />
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-xs font-bold text-on-surface">Password (min 6) *</label>
+            <input id="regPassword" type="password" required minlength="6" placeholder="••••••"
+              class="mt-1 w-full px-3 py-2.5 rounded-xl border border-outline-variant text-sm text-on-surface focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none" />
+          </div>
+          <div>
+            <label class="text-xs font-bold text-on-surface">No. HP/WA *</label>
+            <input id="regNoHP" type="tel" required placeholder="cth: 0812xxxx"
+              class="mt-1 w-full px-3 py-2.5 rounded-xl border border-outline-variant text-sm text-on-surface focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none" />
+          </div>
+        </div>
+        <div>
+          <label class="text-xs font-bold text-on-surface">Rumpun *</label>
+          <select id="regRumpun" required
+            class="mt-1 w-full px-3 py-2.5 rounded-xl border border-outline-variant text-sm text-on-surface focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none bg-white">
+            <option value="">— Pilih Rumpun —</option>
+            <option value="Hutagurgur">Hutagurgur</option>
+            <option value="Hutagaol">Hutagaol</option>
+            <option value="Simanoroni">Simanoroni</option>
+            <option value="Lainnya">Lainnya / Belum Tahu</option>
+          </select>
+        </div>
+        <div class="p-3 bg-slate-50 rounded-xl border border-outline-variant">
+          <div class="flex items-center justify-between gap-2">
+            <label class="text-xs font-bold text-on-surface">Verifikasi Captcha *</label>
+            <button type="button" onclick="loadCaptcha()" title="Soal baru"
+              class="text-primary hover:text-secondary flex items-center gap-1 text-xs font-semibold">
+              <span class="material-symbols-outlined text-[16px]">refresh</span> Baru
+            </button>
+          </div>
+          <p id="captchaSoal" class="mt-1 text-lg font-bold tracking-widest text-primary-container select-none">…</p>
+          <input id="regCaptchaJawaban" type="number" required placeholder="Jawaban angka"
+            class="mt-1 w-full px-3 py-2.5 rounded-xl border border-outline-variant text-sm text-on-surface focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none" />
+          <input id="regCaptchaId" type="hidden" />
+        </div>
+        <p class="text-[11px] text-on-surface-variant leading-relaxed">
+          Akun <strong>tidak langsung aktif</strong> — admin akan memverifikasi pendaftaran Anda terlebih dahulu.
+        </p>
+        <button type="button" onclick="handleRegister(event)" id="btnRegisterSubmit"
+          class="w-full bg-secondary hover:brightness-110 text-white font-bold py-3 rounded-xl text-sm shadow-lg transition flex items-center justify-center gap-2">
+          <span class="material-symbols-outlined text-[18px]">how_to_reg</span> Daftar Sekarang
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal Baca Artikel Publik (tanpa login) -->
+  <div id="modalPublicArticle" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+    <div class="bg-white rounded-2xl w-full max-w-lg max-h-[85vh] overflow-y-auto shadow-2xl">
+      <div class="bg-primary-container text-white px-5 py-4 rounded-t-2xl flex items-center justify-between sticky top-0">
+        <h3 id="publicArticleTitle" class="font-bold text-sm pr-4">Warta</h3>
+        <button onclick="closeModal('modalPublicArticle')" class="text-white/70 hover:text-white shrink-0">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <div class="p-5">
+        <p id="publicArticleMeta" class="text-[11px] text-on-surface-variant mb-3"></p>
+        <div id="publicArticleBody" class="text-sm text-on-surface leading-relaxed whitespace-pre-wrap"></div>
+      </div>
+    </div>
+  </div>
 </body>
 </html>
