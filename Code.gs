@@ -1111,11 +1111,16 @@ function syncManurungArticles(articlesList) {
     } catch (e) {}
 
     if (existingIds[artId] || existingTitles[titleKey]) {
-      // Cek apakah thumbnail perlu di-update agar sesuai kategori
+      // Update thumbnail: ganti gambar generik (unsplash/kosong) dengan foto asli berita
+      var incomingThumb = a.Thumbnail || '';
       for (var r = 1; r < rows.length; r++) {
         if (String(rows[r][0]).trim() === artId || String(rows[r][1] || '').trim().toLowerCase() === titleKey) {
           var curThumb = String(rows[r][7] || '');
-          if (curThumb.indexOf('photo-1544717305') !== -1 || !curThumb) {
+          var isGeneric = !curThumb || curThumb.indexOf('unsplash.com') !== -1;
+          if (isGeneric && incomingThumb && incomingThumb.indexOf('unsplash.com') === -1) {
+            sheet.getRange(r + 1, 8).setValue(incomingThumb);
+            countUpdated++;
+          } else if ((curThumb.indexOf('photo-1544717305') !== -1 || !curThumb) && correctThumb) {
             sheet.getRange(r + 1, 8).setValue(correctThumb);
             countUpdated++;
           }

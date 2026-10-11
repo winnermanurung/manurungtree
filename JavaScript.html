@@ -1166,7 +1166,7 @@ function renderArticlesGrid() {
 
   grid.innerHTML = AppState.filteredArticles.map(function(art) {
     return '<div class="bg-surface-container-lowest rounded-2xl border border-surface-container-high shadow-xs overflow-hidden flex flex-col group hover:shadow-md transition">' +
-      '<img src="' + escapeHtml(art.Thumbnail || '') + '" class="w-full h-44 object-cover group-hover:scale-105 transition-transform duration-300">' +
+      '<img src="' + escapeHtml(art.Thumbnail || '') + '" onerror="this.onerror=null;this.src=\'https://images.unsplash.com/photo-1544717305-2782549b5136?w=600\'" class="w-full h-44 object-cover group-hover:scale-105 transition-transform duration-300">' +
       '<div class="p-4 flex flex-col justify-between flex-1 space-y-3">' +
         '<div>' +
           '<div class="flex items-center justify-between text-[10px] uppercase font-bold text-secondary tracking-wider mb-1">' +
@@ -1622,7 +1622,7 @@ function renderPublicArticles(list) {
     var ringkas = escapeHtml_(String(a.Konten || '').slice(0, 110)) + '...';
     var thumb = a.Thumbnail || 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=600';
     return '<div onclick="openPublicArticle(' + i + ')" class="bg-white/10 hover:bg-white/15 border border-white/10 rounded-xl overflow-hidden cursor-pointer transition flex flex-col sm:flex-row gap-3 p-3">'
-      + '<img src="' + thumb + '" class="w-full sm:w-28 h-20 object-cover rounded-lg shrink-0">'
+      + '<img src="' + thumb + '" onerror="this.onerror=null;this.src=\'https://images.unsplash.com/photo-1544717305-2782549b5136?w=600\'" class="w-full sm:w-28 h-20 object-cover rounded-lg shrink-0">'
       + '<div class="min-w-0 flex-1">'
       + '<div class="flex items-center gap-2 text-[10px] text-amber-300 font-bold uppercase tracking-wider mb-0.5"><span>' + kat + '</span><span>•</span><span>' + tgl + '</span></div>'
       + '<h4 class="text-xs sm:text-sm font-bold text-white leading-snug line-clamp-2">' + judul + '</h4>'
