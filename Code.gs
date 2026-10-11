@@ -651,7 +651,6 @@ function updateUserRole(targetEmail, newRole) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sheet = ss.getSheetByName(SHEETS.USERS);
   if (!sheet) throw new Error('Sheet Users tidak ditemukan.');
-
   var rows = sheet.getDataRange().getValues();
   for (var i = 1; i < rows.length; i++) {
     if (String(rows[i][0]).toLowerCase() === String(targetEmail).toLowerCase()) {
@@ -661,6 +660,71 @@ function updateUserRole(targetEmail, newRole) {
     }
   }
   throw new Error('Pengguna tidak ditemukan.');
+}
+
+/**
+ * Update info pengguna (Nama, Status, MemberID) — hanya Admin/Super Admin.
+ * Password TIDAK bisa diubah lewat fungsi ini.
+ */
+function updateUserInfo(targetEmail, infoData) {
+  var admin = requireAdmin_();
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName(SHEETS.USERS);
+  if (!sheet) throw new Error('Sheet Users tidak ditemukan.');
+
+  var rows = sheet.getDataRange().getValues();
+  for (var i = 1; i < rows.length; i++) {
+    if (String(rows[i][0]).toLowerCase() === String(targetEmail).toLowerCase()) {
+      if (infoData.Nama !== undefined) sheet.getRange(i + 1, 2).setValue(infoData.Nama);
+      if (infoData.MemberID !== undefined) sheet.getRange(i + 1, 4).setValue(infoData.MemberID);
+      if (infoData.Status !== undefined) sheet.getRange(i + 1, 5).setValue(infoData.Status);
+      logActivity_(admin.email, 'UPDATE_USER', 'Memperbarui info pengguna ' + targetEmail);
+      return { status: 'success' };
+    }
+  }
+  throw new Error('Pengguna tidak ditemukan.');
+}
+
+/**
+ * Reset password pengguna — hanya Admin/Super Admin.
+ */
+function resetUserPassword(targetEmail, newPassword) {
+  var admin = requireAdmin_();
+  if (!newPassword || String(newPassword).length < 6) {
+    throw new Error('Password baru minimal 6 karakter.');
+  }
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName(SHEETS.USERS);
+  if (!sheet) throw new Error('Sheet Users tidak ditemukan.');
+
+  var rows = sheet.getDataRange().getValues();
+  for (var i = 1; i < rows.length; i++) {
+    if (String(rows[i][0]).toLowerCase() === String(targetEmail).toLowerCase()) {
+      sheet.getRange(i + 1, 7).setValue(String(newPassword));
+      logActivity_(admin.email, 'RESET_PASSWORD', 'Mereset password pengguna ' + targetEmail);
+      return { status: 'success' };
+    }
+  }
+  throw new Error('Pengguna tidak ditemukan.');
+}
+
+/**
+ * Ambil riwayat login (aksi LOGIN) — hanya Admin/Super Admin.
+ * Return: array log terbaru, max 100.
+ */
+function getLoginLogs() {
+  var admin = requireAdmin_();
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName(SHEETS.ACTIVITY_LOG);
+  if (!sheet) return [];
+  var logs = getSheetData_(sheet);
+  var result = [];
+  for (var i = logs.length - 1; i >= 0 && result.length < 100; i--) {
+    if (String(logs[i].Aksi || '').toUpperCase() === 'LOGIN') {
+      result.push(logs[i]);
+    }
+  }
+  return result;
 }
 
 // ============================================================================

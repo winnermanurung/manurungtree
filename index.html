@@ -960,13 +960,27 @@
                     <th class="py-3 px-4">Email Google SSO</th>
                     <th class="py-3 px-4">Role Saat Ini</th>
                     <th class="py-3 px-4">Status</th>
-                    <th class="py-3 px-4 text-right">Ubah Role</th>
+                    <th class="py-3 px-4">Terakhir Login</th>
+                    <th class="py-3 px-4 text-right">Aksi Admin</th>
                   </tr>
                 </thead>
                 <tbody id="roleUsersTableBody" class="divide-y divide-surface-container-high">
                   <!-- Injected via JavaScript -->
                 </tbody>
               </table>
+            </div>
+          </div>
+
+          <!-- Login History Panel -->
+          <div class="bg-surface-container-lowest rounded-2xl border border-surface-container-high shadow-xs overflow-hidden">
+            <div class="p-4 border-b border-surface-container-high bg-surface-container-low/50 flex items-center justify-between">
+              <h3 class="text-sm font-bold text-primary">Riwayat Login Pengguna</h3>
+              <button onclick="loadLoginLogs()" class="text-xs font-bold text-secondary hover:underline flex items-center gap-1">
+                <span class="material-symbols-outlined text-[16px]">refresh</span> Muat Ulang
+              </button>
+            </div>
+            <div id="loginLogsList" class="p-4 space-y-2 max-h-72 overflow-y-auto">
+              <p class="text-xs text-on-surface-variant">Klik Muat Ulang untuk melihat 100 login terakhir.</p>
             </div>
           </div>
         </section>

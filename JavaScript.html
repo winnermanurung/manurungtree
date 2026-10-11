@@ -347,6 +347,61 @@ function updateCurrentUserUI() {
       btnRoleNav.classList.add('hidden');
     }
   }
+
+  // Kunci tulis: user biasa (Member/Pengurus) hanya read — sembunyikan tombol tulis
+  applyWriteLockUI_();
+}
+
+/**
+ * Helper: apakah user saat ini boleh tulis (add/edit)?
+ * Hanya Admin & Super Admin.
+ */
+function isWriteAllowed() {
+  var user = AppState.currentUser;
+  if (!user) return false;
+  return (user.role === 'Admin' || user.role === 'Super Admin');
+}
+
+/**
+ * Sembunyikan semua tombol tulis untuk user read-only.
+ * Dipanggil setiap kali user login / tab berganti.
+ */
+function applyWriteLockUI_() {
+  var allowed = isWriteAllowed();
+  // Tandai body agar CSS/tooltip bisa menyesuaikan
+  try { document.body.classList.toggle('read-only', !allowed); } catch (e) {}
+
+  // Tombol-tombol tulis utama (tambah anggota, catat iuran, tulis artikel)
+  var writeBtnSelectors = [
+    '[onclick="openAddMemberModal()"]',
+    '[onclick="openRecordDuesModal()"]',
+    '[onclick="openArticleEditorModal()"]'
+  ];
+  writeBtnSelectors.forEach(function(sel) {
+    document.querySelectorAll(sel).forEach(function(btn) {
+      btn.classList.toggle('hidden', !allowed);
+    });
+  });
+
+  // Tombol edit di drawer detail anggota
+  var drawerEdit = document.getElementById('drawerEditBtn');
+  if (drawerEdit) drawerEdit.classList.toggle('hidden', !allowed);
+
+  // Tombol edit per-baris di tabel anggota (di-render dinamis — tandai flag)
+  AppState.writeLocked = !allowed;
+  if (typeof renderMembersTable === 'function') {
+    try { renderMembersTable(); } catch (e) {}
+  }
+}
+
+/**
+ * Guard: tolak pembukaan modal tulis untuk user read-only.
+ * Return true jika boleh lanjut, false + toast jika ditolak.
+ */
+function guardWriteAccess_() {
+  if (isWriteAllowed()) return true;
+  showToast('Akses Ditolak', 'Hanya Admin yang bisa menambah/mengubah data.');
+  return false;
 }
 
 function loginWithGoogleSSO() {
@@ -613,9 +668,10 @@ function renderMembersTable() {
       '</td>' +
       '<td class="py-3 px-4 text-right whitespace-nowrap">' +
         '<div class="flex items-center justify-end gap-1" onclick="event.stopPropagation()">' +
+          (AppState.writeLocked ? '' :
           '<button onclick="openEditMemberModal(\'' + m.MemberID + '\')" title="Edit" class="p-1 rounded hover:bg-surface-container text-primary transition">' +
             '<span class="material-symbols-outlined text-[18px]">edit</span>' +
-          '</button>' +
+          '</button>') +
         '</div>' +
       '</td>' +
     '</tr>';
@@ -847,6 +903,7 @@ function renderDuesTable() {
 }
 
 function openRecordDuesModal() {
+  if (!guardWriteAccess_()) return;
   var sel = document.getElementById('duesMemberSelect');
   if (sel) {
     sel.innerHTML = AppState.members.map(function(m) {
@@ -940,6 +997,7 @@ function openReadArticleModal(artId) {
 }
 
 function openArticleEditorModal() {
+  if (!guardWriteAccess_()) return;
   document.getElementById('articleFormId').value = '';
   document.getElementById('articleJudul').value = '';
   document.getElementById('articleKonten').value = '';
@@ -992,17 +1050,92 @@ function renderRoleUsersTable() {
         '<span class="px-2 py-0.5 rounded-full bg-primary-container text-white text-[10px] font-bold">' + escapeHtml(u.Role) + '</span>' +
       '</td>' +
       '<td class="py-3 px-4">' +
-        '<span class="text-emerald-700 font-bold text-[10px] bg-emerald-50 px-2 py-0.5 rounded-full">Aktif</span>' +
+        (u.Status === 'NonAktif'
+          ? '<span class="text-red-700 font-bold text-[10px] bg-red-50 px-2 py-0.5 rounded-full">NonAktif</span>'
+          : '<span class="text-emerald-700 font-bold text-[10px] bg-emerald-50 px-2 py-0.5 rounded-full">Aktif</span>') +
       '</td>' +
-      '<td class="py-3 px-4 text-right">' +
+      '<td class="py-3 px-4 text-[10px] text-on-surface-variant">' + escapeHtml(u.LastLogin || '-') + '</td>' +
+      '<td class="py-3 px-4 text-right whitespace-nowrap">' +
         '<select onchange="changeUserRole(\'' + u.Email + '\', this.value)" class="bg-surface-container-low border border-surface-container-high rounded-lg text-xs px-2 py-1 outline-none cursor-pointer">' +
           '<option value="Member"' + (u.Role === 'Member' ? ' selected' : '') + '>Member</option>' +
           '<option value="Pengurus"' + (u.Role === 'Pengurus' ? ' selected' : '') + '>Pengurus Sektor</option>' +
           '<option value="Admin"' + (u.Role === 'Admin' ? ' selected' : '') + '>Admin DPP</option>' +
-        '</select>' +
+        '</select> ' +
+        '<button onclick="openEditUserModal(\'' + u.Email + '\')" title="Edit Info" class="p-1 rounded hover:bg-surface-container text-primary transition">' +
+          '<span class="material-symbols-outlined text-[18px]">manage_accounts</span>' +
+        '</button> ' +
+        '<button onclick="promptResetPassword(\'' + u.Email + '\')" title="Reset Password" class="p-1 rounded hover:bg-surface-container text-secondary transition">' +
+          '<span class="material-symbols-outlined text-[18px]">lock_reset</span>' +
+        '</button>' +
       '</td>' +
     '</tr>';
   }).join('');
+}
+
+function openEditUserModal(email) {
+  var u = AppState.users.find(function(x) { return x.Email === email; });
+  if (!u) return;
+  var nama = prompt('Edit Nama untuk ' + email + ':', u.Nama || '');
+  if (nama === null) return;
+  var memberId = prompt('Edit MemberID:', u.MemberID || '');
+  if (memberId === null) return;
+  var status = prompt('Status (Aktif / NonAktif):', u.Status || 'Aktif');
+  if (status === null) return;
+  if (AppState.isGasEnvironment) {
+    google.script.run
+      .withSuccessHandler(function() {
+        showToast('Pengguna Diperbarui', email + ' berhasil diperbarui.');
+        initApp();
+      })
+      .withFailureHandler(function(err) { showToast('Error', err.message); })
+      .updateUserInfo(email, { Nama: nama, MemberID: memberId, Status: status });
+  } else {
+    u.Nama = nama; u.MemberID = memberId; u.Status = status;
+    renderRoleUsersTable();
+    showToast('Pengguna Diperbarui', email + ' (Demo Mode)');
+  }
+}
+
+function promptResetPassword(email) {
+  var pw = prompt('Password baru untuk ' + email + ' (min 6 karakter):', '');
+  if (pw === null || pw === '') return;
+  if (AppState.isGasEnvironment) {
+    google.script.run
+      .withSuccessHandler(function() {
+        showToast('Password Direset', 'Password ' + email + ' berhasil diganti.');
+      })
+      .withFailureHandler(function(err) { showToast('Error', err.message); })
+      .resetUserPassword(email, pw);
+  } else {
+    showToast('Password Direset', email + ' (Demo Mode)');
+  }
+}
+
+function loadLoginLogs() {
+  var list = document.getElementById('loginLogsList');
+  if (!list) return;
+  list.innerHTML = '<p class="text-xs text-on-surface-variant">Memuat riwayat login...</p>';
+  if (AppState.isGasEnvironment) {
+    google.script.run
+      .withSuccessHandler(function(logs) {
+        if (!logs || !logs.length) {
+          list.innerHTML = '<p class="text-xs text-on-surface-variant">Belum ada riwayat login tercatat.</p>';
+          return;
+        }
+        list.innerHTML = logs.map(function(l) {
+          return '<div class="p-2.5 bg-surface-container-low rounded-xl flex items-center justify-between text-xs border border-surface-container-high">' +
+            '<span class="font-bold text-primary">' + escapeHtml(l.Email || '') + '</span>' +
+            '<span class="text-[10px] text-on-surface-variant">' + escapeHtml(l.Timestamp || '') + '</span>' +
+          '</div>';
+        }).join('');
+      })
+      .withFailureHandler(function(err) {
+        list.innerHTML = '<p class="text-xs text-red-600">Gagal memuat: ' + escapeHtml(err.message) + '</p>';
+      })
+      .getLoginLogs();
+  } else {
+    list.innerHTML = '<p class="text-xs text-on-surface-variant">Mode demo — riwayat login tidak tersedia.</p>';
+  }
 }
 
 function changeUserRole(email, newRole) {
@@ -1033,6 +1166,7 @@ function populateParentSelect() {
 }
 
 function openAddMemberModal() {
+  if (!guardWriteAccess_()) return;
   document.getElementById('memberFormId').value = '';
   document.getElementById('modalMemberTitle').textContent = 'Tambah Anggota Keluarga Baru';
   document.getElementById('inputNama').value = '';
@@ -1049,6 +1183,7 @@ function editSelectedMember() {
 }
 
 function openEditMemberModal(memberId) {
+  if (!guardWriteAccess_()) return;
   var m = AppState.members.find(function(x) { return x.MemberID === memberId; });
   if (!m) return;
 
